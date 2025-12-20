@@ -20,6 +20,7 @@ void Initialize_Map(Rectangle (*map)[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X]);
 // Drawing functions
 void draw_pickup_and_dropoff(Vector2 PICKUP, Vector2 DROPOFF);//Draws small circles around dropoff and pickup locations
 void DrawRectangles(Rectangle map[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X]); // (In draw.c) Draw the array of Rectangles Initialized as map in the main void function to create a map
+void Draw_and_update_score_window(int sucessful_deliveries);//(In draw.c)Draws a score window
 // Game logic functions
 bool check_for_collisions(Rectangle Player, Rectangle map[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X]); // (In player_movement.c) Check for collisions between the player and the grid objects
 void keep_in_boundaries(Vector2 *pos);                                                                //(In playe_movement)Checks and modifies the pos.x and pos.y if player is out of the window
