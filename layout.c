@@ -19,6 +19,9 @@ bool check_for_collisions(Rectangle Player, Rectangle map[NUM_OF_RECTANGLES_Y][N
     for (int i = 0; i < NUM_OF_RECTANGLES_Y; i++)
         for (int j = 0; j < NUM_OF_RECTANGLES_X; j++)
             if (CheckCollisionRecs(Player, map[i][j]) == 1)
+            {
                 overlap = true;
+                break;
+            }
     return overlap;
 }
