@@ -9,16 +9,16 @@ all: compile_all #This is the command that is sent in full
 compile_all: main.o layout.o player_movement.o draw.o #Put here the dependencies(all the files) 
 	$(CC) main.o layout.o player_movement.o draw.o $(LDFLAGS) -o $(TARGET)
 
-main.o: main.c 
+main.o: main.c headers.h
 	$(CC) $(CFLAGS) -c main.c -o main.o
 
-layout.o: layout.c 
+layout.o: layout.c headers.h
 	$(CC) $(CFLAGS) -c layout.c -o layout.o
 
-player_movement.o: player_movement.c 
+player_movement.o: player_movement.c headers.h 
 	$(CC) $(CFLAGS) -c player_movement.c -o player_movement.o
 
-draw.o: draw.c 
+draw.o: draw.c headers.h
 	$(CC) $(CFLAGS) -c draw.c -o draw.o
 clean:
 #	rm -f *.o game.exe for linux and mac 
