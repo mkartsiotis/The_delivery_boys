@@ -7,7 +7,7 @@ LDFLAGS := -L./raylib_2/lib -l:libraylib.a -lopengl32 -lgdi32 -lwinmm -luser32 -
 
 all: compile_all #This is the command that is sent in full
 compile_all: main.o layout.o player_movement.o draw.o #Put here the dependencies(all the files) 
-	$(CC) main.o layout.o player_movement.o draw.o $(LDFLAGS) -o $(TARGET)
+	$(CC) main.o layout.o player_movement.o draw.o gamehandling.o $(LDFLAGS) -o $(TARGET)
 
 main.o: main.c headers.h
 	$(CC) $(CFLAGS) -c main.c -o main.o
@@ -20,6 +20,9 @@ player_movement.o: player_movement.c headers.h
 
 draw.o: draw.c headers.h
 	$(CC) $(CFLAGS) -c draw.c -o draw.o
+
+gamehandling.o: gamehandling.c headers.h
+	$(CC) $(CFLAGS) -c gamehandling.c -o gamehandling.o
 clean:
 #	rm -f *.o game.exe for linux and mac 
 	del *.o game.exe 2>nul || true 

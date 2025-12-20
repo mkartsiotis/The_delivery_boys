@@ -1,6 +1,6 @@
 #include "headers.h" //Including the header file
 
-//Initialize window size
+// Initialize window size
 int WINDOW_HEIGHT = 1000;
 int WINDOW_WIDTH = 1900;
 
@@ -18,14 +18,19 @@ int main(void)
     // Now we create the rectangle of the player with parameters defined in headers
     Vector2 pos = {MAN_RECTANGLE_WIDTH / 2.0f, MAN_RECTANGLE_HEIGHT / 2.0f}; // Remember pos is the center so for the top-left corner we need adjustments
     Rectangle Player = {pos.x - (MAN_RECTANGLE_WIDTH / 2.0f), pos.y - (MAN_RECTANGLE_HEIGHT / 2.0f), MAN_RECTANGLE_WIDTH, MAN_RECTANGLE_HEIGHT};
-
+    // Other variables(for delivery handling)
+    bool mission_active = false;
+    // Variables for delivery activation
+    Vector2 PICKUP, DROPOFF;
+    //Set the colour of the player just for debugging purposes
+    Color col = SKYBLUE;
     while (!WindowShouldClose())
     {
         /*What we need to do is:
         A. No Mapping Yet Y(Draw specified number of rectangles on screen)
         B. Single Full screen window Υ
         C.Draw some rectangles Y
-        D.Implement object avoidance
+        D.Implement object avoidance Y
         E.Set up a timer
         F.Set up random pickup location
         G.Set up a drop of location
@@ -49,16 +54,34 @@ int main(void)
             pos.y -= dy; // Reverse movement in y axis
             Player.y = pos.y - (MAN_RECTANGLE_HEIGHT / 2.0f);
         }
-        
-        keep_in_boundaries(&pos); // Check if pos is in boundaries and keep him in
-        Player.y = pos.y - (MAN_RECTANGLE_HEIGHT / 2.0f);//Update x and y coordinates of the square after the keep in boundaries function
+
+        keep_in_boundaries(&pos);                         // Check if pos is in boundaries and keep him in
+        Player.y = pos.y - (MAN_RECTANGLE_HEIGHT / 2.0f); // Update x and y coordinates of the square after the keep in boundaries function
         Player.x = pos.x - (MAN_RECTANGLE_WIDTH / 2.0f);
+
+        // In this section we will implement delivery handling techniques and NPC creation afterwards.
+        if (mission_active == false)//If we do not have a mission create one
+        {
+            PICKUP = initialize_pickup_location(map);
+            DROPOFF = initialize_dropoff_location(map, PICKUP);
+        }
+        else // If we have the mission check if we acomplished it.
+        {
+            col = WHITE;
+            if (pos.x - DROPOFF.x < MAN_RECTANGLE_WIDTH && pos.x - DROPOFF.x > -MAN_RECTANGLE_WIDTH && pos.y - DROPOFF.y < MAN_RECTANGLE_HEIGHT && pos.x - DROPOFF.x < MAN_RECTANGLE_HEIGHT)
+            {
+                col = BLUE;
+                mission_active = false;
+            }
+            
+        }
 
         // Draw section
         BeginDrawing();
         ClearBackground(DARKGRAY);
         DrawRectangles(map);
-        DrawRectangle(Player.x, Player.y, Player.width, Player.height, BLUE);
+        DrawRectangle(Player.x, Player.y, Player.width, Player.height, col);
+        if(mission_active == true)draw_pickup_and_dropoff(PICKUP, DROPOFF);
         EndDrawing();
     }
     CloseWindow();
