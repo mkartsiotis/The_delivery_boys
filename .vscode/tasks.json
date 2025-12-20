@@ -1,0 +1,32 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build Raylib Game",
+            "type": "shell",
+            "command": "gcc",
+            "args": [
+                "main.c",
+                "-o",
+                "game.exe",
+                "-I./raylib_2/include",
+                "-L./raylib_2/lib",
+                "-l:libraylib.a",
+                "-lopengl32",
+                "-lgdi32",
+                "-lwinmm",
+                "-luser32",
+                "-lkernel32",
+                "-lshell32"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "detail": "Build Raylib game using gcc"
+        }
+    ]
+}
