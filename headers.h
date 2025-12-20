@@ -16,7 +16,7 @@ extern float speed;
 //Initialization functions
 void Initialize_Map(Rectangle (*map)[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X]); //(In layout.c) Initialize the map of the square blocks that will constitute the road
 //Drawing functions
-void DrawRectangles(Rectangle map[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X]);// (In layout.c) Draw the array of Rectangles Initialized as map in the main void function to create a map
+void DrawRectangles(Rectangle map[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X]);// (In draw.c) Draw the array of Rectangles Initialized as map in the main void function to create a map
 //Game logic functions
 bool check_for_collisions(Rectangle Player, Rectangle map[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X]);// (In player_movement.c) Check for collisions between the player and the grid objects
 //UI
