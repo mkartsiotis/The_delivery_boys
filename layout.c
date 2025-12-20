@@ -13,3 +13,12 @@ void Initialize_Map(Rectangle (*map)[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X])
         }
 }
 
+bool check_for_collisions(Rectangle Player, Rectangle map[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X])
+{
+    bool overlap = false;
+    for (int i = 0; i < NUM_OF_RECTANGLES_X; i++)
+        for (int j = 0; j < NUM_OF_RECTANGLES_X; j++)
+            if (CheckCollisionRecs(Player, map[i][j]) == 1)
+                overlap = true;
+    return overlap;
+}
