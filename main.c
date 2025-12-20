@@ -1,8 +1,12 @@
 #include "headers.h" //Including the header file
 
+//Initialize window size
+int WINDOW_HEIGHT = 1000;
+int WINDOW_WIDTH = 1900;
+
 int main(void)
 {
-    InitWindow(GetScreenWidth(), GetScreenHeight(), "The Delivery Man V0.2.0");
+    InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "The Delivery Man V0.2.0");
     HideCursor();
     SetTargetFPS(60);
     /*This is the section where we initialize all the variables*/
@@ -12,7 +16,7 @@ int main(void)
     Rectangle map[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X];
     Initialize_Map(&map);
     // Now we create the rectangle of the player with parameters defined in headers
-    Vector2 pos = {1400, 900}; // Remember pos is the center so for the top-left corner we need adjustments
+    Vector2 pos = {MAN_RECTANGLE_WIDTH / 2.0f, MAN_RECTANGLE_HEIGHT / 2.0f}; // Remember pos is the center so for the top-left corner we need adjustments
     Rectangle Player = {pos.x - (MAN_RECTANGLE_WIDTH / 2.0f), pos.y - (MAN_RECTANGLE_HEIGHT / 2.0f), MAN_RECTANGLE_WIDTH, MAN_RECTANGLE_HEIGHT};
 
     while (!WindowShouldClose())
@@ -45,6 +49,10 @@ int main(void)
             pos.y -= dy; // Reverse movement in y axis
             Player.y = pos.y - (MAN_RECTANGLE_HEIGHT / 2.0f);
         }
+        
+        keep_in_boundaries(&pos); // Check if pos is in boundaries and keep him in
+        Player.y = pos.y - (MAN_RECTANGLE_HEIGHT / 2.0f);//Update x and y coordinates of the square after the keep in boundaries function
+        Player.x = pos.x - (MAN_RECTANGLE_WIDTH / 2.0f);
 
         // Draw section
         BeginDrawing();

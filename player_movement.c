@@ -23,3 +23,15 @@ Vector2 delta_move(void)
     }
     return delta;
 }
+
+void keep_in_boundaries(Vector2 *pos)
+{
+    if (pos->x < MAN_RECTANGLE_WIDTH / 2.0f)
+        pos->x +=  speed;
+    else if (pos->x > WINDOW_WIDTH - (MAN_RECTANGLE_WIDTH / 2.0f))
+        pos->x -= speed;
+    if (pos->y < MAN_RECTANGLE_HEIGHT / 2.0f)
+        pos->y +=  speed;
+    else if (pos->y > WINDOW_HEIGHT - (MAN_RECTANGLE_HEIGHT / 2.0f))
+        pos->y -= speed;
+}

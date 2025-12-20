@@ -6,8 +6,8 @@ void Initialize_Map(Rectangle (*map)[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X])
     for (int i = 0; i < NUM_OF_RECTANGLES_Y; i++)
         for (int j = 0; j < NUM_OF_RECTANGLES_X; j++)
         {
-            float x_value = (GetScreenWidth() * ((float)j + 1) / (NUM_OF_RECTANGLES_X + 1)) - SIZE_OF_RECTANGLES_X / 2.0f;
-            float y_value = (GetScreenHeight() * ((float)i + 1) / (NUM_OF_RECTANGLES_Y + 1)) - SIZE_OF_RECTANGLES_Y / 2.0f;
+            float x_value = (WINDOW_WIDTH * ((float)j + 1) / (NUM_OF_RECTANGLES_X + 1)) - SIZE_OF_RECTANGLES_X / 2.0f;
+            float y_value = (WINDOW_HEIGHT * ((float)i + 1) / (NUM_OF_RECTANGLES_Y + 1)) - SIZE_OF_RECTANGLES_Y / 2.0f;
 
             (*map)[i][j] = (Rectangle){x_value, y_value, SIZE_OF_RECTANGLES_X, SIZE_OF_RECTANGLES_Y};
         }
