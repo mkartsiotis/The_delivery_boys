@@ -20,3 +20,26 @@ So what are the next steps?
     5. 3D vectoring and chasing
     6.Celebrate
 This is the current plan. Will see you on the next backup!
+Hello Again!
+This is update #4:
+And we have something functional!
+What we did:
+1. Created a simple version with no camera movement to test the logic and the proportions of the game
+2. Made a simple order pickup and dropoff system
+3. Increased stability of system by implementing control before movement execution
+4. Saw many youtube videos considering pseudo3d and this will hopefullly be the final touch of the game
+
+So we have a plan and as always we set new objectives!
+1. Create a new branch on git and test there all the new algorithms that will be used to test the find the best roote scenario
+2. Find such algorithms on github from micromouse competitions etc
+3. Add a camera system
+4. Test the pseudo 3d theory and learn how it works
+5. Implemengt what you learned to further improove the game
+This is the plan for the final result. Untill the next one see you!Have a nice day!
+
+This is update #5:
+What we did:
+1. Implemented Time logic. Y
+2. Think of a rewarding system to discuss it later. ~
+3. Test differnt algoriths.
+4. Based on A.I. research A* algorithm should do the job now I am trying to find ways to handle it and maybe I will test it and check some online examples. Once done we should be good and then easily draw the shortest path to the target.

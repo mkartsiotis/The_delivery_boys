@@ -16,8 +16,14 @@ void draw_pickup_and_dropoff(Vector2 PICKUP, Vector2 DROPOFF)
 void Draw_and_update_score_window(int sucessful_deliveries)
 {
     Color Mycolour = Fade(BLUE, 0.5f);
-    DrawRectangle(0,0,WINDOW_WIDTH, 50, Mycolour);
+    DrawRectangle(0, 0, WINDOW_WIDTH, 50, Mycolour);
     char score[15] = {0};
-    sprintf(score, "SCORE IS : %d", sucessful_deliveries); 
+    sprintf(score, "SCORE IS : %d", sucessful_deliveries);
     DrawText(score, 25, 25, 20, WHITE);
+}
+void draw_current_timer(int CURRENT_TIME_DIFFERNCE)
+{
+    char time_differnce[20] = {0};//Create an array for storing the time_diffence
+    sprintf(time_differnce, "Time left: %d", CURRENT_TIME_DIFFERNCE);//Store the time in the string
+    DrawText(time_differnce, 600, 25, 20, WHITE);//Draw
 }

@@ -11,6 +11,7 @@ Vector2 initialize_pickup_location(Rectangle map[NUM_OF_RECTANGLES_Y][NUM_OF_REC
     Vector2 coordinates;
     enum Sides PICKUP_SIDE;
     int block_x, block_y;
+    srand(time(NULL));
     block_x = rand() % NUM_OF_RECTANGLES_X;
     block_y = rand() % NUM_OF_RECTANGLES_Y;
     PICKUP_SIDE = rand() % 4;
@@ -72,4 +73,12 @@ Vector2 initialize_dropoff_location(Rectangle map[NUM_OF_RECTANGLES_Y][NUM_OF_RE
     }
     return coordinates;
 
+}
+
+int current_timer_difference(time_t INITIAL_TIME)
+{
+    time_t END_TIME = INITIAL_TIME + TIME_LIMIT;
+    time_t current_time = time(NULL);
+    int seconds_passed = (int)difftime(END_TIME, current_time);
+    return seconds_passed;
 }
