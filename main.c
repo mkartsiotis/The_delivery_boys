@@ -1,9 +1,5 @@
 #include "headers.h" //Including the header file
 
-// Initialize window size
-int WINDOW_HEIGHT = 1000;
-int WINDOW_WIDTH = 1900;
-
 int main(void)
 {
     InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "The Delivery Man V0.2.0");
@@ -31,6 +27,8 @@ int main(void)
     // Get the time of the start of the clock
     time_t start_timer_time = 0; // This is a type of of variable that saves the time(included in time.h)
     int timer_diff = 100;        // Variable for storing the time difference in a given moment of the game.
+    // For debugging we add a variable that controls the grid drawing
+    bool should_draw_grid = false;
 
     while (!WindowShouldClose())
     {
@@ -116,6 +114,13 @@ int main(void)
             }
         }
 
+        // Check before printing the grid
+        if (IsKeyPressed(KEY_G))
+        {
+            // Change the state of the boolean
+            should_draw_grid = !should_draw_grid;
+        }
+
         // Draw section
         BeginDrawing();
         ClearBackground(DARKGRAY);
@@ -126,7 +131,9 @@ int main(void)
             draw_pickup_and_dropoff(PICKUP, DROPOFF);
         if (is_first_time == false)
             draw_current_timer(timer_diff);
-        EndDrawing();
+        if (should_draw_grid == true)
+            draw_grid();
+        EndDrawing();s
     }
     CloseWindow();
     return 0;

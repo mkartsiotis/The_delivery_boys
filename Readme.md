@@ -43,3 +43,12 @@ What we did:
 2. Think of a rewarding system to discuss it later. ~
 3. Test differnt algoriths.
 4. Based on A.I. research A* algorithm should do the job now I am trying to find ways to handle it and maybe I will test it and check some online examples. Once done we should be good and then easily draw the shortest path to the target.
+
+Next Update!Update #6:
+Today I studied the A* algorithm and quickly realized that we need to change the way we print the whole map to ensure that we can utilize and find the best possible roote.
+Soo:
+1.Created a function that splits the map into a grid.
+2.Modified the array functions so that the map is initialized via this
+3.Verified that the game still works
+4.Implemented and drew the best possible roote.
+THE END.-

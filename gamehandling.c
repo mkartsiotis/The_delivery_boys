@@ -1,4 +1,6 @@
 #include "headers.h"
+
+
 enum Sides
 {
     TOP,
@@ -44,7 +46,7 @@ Vector2 initialize_dropoff_location(Rectangle map[NUM_OF_RECTANGLES_Y][NUM_OF_RE
     int block_x, block_y;
     block_x = rand() % NUM_OF_RECTANGLES_X;
     block_y = rand() % NUM_OF_RECTANGLES_Y;
-    
+
     DROPOFF_SIDE = rand() % 4;
     coordinates.x = map[block_y][block_x].x;
     coordinates.y = map[block_y][block_x].y;
@@ -66,13 +68,12 @@ Vector2 initialize_dropoff_location(Rectangle map[NUM_OF_RECTANGLES_Y][NUM_OF_RE
         coordinates.x += SIZE_OF_RECTANGLES_X;
         coordinates.y += SIZE_OF_RECTANGLES_Y / 2.0f;
     }
-    //If we see that dropoff = pickup we just run the function again
+    // If we see that dropoff = pickup we just run the function again
     while (coordinates.x == PICKUP.x && coordinates.y == PICKUP.y)
     {
         initialize_dropoff_location(map, PICKUP);
     }
     return coordinates;
-
 }
 
 int current_timer_difference(time_t INITIAL_TIME)
@@ -82,3 +83,4 @@ int current_timer_difference(time_t INITIAL_TIME)
     int seconds_passed = (int)difftime(END_TIME, current_time);
     return seconds_passed;
 }
+
