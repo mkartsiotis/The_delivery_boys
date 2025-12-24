@@ -6,13 +6,13 @@ LDFLAGS := -L./raylib_2/lib -l:libraylib.a -lopengl32 -lgdi32 -lwinmm -luser32 -
 
 
 all: compile_all #This is the command that is sent in full
-compile_all: main.o layout.o player_movement.o draw.o gamehandling.o #Put here the dependencies(all the files) 
-	$(CC) main.o layout.o player_movement.o draw.o gamehandling.o $(LDFLAGS) -o $(TARGET)
+compile_all: main.o layout.o player_movement.o draw.o gamehandling.o astar_search.o #Put here the dependencies(all the files) 
+	$(CC) main.o layout.o player_movement.o draw.o gamehandling.o astar_search.o $(LDFLAGS) -o $(TARGET)
 
 main.o: main.c headers.h
 	$(CC) $(CFLAGS) -c main.c -o main.o
 
-layout.o: layout.c headers.h
+layout.o: layout.c headers.h 
 	$(CC) $(CFLAGS) -c layout.c -o layout.o
 
 player_movement.o: player_movement.c headers.h 
@@ -23,7 +23,10 @@ draw.o: draw.c headers.h
 
 gamehandling.o: gamehandling.c headers.h
 	$(CC) $(CFLAGS) -c gamehandling.c -o gamehandling.o
-	
+
+astar_search.o: astar_search.c headers.h
+	$(CC) $(CFLAGS) -c astar_search.c -o astar_search.o
+
 clean:
 #	rm -f *.o game.exe for linux and mac 
 	del *.o game.exe 2>nul || true 

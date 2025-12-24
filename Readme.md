@@ -52,3 +52,11 @@ Soo:
 3.Verified that the game still works
 4.Implemented and drew the best possible roote.
 THE END.-
+Update #7:
+Today I finally made the A* work!
+Next up:
+1.Add NPC'S
+2.Add 2d CAMERA
+3. MAKE THE GAME 3d
+Play!!!!!
+Seee yall

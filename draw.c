@@ -15,7 +15,7 @@ void draw_pickup_and_dropoff(Vector2 PICKUP, Vector2 DROPOFF)
 
 void Draw_and_update_score_window(int sucessful_deliveries)
 {
-    Color Mycolour = Fade(BLUE, 0.2ssf);
+    Color Mycolour = Fade(BLUE, 0.2f);
     DrawRectangle(0, 0, WINDOW_WIDTH, 50, Mycolour);
     char score[15] = {0};
     sprintf(score, "SCORE IS : %d", sucessful_deliveries);
@@ -37,4 +37,21 @@ void draw_grid(void) //(In draw.c)Draws the grid of the big map in world-map coo
     for (int j = 1; j < 4 * NUM_OF_RECTANGLES_X; j++) // Be carefull!We are starting from 1(If I use the function later)
 
         DrawLine(j * stepX, 0, j * stepX, MAP_HEIGHT, YELLOW);
+}
+void draw_astar_results(best_possible_path A_STAR_RESULT) // Decodes the string of the A* results.
+{
+    float sizeofboxX = MAP_WIDTH / (4.0f * NUM_OF_RECTANGLES_X), sizeofboxY = MAP_HEIGHT / (4.0f * NUM_OF_RECTANGLES_Y);
+    if (A_STAR_RESULT.result == 0) // if result is valid
+    {
+        for (int i = 0; i < A_STAR_RESULT.number_of_points - 1; i++)
+        {
+            float xval = 0, yval = 0, nextxval = 0, nextyval = 0;
+            xval = sizeofboxX * ((float)A_STAR_RESULT.MATRIX_OUT[i][0] + 0.5f); // See documentation why this holds(lets hope it does)
+            yval = sizeofboxY * ((float)A_STAR_RESULT.MATRIX_OUT[i][1] + 0.5f);
+            nextxval = sizeofboxX * ((float)A_STAR_RESULT.MATRIX_OUT[i + 1][0] + 0.5f);
+            nextyval = sizeofboxY * ((float)A_STAR_RESULT.MATRIX_OUT[i + 1][1] + 0.5f);
+            DrawLine(xval, yval, nextxval, nextyval, YELLOW);
+        }
+    }
+    printf("RESULT MAX VAL: %d\n", A_STAR_RESULT.number_of_points);
 }

@@ -9,18 +9,62 @@
 #include <time.h>
 #include <math.h> //for the A* and especiallly for the heuristic function h(n) that will be used.
 
+//Define some preset constatnts
 #define TIME_LIMIT 180         // Number of seconds in which the player has to fulfill all orders.
-#define NUM_OF_RECTANGLES_X 10 // Initialize the number of squares created prefer it to const since we do not want unnecessary VLA'S to be created.
+#define WINDOW_WIDTH  1900
+#define WINDOW_HEIGHT 1000
+#define MAP_WIDTH     WINDOW_WIDTH
+#define MAP_HEIGHT    WINDOW_HEIGHT
+
+#define NUM_OF_RECTANGLES_X 15
 #define NUM_OF_RECTANGLES_Y 6
+#define COLS                (4 * NUM_OF_RECTANGLES_X)   // 60
+#define ROWS                (4 * NUM_OF_RECTANGLES_Y)   // 24
+
+#define SIZE_OF_RECTANGLES_X  (MAP_WIDTH / (2.0f * NUM_OF_RECTANGLES_X))
+#define SIZE_OF_RECTANGLES_Y  (MAP_HEIGHT / (2.0f * NUM_OF_RECTANGLES_Y))
+// In this section we define all the structure and types needed
+typedef struct //This is a type that we use to store the A* results.
+{
+    int result;                     // This is where we are going to encode the successful or not result of the A* and use it for debugging messages.
+    int MATRIX_OUT[ROWS * COLS][2]; // Which is the max Number of poins????We have in total ROWS X COLUMNS - OBSTACLES.MULTIPLY BY 4 since printing has the format (%d,%d)- LETS put more for safety!
+    int number_of_points;           // Returns the number of repetitions and rows in the MATRIX_OUT that need to be read
+} best_possible_path; 
+// Define a Node Structure
+//  This holds all the necessary stats for a single tile on the grid
+typedef struct
+{
+    int x, y;             // Coordinate on the grid
+    int parentX, parentY; // Parent coordinates (to trace the path back)
+    double g;             // Cost from start to here
+    double h;             // Heuristic (estimated cost to goal)
+    double f;             // Total cost (g + h)
+    bool isObstacle;      // Is this a wall?
+    bool isClosed;        // Have we already checked this node?
+    bool isOpen;          // Is this node currently in the "To-Do" list?
+} Node;
+//We are going to need a structure for communication between world and grid coordinates. Used in the return value of the set_pickup_and_dropoof_location.
+typedef struct
+{
+    Vector2 REAL;
+    int grid_x;
+    int grid_y;
+}grid_and_map_coords;//please do not judge me...Lack of fantasy in the name creation:)
+//This is the structure used by functions that return grid coordinates.
+typedef struct 
+{
+    int gridX;
+    int gridY;
+}grid_coordinates;
+
+
+// Global Grid of Nodes
+extern Node grid[COLS][ROWS]; // We declare grid as external and initialize it in layout.c 
 
 // Declaring and  initializing constants and other main parameters
-static const int WINDOW_HEIGHT = 1000, WINDOW_WIDTH = 1900;                                                                                   // Declare Window size(Initialization in gamehandling.c)
-static const int MAP_WIDTH = 1900, MAP_HEIGHT = 1000;                                                                                         // Declare MAP size(Initialization in gamehandling.c)
-static const int SIZE_OF_RECTANGLES_X = MAP_WIDTH / (2 * NUM_OF_RECTANGLES_X), SIZE_OF_RECTANGLES_Y = MAP_HEIGHT / (2 * NUM_OF_RECTANGLES_Y); // Initialize the number of squares created
 static const int MAN_RECTANGLE_WIDTH = 25, MAN_RECTANGLE_HEIGHT = 25;                                                                         // Initialize player height and width
 
 extern float speed; // Declare speed of the player as a global external int accessible and modifiable by all functions in all files
-
 
 // Functions in all files. Syntax of comments is //(FILENAME_WHERE_FUNTCTION_IS_LOCATED) USE_AND_DEFINITION
 // Initialization functions
@@ -30,15 +74,23 @@ void Initialize_Map(Rectangle (*map)[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X]);
 void draw_pickup_and_dropoff(Vector2 PICKUP, Vector2 DROPOFF);                // Draws small circles around dropoff and pickup locations
 void DrawRectangles(Rectangle map[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X]); // (In draw.c) Draw the array of Rectangles Initialized as map in the main void function to create a map
 void Draw_and_update_score_window(int sucessful_deliveries);                  //(In draw.c)Draws a score window
+void draw_astar_results(best_possible_path A_STAR_RESULT);//Decodes the string of the A* results.
 // Game logic functions
 bool check_for_collisions(Rectangle Player, Rectangle map[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X]); // (In player_movement.c) Check for collisions between the player and the grid objects
 void keep_in_boundaries(Vector2 *pos);                                                                //(In playe_movement)Checks and modifies the pos.x and pos.y if player is out of the window
 // UI
 Vector2 delta_move(void); //(In player_movement.c) Calculates according to user input the required movement
 // Delivery and pickup handling
-Vector2 initialize_pickup_location(Rectangle map[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X]);                  // Sets pickup location.
-Vector2 initialize_dropoff_location(Rectangle map[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X], Vector2 PICKUP); // Sets dropoff location.
+grid_and_map_coords initialize_pickup_location(Rectangle map[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X]);                  // Sets pickup location.
+grid_and_map_coords initialize_dropoff_location(Rectangle map[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X], Vector2 PICKUP); // Sets dropoff location.
 // Timer limitation functions
 int current_timer_difference(time_t INITIAL_TIME);   //(In gamehandling.c)Calculates current timer diffence.
 void draw_current_timer(int CURRENT_TIME_DIFFERNCE); //(In draw.c)Draws the time diffrence in the UI interface window.
 void draw_grid(void);                                //(In draw.c)Draws the grid of the big map in world-map coordinates. Note that this function does not draw the lines of the coordinates of the grid[i][j] but the outside sides of the rectangles that represent a 2D division of the map plane.
+//A* functions 
+// Initialize all functions(All in astar_search.c)
+void initGrid(void);//Initializes the grid that will be used for finding the best path
+double calculateH(int x, int y, int destX, int destY);//Calculates heuristic function. More abouth the A* algorith in the docs.
+bool isValid(int x, int y);//Check validity of coordinates given
+best_possible_path aStarSearch(int startX, int startY, int destX, int destY);//Output the A* results
+grid_coordinates grid_pos(Vector2 pos);//(In astar_search.c) converts real map coordinates to grid coordinates for a_star_search. Remember pos is the center position not the top-left.
