@@ -38,7 +38,19 @@ int main(void)
     npc.position.x = MAP_WIDTH - npc.WIDTH;
     npc.HEIGHT = MAN_RECTANGLE_HEIGHT;
     npc.WIDTH = MAN_RECTANGLE_WIDTH;
-    npc.speed = 2.5;
+    npc.speed = 4.5;
+    // Camera logic and initializtion
+    Camera2D camera = {0};
+    camera.offset = (Vector2){0, 0};
+    camera.rotation = 0.0f;
+    camera.target = (Vector2){pos.x, pos.y};
+    camera.zoom = 2.5f;
+    // MiniMap logic
+    Camera2D minimap_cam;
+    minimap_cam.offset = (Vector2){1500 + MINIMAP_WIDTH / 2.0f, 50 + MINIMAP_HEIGHT / 2.0f};
+    minimap_cam.rotation = 0.0f;
+    minimap_cam.target = (Vector2){MAP_WIDTH / 2.0f, MAP_HEIGHT / 2.0f};
+    minimap_cam.zoom = ((float)MINIMAP_WIDTH / MAP_WIDTH) < ((float)MINIMAP_HEIGHT / MAP_HEIGHT) ? ((float)MINIMAP_WIDTH / MAP_WIDTH) : ((float)MINIMAP_HEIGHT / MAP_HEIGHT);
     // Gamescreen logic
     enum Screen GameScreen = PREVIEW;
     // Main game loop
@@ -172,7 +184,16 @@ int main(void)
 
             // 5. NPC section
             updateNPC(&npc, pos, map);
-
+            // 6.Camera Section
+            camera.target = (Vector2){pos.x - (WINDOW_WIDTH / 2.0f / camera.zoom), pos.y - (WINDOW_HEIGHT / 2.0f / camera.zoom)}; // Set the center of the camera to the center of the player
+            if (camera.target.x < 0)
+                camera.target.x = 0;
+            else if (camera.target.x > WINDOW_WIDTH - (WINDOW_WIDTH / camera.zoom))
+                camera.target.x = WINDOW_WIDTH - (WINDOW_WIDTH / camera.zoom);
+            if (camera.target.y < 0)
+                camera.target.y = 0;
+            else if (camera.target.y > WINDOW_HEIGHT - (WINDOW_HEIGHT / camera.zoom))
+                camera.target.y = WINDOW_HEIGHT - (WINDOW_HEIGHT / camera.zoom);
             // Check if the npc has caught the player
             if (check_if_caught(pos, npc) == 1)
                 GameScreen = GAMEOVER;
@@ -191,22 +212,45 @@ int main(void)
             DrawText("WELCOME PRESS ENTER TO CONTINUE", 500, 500, 50, BLACK);
             break;
         case GAMEON:
+            // Start camera
+            BeginMode2D(camera);
             DrawRectangles(map);                                                 // Draws map
             DrawRectangle(Player.x, Player.y, Player.width, Player.height, col); // Draw player
-            Draw_and_update_score_window(sucessful_deliveries);                  // Draw score
             if (mission_active == true)
             {
                 draw_pickup_and_dropoff(PICKUP.REAL, DROPOFF.REAL);
                 draw_astar_results(a_star_results);
             }
-            if (is_first_time == false)
-                draw_current_timer(timer_diff);
-            char ch[50] = {0};
-            sprintf(ch, "GRID COORDS ARE %d %d", current_grid_pos.gridX, current_grid_pos.gridY);
-            DrawText(ch, 1400, 25, 20, WHITE);
             draw_npc(npc);
             if (should_draw_grid == true)
                 draw_grid();
+            EndMode2D(); // End camera 2d
+            // MINIMAP DRAW
+            DrawRectangle(1500, 50, MINIMAP_WIDTH, MINIMAP_HEIGHT, BLACK);      
+            DrawRectangleLines(1500, 50, MINIMAP_WIDTH, MINIMAP_HEIGHT, WHITE); // Border
+
+            // 2. Start Clipping (Only draw inside this box)
+            BeginScissorMode(1500, 50, MINIMAP_WIDTH, MINIMAP_HEIGHT);
+
+            BeginMode2D(minimap_cam);
+            DrawRectangles(map);                                                 // Draws map
+            DrawRectangle(Player.x, Player.y, Player.width, Player.height, col); // Draw player
+            if (mission_active == true)
+            {
+                draw_pickup_and_dropoff(PICKUP.REAL, DROPOFF.REAL);
+                draw_astar_results(a_star_results);
+            }
+            draw_npc(npc);
+            EndMode2D();
+            EndScissorMode();
+
+
+            if (is_first_time == false)
+                draw_current_timer(timer_diff);
+            Draw_and_update_score_window(sucessful_deliveries); // Draw score
+            char ch[50] = {0};
+            sprintf(ch, "GRID COORDS ARE %d %d", current_grid_pos.gridX, current_grid_pos.gridY);
+            DrawText(ch, 1400, 25, 20, WHITE);
             break; // Breaks from the switch loop
         case GAMEOVER:
             DrawText("GAME OVER", 500, 500, 50, RED);

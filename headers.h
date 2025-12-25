@@ -23,6 +23,10 @@
 
 #define SIZE_OF_RECTANGLES_X (MAP_WIDTH / (2.0f * NUM_OF_RECTANGLES_X))
 #define SIZE_OF_RECTANGLES_Y (MAP_HEIGHT / (2.0f * NUM_OF_RECTANGLES_Y))
+
+#define MINIMAP_WIDTH 400
+#define MINIMAP_HEIGHT 200
+
 // In this section we define all the structure and types needed
 typedef struct // This is a type that we use to store the A* results.
 {
@@ -88,6 +92,7 @@ void DrawRectangles(Rectangle map[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X]); //
 void Draw_and_update_score_window(int sucessful_deliveries);                  //(In draw.c)Draws a score window
 void draw_astar_results(best_possible_path A_STAR_RESULT);                    // Decodes the string of the A* results.
 void draw_npc(NPC chaser);                                                    //Draws an NPC
+void draw_minimap;      
 // Game logic functions
 bool check_for_collisions(Rectangle Player, Rectangle map[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X]); // (In player_movement.c) Check for collisions between the player and the grid objects
 void keep_in_boundaries(Vector2 *pos);                                                                //(In playe_movement)Checks and modifies the pos.x and pos.y if player is out of the window
