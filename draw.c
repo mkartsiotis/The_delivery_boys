@@ -53,5 +53,10 @@ void draw_astar_results(best_possible_path A_STAR_RESULT) // Decodes the string 
             DrawLine(xval, yval, nextxval, nextyval, YELLOW);
         }
     }
-    printf("RESULT MAX VAL: %d\n", A_STAR_RESULT.number_of_points);
+}
+void draw_npc(NPC chaser)
+{
+    int drawx = chaser.position.x - chaser.WIDTH / 2; // Calculate the pos of the top-left part
+    int drawy = chaser.position.y - chaser.HEIGHT / 2;
+    DrawRectangle(drawx, drawy, chaser.WIDTH, chaser.HEIGHT, ORANGE);
 }

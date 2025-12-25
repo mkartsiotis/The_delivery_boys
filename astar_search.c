@@ -14,11 +14,13 @@ void initGrid(void)
             grid[i][j].g = INFINITY;
             grid[i][j].h = 0;
             grid[i][j].f = INFINITY;
-            grid[i][j].isObstacle = false;
             grid[i][j].isClosed = false;
             grid[i][j].isOpen = false;
         }
     }
+}
+void CreateWalls(void)//Sets the walls where they need to be.
+{
     for (int i = 0; i < COLS; i++)
     {
         for (int j = 0; j < ROWS; j++)
@@ -160,14 +162,24 @@ best_possible_path aStarSearch(int startX, int startY, int destX, int destY) // 
     }
 }
 
-grid_coordinates grid_pos(Vector2 pos) //(In astar_search.c) converts real map coordinates to grid coordinates for a_star_search.
+grid_coordinates RealToGrid(Vector2 pos) //(In astar_search.c) converts real map coordinates to grid coordinates for a_star_search.
 {
     grid_coordinates gridpos;
-    float cellwidth =(float)MAP_WIDTH / (float)COLS;   // Calculate cell width
+    float cellwidth = (float)MAP_WIDTH / (float)COLS;   // Calculate cell width
     float cellheight = (float)MAP_HEIGHT / (float)ROWS; // Calculate cell height
     int gridX = (int)(pos.x / cellwidth);
     int gridY = (int)(pos.y / cellheight); // Find the gridX and gridY in float
     gridpos.gridX = gridX;
     gridpos.gridY = gridY;
     return gridpos;
+}
+
+Vector2 GridToReal(int gridX, int gridY) //(In astar_search.c) converts grid coordinates to real map ones.
+{
+    Vector2 returnvector;
+    float cellwidth = (float)MAP_WIDTH / (float)COLS;   // Calculate cell width
+    float cellheight = (float)MAP_HEIGHT / (float)ROWS; // Calculate cell height
+    returnvector.x = cellwidth * gridX + 0.5f * cellwidth;
+    returnvector.y = cellheight * gridY + 0.5f * cellheight;
+    return returnvector;
 }

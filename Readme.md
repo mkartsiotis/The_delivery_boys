@@ -60,3 +60,11 @@ Next up:
 3. MAKE THE GAME 3d
 Play!!!!!
 Seee yall
+Hello again. Its me...Devastated
+One day of A* work for nothing.
+It is literaly trash in the NPC logic
+Now I will implement standard zombie logic.
+F A*. F complexity!
+SAVE THIS ON THE ARCHIVE.
+IT IS THE MOST TERRIBLE MOST COMPLEX CODE I HAVE WRITTEN AND IT IS TRASH>
+SEEEE YALL(SORRY FOR THE RAIGEBAIT).
