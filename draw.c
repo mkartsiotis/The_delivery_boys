@@ -7,10 +7,31 @@ void DrawRectangles(Rectangle map[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X])
             DrawRectangle(map[i][j].x, map[i][j].y, SIZE_OF_RECTANGLES_X, SIZE_OF_RECTANGLES_Y, RED);
 }
 
+// In draw.c
+void DrawCubes(Rectangle map[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X])
+{
+    for (int i = 0; i < NUM_OF_RECTANGLES_Y; i++)
+        for (int j = 0; j < NUM_OF_RECTANGLES_X; j++)
+        {
+            float width = SIZE_OF_RECTANGLES_X;
+            float length = SIZE_OF_RECTANGLES_Y; // The "height" in 2D is length in 3D
+
+            // OFFSET MATH: Move the center to the middle of the rectangle
+            float centerX = map[i][j].x + SIZE_OF_RECTANGLES_X / 2.0f;
+            float centerZ = map[i][j].y + SIZE_OF_RECTANGLES_Y / 2.0f;
+            DrawCube((Vector3){centerX, ((float)SIZE_OF_RECTANGLES_3DHEIGHT / 2.0f), centerZ}, width, SIZE_OF_RECTANGLES_3DHEIGHT, length, RED);
+            DrawCubeWires((Vector3){centerX, ((float)SIZE_OF_RECTANGLES_3DHEIGHT / 2.0f), centerZ}, width, SIZE_OF_RECTANGLES_3DHEIGHT, length, BLACK);
+        }
+}
 void draw_pickup_and_dropoff(Vector2 PICKUP, Vector2 DROPOFF)
 {
     DrawCircle(PICKUP.x, PICKUP.y, 4, YELLOW);
     DrawCircle(DROPOFF.x, DROPOFF.y, 4, GREEN);
+}
+void draw_pickup_and_dropoff3D(Vector2 PICKUP, Vector2 DROPOFF)
+{
+    DrawCylinder((Vector3){PICKUP.x, 0.0f, PICKUP.y}, 3, 6, 3.0f, 30, YELLOW);
+    DrawCylinder((Vector3){DROPOFF.x, 0.0f, DROPOFF.y}, 3, 6, 3.0f, 30, GREEN);
 }
 
 void Draw_and_update_score_window(int sucessful_deliveries)
@@ -53,6 +74,29 @@ void draw_astar_results(best_possible_path A_STAR_RESULT) // Decodes the string 
             DrawLine(xval, yval, nextxval, nextyval, YELLOW);
         }
     }
+}
+
+void draw_astar_results3D(best_possible_path A_STAR_RESULT) // Decodes the string of the A* results.
+{
+    float sizeofboxX = MAP_WIDTH / (4.0f * NUM_OF_RECTANGLES_X), sizeofboxY = MAP_HEIGHT / (4.0f * NUM_OF_RECTANGLES_Y);
+    if (A_STAR_RESULT.result == 0) // if result is valid
+    {
+        for (int i = 0; i < A_STAR_RESULT.number_of_points - 1; i++)
+        {
+            float xval = 0, yval = 0, nextxval = 0, nextyval = 0;
+            xval = sizeofboxX * ((float)A_STAR_RESULT.MATRIX_OUT[i][0] + 0.5f); // See documentation why this holds(lets hope it does)
+            yval = sizeofboxY * ((float)A_STAR_RESULT.MATRIX_OUT[i][1] + 0.5f);
+            nextxval = sizeofboxX * ((float)A_STAR_RESULT.MATRIX_OUT[i + 1][0] + 0.5f);
+            nextyval = sizeofboxY * ((float)A_STAR_RESULT.MATRIX_OUT[i + 1][1] + 0.5f);
+            DrawLine3D((Vector3){xval, 0, yval}, (Vector3){nextxval, 0, nextyval}, YELLOW);
+        }
+    }
+}
+
+void draw_npc3D(NPC chaser)
+{
+    DrawCube((Vector3){chaser.position.x, 2.0f, chaser.position.y}, chaser.WIDTH, 2.0f, chaser.HEIGHT, ORANGE);
+    DrawCubeWires((Vector3){chaser.position.x, 2.0f, chaser.position.y}, chaser.WIDTH, 2.0f, chaser.HEIGHT, BLACK);
 }
 void draw_npc(NPC chaser)
 {

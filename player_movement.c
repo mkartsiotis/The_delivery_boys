@@ -2,24 +2,28 @@
 // Initialize external int speed which is vital for movement control
 float speed = 4;
 
-Vector2 delta_move(void)
+float delta_move(void)
 {
-    Vector2 delta = {0, 0};
+    float delta = 0;
     if (IsKeyDown(KEY_RIGHT))
     {
-        delta.x = speed;
+        angleRad -= 0.05;
     }
     else if (IsKeyDown(KEY_LEFT))
     {
-        delta.x = -speed;
+        angleRad += 0.05;
     }
+    if (angleRad > 4 * 1.5707)
+        angleRad = 0;
+    if (angleRad < -4 * 1.5707)
+        angleRad = 0;
     if (IsKeyDown(KEY_DOWN))
     {
-        delta.y = speed;
+        delta = speed;
     }
     else if (IsKeyDown(KEY_UP))
     {
-        delta.y = -speed;
+        delta = -speed;
     }
     return delta;
 }
@@ -27,11 +31,11 @@ Vector2 delta_move(void)
 void keep_in_boundaries(Vector2 *pos)
 {
     if (pos->x < MAN_RECTANGLE_WIDTH / 2.0f)
-        pos->x +=  speed;
+        pos->x += speed;
     else if (pos->x > WINDOW_WIDTH - (MAN_RECTANGLE_WIDTH / 2.0f))
         pos->x -= speed;
     if (pos->y < MAN_RECTANGLE_HEIGHT / 2.0f)
-        pos->y +=  speed;
+        pos->y += speed;
     else if (pos->y > WINDOW_HEIGHT - (MAN_RECTANGLE_HEIGHT / 2.0f))
         pos->y -= speed;
 }

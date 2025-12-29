@@ -38,13 +38,15 @@ int main(void)
     npc.position.x = MAP_WIDTH - npc.WIDTH;
     npc.HEIGHT = MAN_RECTANGLE_HEIGHT;
     npc.WIDTH = MAN_RECTANGLE_WIDTH;
-    npc.speed = 4.5;
+    npc.speed = 0.2;
     // Camera logic and initializtion
-    Camera2D camera = {0};
-    camera.offset = (Vector2){0, 0};
-    camera.rotation = 0.0f;
-    camera.target = (Vector2){pos.x, pos.y};
-    camera.zoom = 2.5f;
+    // IN MAIN SETUP
+    Camera3D camera3d = {0};
+    camera3d.position = (Vector3){0.0f, 800.0f, 800.0f}; // Camera is up in the sky (Y=20) and back a bit (Z=10)
+    camera3d.target = (Vector3){0.0f, 0.0f, 0.0f};       // Looking at the center
+    camera3d.up = (Vector3){0.0f, 1.0f, 0.0f};           // "Up" is Y
+    camera3d.fovy = 45.0f;                               // Field of view
+    camera3d.projection = CAMERA_PERSPECTIVE;            // Makes it look 3D
     // MiniMap logic
     Camera2D minimap_cam;
     minimap_cam.offset = (Vector2){1500 + MINIMAP_WIDTH / 2.0f, 50 + MINIMAP_HEIGHT / 2.0f};
@@ -53,6 +55,11 @@ int main(void)
     minimap_cam.zoom = ((float)MINIMAP_WIDTH / MAP_WIDTH) < ((float)MINIMAP_HEIGHT / MAP_HEIGHT) ? ((float)MINIMAP_WIDTH / MAP_WIDTH) : ((float)MINIMAP_HEIGHT / MAP_HEIGHT);
     // Gamescreen logic
     enum Screen GameScreen = PREVIEW;
+    // Models for 3d rendering
+    //  Create a mesh (The geometry)
+    Mesh cubeMesh = GenMeshCube(MAN_RECTANGLE_WIDTH, MAN_3D_HEIGHT, MAN_RECTANGLE_HEIGHT);
+    // Load it into a Model (The object you can draw)
+    Model playerModel = LoadModelFromMesh(cubeMesh);
     // Main game loop
     while (!WindowShouldClose())
     {
@@ -78,25 +85,27 @@ int main(void)
 
             // Update Variables Section
             CreateWalls(); // Creates the walls for the initGrid an other functions
-            // 1. MOVE PLAYER SECTION
-            float dx = delta_move().x, dy = delta_move().y; // Save the requested moves on x and y axis as dx and dy respectively
-            pos.x += dx;
+                           // 1. MOVE PLAYER SECTION
+            float movelength = delta_move();
+            pos.x += movelength * sin(angleRad);
             Player.x = pos.x - (MAN_RECTANGLE_WIDTH / 2.0f);
             // After applying we need to check for collisions independently on each axis and if needed undo the requested movement
             if (check_for_collisions(Player, map) == true)
             {
-                pos.x -= dx; // Reverse movement in x axis
+                pos.x -= movelength * sin(angleRad); // Reverse movement in x axis
                 Player.x = pos.x - (MAN_RECTANGLE_WIDTH / 2.0f);
             }
             // Do the same for the y axis
-            pos.y += dy;
+            pos.y += movelength * cos(angleRad);
             Player.y = pos.y - (MAN_RECTANGLE_HEIGHT / 2.0f);
             if (check_for_collisions(Player, map) == true)
             {
-                pos.y -= dy; // Reverse movement in y axis
+                pos.y -= movelength * cos(angleRad); // Reverse movement in y axis
                 Player.y = pos.y - (MAN_RECTANGLE_HEIGHT / 2.0f);
             }
-
+            // Turn the camera and set other parameters
+            TurnCam(&camera3d, pos);
+            // Contimue with the game logic
             keep_in_boundaries(&pos);                         // Check if pos is in boundaries and keep him in
             Player.y = pos.y - (MAN_RECTANGLE_HEIGHT / 2.0f); // Update x and y coordinates of the square after the keep in boundaries function
             Player.x = pos.x - (MAN_RECTANGLE_WIDTH / 2.0f);
@@ -185,15 +194,7 @@ int main(void)
             // 5. NPC section
             updateNPC(&npc, pos, map);
             // 6.Camera Section
-            camera.target = (Vector2){pos.x - (WINDOW_WIDTH / 2.0f / camera.zoom), pos.y - (WINDOW_HEIGHT / 2.0f / camera.zoom)}; // Set the center of the camera to the center of the player
-            if (camera.target.x < 0)
-                camera.target.x = 0;
-            else if (camera.target.x > WINDOW_WIDTH - (WINDOW_WIDTH / camera.zoom))
-                camera.target.x = WINDOW_WIDTH - (WINDOW_WIDTH / camera.zoom);
-            if (camera.target.y < 0)
-                camera.target.y = 0;
-            else if (camera.target.y > WINDOW_HEIGHT - (WINDOW_HEIGHT / camera.zoom))
-                camera.target.y = WINDOW_HEIGHT - (WINDOW_HEIGHT / camera.zoom);
+
             // Check if the npc has caught the player
             if (check_if_caught(pos, npc) == 1)
                 GameScreen = GAMEOVER;
@@ -213,20 +214,29 @@ int main(void)
             break;
         case GAMEON:
             // Start camera
-            BeginMode2D(camera);
-            DrawRectangles(map);                                                 // Draws map
-            DrawRectangle(Player.x, Player.y, Player.width, Player.height, col); // Draw player
+            BeginMode3D(camera3d);
+            DrawGrid(100, 50.0f);
+
+            DrawCubes(map);          // Draws map
+            DrawModelEx(playerModel, // Draw the model you laod from the playerModel
+                        (Vector3){pos.x, MAN_3D_HEIGHT / 2.0f, pos.y},
+                        (Vector3){0.0f, 1.0f, 0.0f},
+                        angleRad * RAD2DEG,
+                        (Vector3){1.0f, 1.0f, 1.0f},
+                        col);
+
             if (mission_active == true)
             {
-                draw_pickup_and_dropoff(PICKUP.REAL, DROPOFF.REAL);
-                draw_astar_results(a_star_results);
+                draw_pickup_and_dropoff3D(PICKUP.REAL, DROPOFF.REAL);
+                draw_astar_results3D(a_star_results);
             }
-            draw_npc(npc);
+            draw_npc3D(npc);
             if (should_draw_grid == true)
                 draw_grid();
-            EndMode2D(); // End camera 2d
+            EndMode3D(); // End camera 3d
+
             // MINIMAP DRAW
-            DrawRectangle(1500, 50, MINIMAP_WIDTH, MINIMAP_HEIGHT, BLACK);      
+            DrawRectangle(1500, 50, MINIMAP_WIDTH, MINIMAP_HEIGHT, BLACK);
             DrawRectangleLines(1500, 50, MINIMAP_WIDTH, MINIMAP_HEIGHT, WHITE); // Border
 
             // 2. Start Clipping (Only draw inside this box)
@@ -244,7 +254,6 @@ int main(void)
             EndMode2D();
             EndScissorMode();
 
-
             if (is_first_time == false)
                 draw_current_timer(timer_diff);
             Draw_and_update_score_window(sucessful_deliveries); // Draw score
@@ -260,6 +269,7 @@ int main(void)
         }
         EndDrawing();
     }
+    UnloadModel(playerModel); // Unload the model we built
     CloseWindow();
     return 0;
 }

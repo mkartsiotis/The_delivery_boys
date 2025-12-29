@@ -3,6 +3,7 @@
                                     3.All the libraries used
 */
 #include "raylib.h"
+#include"raymath.h"
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -23,6 +24,7 @@
 
 #define SIZE_OF_RECTANGLES_X (MAP_WIDTH / (2.0f * NUM_OF_RECTANGLES_X))
 #define SIZE_OF_RECTANGLES_Y (MAP_HEIGHT / (2.0f * NUM_OF_RECTANGLES_Y))
+#define SIZE_OF_RECTANGLES_3DHEIGHT 20
 
 #define MINIMAP_WIDTH 400
 #define MINIMAP_HEIGHT 200
@@ -68,8 +70,9 @@ typedef struct
     int HEIGHT;
     float speed;
 } NPC;
-//This is used in the main for the main screen, the before and after of the game.
-enum Screen{
+// This is used in the main for the main screen, the before and after of the game.
+enum Screen
+{
     PREVIEW,
     GAMEON,
     GAMEOVER
@@ -78,8 +81,8 @@ enum Screen{
 extern Node grid[COLS][ROWS]; // We declare grid as external and initialize it in layout.c
 
 // Declaring and  initializing constants and other main parameters
-static const int MAN_RECTANGLE_WIDTH = 25, MAN_RECTANGLE_HEIGHT = 25; // Initialize player height and width
-
+static const int MAN_RECTANGLE_WIDTH = 20, MAN_RECTANGLE_HEIGHT = 20; // Initialize player height and width
+static const int MAN_3D_HEIGHT = 4;
 extern float speed; // Declare speed of the player as a global external int accessible and modifiable by all functions in all files
 
 // Functions in all files. Syntax of comments is //(FILENAME_WHERE_FUNTCTION_IS_LOCATED) USE_AND_DEFINITION
@@ -88,33 +91,39 @@ void Initialize_Map(Rectangle (*map)[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X]);
 
 // Drawing functions
 void draw_pickup_and_dropoff(Vector2 PICKUP, Vector2 DROPOFF);                // Draws small circles around dropoff and pickup locations
+void draw_pickup_and_dropoff3D(Vector2 PICKUP, Vector2 DROPOFF);              // Draws small circles around dropoff and pickup locations
 void DrawRectangles(Rectangle map[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X]); // (In draw.c) Draw the array of Rectangles Initialized as map in the main void function to create a map
 void Draw_and_update_score_window(int sucessful_deliveries);                  //(In draw.c)Draws a score window
-void draw_astar_results(best_possible_path A_STAR_RESULT);                    // Decodes the string of the A* results.
-void draw_npc(NPC chaser);                                                    //Draws an NPC
-void draw_minimap;      
+void draw_astar_results(best_possible_path A_STAR_RESULT);                    // Draws A* results in 2D.
+void draw_astar_results3D(best_possible_path A_STAR_RESULT);                  // Draws A* results in 3D.
+void draw_npc(NPC chaser);                                                    // Draws an NPC
 // Game logic functions
 bool check_for_collisions(Rectangle Player, Rectangle map[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X]); // (In player_movement.c) Check for collisions between the player and the grid objects
 void keep_in_boundaries(Vector2 *pos);                                                                //(In playe_movement)Checks and modifies the pos.x and pos.y if player is out of the window
+//For rotation logic
+extern double angleRad;//Initialized in cam.c
 // UI
-Vector2 delta_move(void); //(In player_movement.c) Calculates according to user input the required movement
+float delta_move(void); //(In player_movement.c) Calculates according to user input the required movement
 // Delivery and pickup handling
 grid_and_map_coords initialize_pickup_location(Rectangle map[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X]);                  // Sets pickup location.
 grid_and_map_coords initialize_dropoff_location(Rectangle map[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X], Vector2 PICKUP); // Sets dropoff location.
 // Timer limitation functions
-int current_timer_difference(time_t INITIAL_TIME);   //(In gamehandling.c)Calculates current timer diffence.
-void draw_current_timer(int CURRENT_TIME_DIFFERNCE); //(In draw.c)Draws the time diffrence in the UI interface window.
-void draw_grid(void);                                //(In draw.c)Draws the grid of the big map in world-map coordinates. Note that this function does not draw the lines of the coordinates of the grid[i][j] but the outside sides of the rectangles that represent a 2D division of the map plane.
+int current_timer_difference(time_t INITIAL_TIME);                       //(In gamehandling.c)Calculates current timer diffence.
+void draw_current_timer(int CURRENT_TIME_DIFFERNCE);                     //(In draw.c)Draws the time diffrence in the UI interface window.
+void draw_grid(void);                                                    //(In draw.c)Draws the grid of the big map in world-map coordinates. Note that this function does not draw the lines of the coordinates of the grid[i][j] but the outside sides of the rectangles that represent a 2D division of the map plane.
+void DrawCubes(Rectangle map[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X]); // Draws the cubes for the 3D version.
+void draw_npc3D(NPC chaser);                                             // Draws the NPC in 3d
 // A* functions
 //  Initialize all functions(All in astar_search.c)
 void initGrid(void);                                                          // Initializes the grid that will be used for finding the best path
-void CreateWalls(void);                                                       //Sets the walls where they need to be.
+void CreateWalls(void);                                                       // Sets the walls where they need to be.
 double calculateH(int x, int y, int destX, int destY);                        // Calculates heuristic function. More abouth the A* algorith in the docs.
 bool isValid(int x, int y);                                                   // Check validity of coordinates given
 best_possible_path aStarSearch(int startX, int startY, int destX, int destY); // Output the A* results
-grid_coordinates RealToGrid(Vector2 pos);                                   //(In astar_search.c) converts real map coordinates to grid coordinates for a_star_search. Remember pos is the center position not the top-left.
-Vector2 GridToReal(int gridX, int gridY); //(In astar_search.c) converts grid coordinates to real map ones.
-//This is the set of functions used in the NPC creation and movement
-void updateNPC(NPC *chaser,Vector2 player_pos, Rectangle map[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X]);//(In npc.c)Checks conditions and recalculates path if needed.
-int check_if_caught(Vector2 playerpos, NPC npc);//(Inn npc.c)Checks if they come in contact 
-
+grid_coordinates RealToGrid(Vector2 pos);                                     //(In astar_search.c) converts real map coordinates to grid coordinates for a_star_search. Remember pos is the center position not the top-left.
+Vector2 GridToReal(int gridX, int gridY);                                     //(In astar_search.c) converts grid coordinates to real map ones.
+// This is the set of functions used in the NPC creation and movement
+void updateNPC(NPC *chaser, Vector2 player_pos, Rectangle map[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X]); //(In npc.c)Checks conditions and recalculates path if needed.
+int check_if_caught(Vector2 playerpos, NPC npc);                                                          //(Inn npc.c)Checks if they come in contact
+//Camera logic(IN cam.c file)
+void TurnCam(Camera3D *camera3d, Vector2 pos); //Turns 3D cam.

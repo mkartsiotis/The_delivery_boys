@@ -27,11 +27,13 @@ void updateNPC(NPC *chaser, Vector2 player_pos, Rectangle map[NUM_OF_RECTANGLES_
     // 2.CALCULATE REqUESTED MOVE
     // 3.CHECK IF LEGAL
     // 4.PERFORM IT!!!
-    int dx = 0, dy = 0;
+    float dx = 0, dy = 0;
     Rectangle RequestedPos = {chaser->position.x - chaser->WIDTH / 2.0f, chaser->position.y - chaser->HEIGHT / 2.0f, chaser->WIDTH, chaser->HEIGHT};
     if (chaser->position.x == player_pos.x && chaser->position.y == player_pos.y)
         return;
-    if (chaser->position.x > player_pos.x)
+    if (fabs(chaser->position.x - player_pos.x) < chaser->speed)
+        ;
+    else if (chaser->position.x > player_pos.x)
         dx = -chaser->speed;
     else if (chaser->position.x < player_pos.x)
         dx = chaser->speed;
@@ -39,16 +41,17 @@ void updateNPC(NPC *chaser, Vector2 player_pos, Rectangle map[NUM_OF_RECTANGLES_
     // Now we need to perform checkouts and reverse the position if needed
     if (check_for_collisions(RequestedPos, map) == 1)
         RequestedPos.x -= dx;
-
-    if (chaser->position.y > player_pos.y)
+    chaser->position.x = RequestedPos.x + chaser->WIDTH / 2.0f;
+    if (fabs(chaser->position.y - player_pos.y) < chaser->speed)
+        ;
+    else if (chaser->position.y > player_pos.y)
         dy = -chaser->speed;
-    else if (chaser->position.x < player_pos.x)
+    else if (chaser->position.y < player_pos.y)
         dy = chaser->speed;
     RequestedPos.y += dy;
     // Now we need to perform checkouts and reverse the position if needed
     if (check_for_collisions(RequestedPos, map) == 1)
         RequestedPos.y -= dy;
-    chaser->position.x = RequestedPos.x + chaser->WIDTH / 2.0f;
     chaser->position.y = RequestedPos.y + chaser->HEIGHT / 2.0f;
 }
 
