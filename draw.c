@@ -102,5 +102,13 @@ void draw_npc(NPC chaser)
 {
     int drawx = chaser.position.x - chaser.WIDTH / 2; // Calculate the pos of the top-left part
     int drawy = chaser.position.y - chaser.HEIGHT / 2;
-    DrawRectangle(drawx, drawy, chaser.WIDTH, chaser.HEIGHT, ORANGE);
+    DrawRectangle(drawx, drawy, chaser.WIDTH * 5, chaser.HEIGHT * 5, ORANGE);
+}
+void drawspeed(void) //(in draw.c). Draws a speedometer.
+{
+    DrawRing((Vector2){WINDOW_WIDTH / 2.0f, 110}, 40, 50, 0, -180, 0, BLACK);
+    DrawRing((Vector2){WINDOW_WIDTH / 2.0f, 110}, 42, 48, -180, -180 + 180 * speed / 4, 0, WHITE);
+    char ch[30] = {0};
+    sprintf(ch, "%.0f", speed * 10);
+    DrawText(ch, (WINDOW_WIDTH / 2.0f) - (MeasureText(ch, 20) / 2.0f), 105, 20, GREEN);
 }

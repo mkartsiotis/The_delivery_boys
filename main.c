@@ -38,7 +38,7 @@ int main(void)
     npc.position.x = MAP_WIDTH - npc.WIDTH;
     npc.HEIGHT = MAN_RECTANGLE_HEIGHT;
     npc.WIDTH = MAN_RECTANGLE_WIDTH;
-    npc.speed = 0.2;
+    npc.speed = 2;
     // Camera logic and initializtion
     // IN MAIN SETUP
     Camera3D camera3d = {0};
@@ -244,7 +244,7 @@ int main(void)
 
             BeginMode2D(minimap_cam);
             DrawRectangles(map);                                                 // Draws map
-            DrawRectangle(Player.x, Player.y, Player.width, Player.height, col); // Draw player
+            DrawRectangle(Player.x, Player.y, Player.width * 5, Player.height * 5, col); // Draw player three times larger for better place visualizatiomn
             if (mission_active == true)
             {
                 draw_pickup_and_dropoff(PICKUP.REAL, DROPOFF.REAL);
@@ -257,6 +257,7 @@ int main(void)
             if (is_first_time == false)
                 draw_current_timer(timer_diff);
             Draw_and_update_score_window(sucessful_deliveries); // Draw score
+            drawspeed();                                        // Draws a speedometer.
             char ch[50] = {0};
             sprintf(ch, "GRID COORDS ARE %d %d", current_grid_pos.gridX, current_grid_pos.gridY);
             DrawText(ch, 1400, 25, 20, WHITE);

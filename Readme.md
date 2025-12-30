@@ -68,3 +68,14 @@ F A*. F complexity!
 SAVE THIS ON THE ARCHIVE.
 IT IS THE MOST TERRIBLE MOST COMPLEX CODE I HAVE WRITTEN AND IT IS TRASH>
 SEEEE YALL(SORRY FOR THE RAIGEBAIT).
+Updates of the last few days:
+1. Buily the 3d game
+2. Twuicked handling and logic
+3. Added a speedometer
+4. Created 3d effects.
+Next goals:
+1. Put more npc's that act like walls.
+2. Add the blue sky around
+3. Add a better grading system and explain its logic
+4. According to Mr. Katsimanis suggestion decrease the maximum speed.
+5. Check if adding trafic lights is a good approach or not.

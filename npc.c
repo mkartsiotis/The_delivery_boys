@@ -19,6 +19,8 @@ How we are going to implement all this thinking:
 // We did that. Now lets make the functions.
 // Its now time to safely say that we are going to ditch that logic.
 #include "headers.h"
+int npc_smart_counter = 0; // This is a counter variable that tracks how many times before the NPC changes its target to match the players position. It is the NPC's update time.
+Vector2 target_npc_pos = {0};//This is the old pos used in the update NPC and is the NPC target pos
 
 void updateNPC(NPC *chaser, Vector2 player_pos, Rectangle map[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X]) //(In npc.c)Checks conditions and recalculates path if needed.
 {
@@ -28,25 +30,35 @@ void updateNPC(NPC *chaser, Vector2 player_pos, Rectangle map[NUM_OF_RECTANGLES_
     // 3.CHECK IF LEGAL
     // 4.PERFORM IT!!!
     float dx = 0, dy = 0;
+    if (npc_smart_counter == (int)NPC_SMART_DELAY)
+    {   
+        target_npc_pos = player_pos;
+        npc_smart_counter = 0;
+    }
+    else
+        npc_smart_counter++;
     Rectangle RequestedPos = {chaser->position.x - chaser->WIDTH / 2.0f, chaser->position.y - chaser->HEIGHT / 2.0f, chaser->WIDTH, chaser->HEIGHT};
-    if (chaser->position.x == player_pos.x && chaser->position.y == player_pos.y)
-        return;
-    if (fabs(chaser->position.x - player_pos.x) < chaser->speed)
+    if (chaser->position.x == target_npc_pos.x && chaser->position.y == target_npc_pos.y)
+        {
+            npc_smart_counter = (int)NPC_SMART_DELAY;
+            return;
+        }
+    if (fabs(chaser->position.x - target_npc_pos.x) < chaser->speed)
         ;
-    else if (chaser->position.x > player_pos.x)
+    else if (chaser->position.x > target_npc_pos.x)
         dx = -chaser->speed;
-    else if (chaser->position.x < player_pos.x)
+    else if (chaser->position.x < target_npc_pos.x)
         dx = chaser->speed;
     RequestedPos.x += dx;
     // Now we need to perform checkouts and reverse the position if needed
     if (check_for_collisions(RequestedPos, map) == 1)
         RequestedPos.x -= dx;
     chaser->position.x = RequestedPos.x + chaser->WIDTH / 2.0f;
-    if (fabs(chaser->position.y - player_pos.y) < chaser->speed)
+    if (fabs(chaser->position.y - target_npc_pos.y) < chaser->speed)
         ;
-    else if (chaser->position.y > player_pos.y)
+    else if (chaser->position.y > target_npc_pos.y)
         dy = -chaser->speed;
-    else if (chaser->position.y < player_pos.y)
+    else if (chaser->position.y < target_npc_pos.y)
         dy = chaser->speed;
     RequestedPos.y += dy;
     // Now we need to perform checkouts and reverse the position if needed
@@ -54,7 +66,6 @@ void updateNPC(NPC *chaser, Vector2 player_pos, Rectangle map[NUM_OF_RECTANGLES_
         RequestedPos.y -= dy;
     chaser->position.y = RequestedPos.y + chaser->HEIGHT / 2.0f;
 }
-
 int check_if_caught(Vector2 playerpos, NPC npc) // Checks if they come in contact
 {
     Rectangle Player = {playerpos.x - (MAN_RECTANGLE_WIDTH / 2.0f), playerpos.y - (MAN_RECTANGLE_HEIGHT / 2.0f), MAN_RECTANGLE_WIDTH, MAN_RECTANGLE_HEIGHT};

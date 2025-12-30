@@ -4,6 +4,7 @@ float speed = 4;
 
 float delta_move(void)
 {
+    // Now lets create a speed altering logic based on the time the throttle is pressed.
     float delta = 0;
     if (IsKeyDown(KEY_RIGHT))
     {
@@ -20,11 +21,17 @@ float delta_move(void)
     if (IsKeyDown(KEY_DOWN))
     {
         delta = speed;
+        speed += 0.1;
     }
     else if (IsKeyDown(KEY_UP))
     {
         delta = -speed;
+        speed += 0.1;
     }
+    else
+        speed = 0;
+    if (speed > 4)
+        speed = 4;
     return delta;
 }
 

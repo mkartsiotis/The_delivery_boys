@@ -3,7 +3,7 @@
                                     3.All the libraries used
 */
 #include "raylib.h"
-#include"raymath.h"
+#include "raymath.h"
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -24,11 +24,12 @@
 
 #define SIZE_OF_RECTANGLES_X (MAP_WIDTH / (2.0f * NUM_OF_RECTANGLES_X))
 #define SIZE_OF_RECTANGLES_Y (MAP_HEIGHT / (2.0f * NUM_OF_RECTANGLES_Y))
-#define SIZE_OF_RECTANGLES_3DHEIGHT 20
+#define SIZE_OF_RECTANGLES_3DHEIGHT 50
 
 #define MINIMAP_WIDTH 400
 #define MINIMAP_HEIGHT 200
 
+#define NPC_SMART_DELAY 100
 // In this section we define all the structure and types needed
 typedef struct // This is a type that we use to store the A* results.
 {
@@ -81,10 +82,11 @@ enum Screen
 extern Node grid[COLS][ROWS]; // We declare grid as external and initialize it in layout.c
 
 // Declaring and  initializing constants and other main parameters
-static const int MAN_RECTANGLE_WIDTH = 20, MAN_RECTANGLE_HEIGHT = 20; // Initialize player height and width
+static const int MAN_RECTANGLE_WIDTH = 5, MAN_RECTANGLE_HEIGHT = 5; // Initialize player height and width
 static const int MAN_3D_HEIGHT = 4;
 extern float speed; // Declare speed of the player as a global external int accessible and modifiable by all functions in all files
-
+extern int npc_smart_counter;//This is the counter variable that tracks the calls of the updateNPC function.
+extern Vector2 target_npc_pos;//This is the old pos used in the update NPC and is the NPC target pos
 // Functions in all files. Syntax of comments is //(FILENAME_WHERE_FUNTCTION_IS_LOCATED) USE_AND_DEFINITION
 // Initialization functions
 void Initialize_Map(Rectangle (*map)[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X]); //(In layout.c) Initialize the map of the square blocks that will constitute the road
@@ -97,11 +99,12 @@ void Draw_and_update_score_window(int sucessful_deliveries);                  //
 void draw_astar_results(best_possible_path A_STAR_RESULT);                    // Draws A* results in 2D.
 void draw_astar_results3D(best_possible_path A_STAR_RESULT);                  // Draws A* results in 3D.
 void draw_npc(NPC chaser);                                                    // Draws an NPC
+void drawspeed(void);                                                         //(in draw.c). Draws a speedometer.
 // Game logic functions
 bool check_for_collisions(Rectangle Player, Rectangle map[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X]); // (In player_movement.c) Check for collisions between the player and the grid objects
 void keep_in_boundaries(Vector2 *pos);                                                                //(In playe_movement)Checks and modifies the pos.x and pos.y if player is out of the window
-//For rotation logic
-extern double angleRad;//Initialized in cam.c
+// For rotation logic
+extern double angleRad; // Initialized in cam.c
 // UI
 float delta_move(void); //(In player_movement.c) Calculates according to user input the required movement
 // Delivery and pickup handling
@@ -125,5 +128,5 @@ Vector2 GridToReal(int gridX, int gridY);                                     //
 // This is the set of functions used in the NPC creation and movement
 void updateNPC(NPC *chaser, Vector2 player_pos, Rectangle map[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X]); //(In npc.c)Checks conditions and recalculates path if needed.
 int check_if_caught(Vector2 playerpos, NPC npc);                                                          //(Inn npc.c)Checks if they come in contact
-//Camera logic(IN cam.c file)
-void TurnCam(Camera3D *camera3d, Vector2 pos); //Turns 3D cam.
+// Camera logic(IN cam.c file)
+void TurnCam(Camera3D *camera3d, Vector2 pos); // Turns 3D cam.
