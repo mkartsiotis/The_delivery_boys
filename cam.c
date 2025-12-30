@@ -17,3 +17,11 @@ void TurnCam(Camera3D *camera3d, Vector2 pos) // Turns 3D cam to the left.
     //Smooth the looking direction.
     camera3d->target = Vector3Lerp(camera3d->target, DesiredTarget, 0.1f);
 }
+/*
+Camera linear algebra logic
+1. We create a vector V which is at first equal to the vector AC where A is the initial player's position and C is the camrera position. This means that we intitialize the vector as the initial vector of the camera position(no dynamic change)and with the roatation that we will discuss later(see number 2) we set the angle of rotation to match the player'sperspective.
+2. We rotate it by the same angle as the player turns.
+3. We implement a smoothing teqnichue to minimize player sickness. 
+4. We asssign that value to the camera position.
+That's it!
+*/

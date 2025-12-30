@@ -72,3 +72,25 @@ int check_if_caught(Vector2 playerpos, NPC npc) // Checks if they come in contac
     Rectangle NPCPlayer = {npc.position.x - (npc.WIDTH / 2.0f), npc.position.y - (npc.WIDTH / 2.0f), npc.WIDTH, npc.HEIGHT};
     return CheckCollisionRecs(Player, NPCPlayer);
 }
+//For the NPC random moving vehicles:
+//Lets first build a working prototype and then we'll refine it.
+//Objectives - steps- logic:
+/*
+The approach: Create a conveyer belt system where the player-npc starts from point A and drives straight to point B untill it reaches that and disappears.
+To do this we need:
+1. An array of special type(typedefined in the header file) where all the precious data for the npc will be stored and namely:
+    -Current state(active or passive)
+    -Current coordinates
+    -Start position and end position coordiantes
+    -Size for drawing. SizeX, sizeY, sizeZ.
+    -Colour for drawing.
+2. After that we need to assign a number of npc's to a number of roads.
+    We assign N number of cars to each road(we can have differnt values for vertical and horizontal roads).
+3. We move those cars at every frame and then when we reach the end the car state should be disappeard.
+4. How will the car be visible?Easy!Check the visible car with the smallest coordinate according to the road's direction.
+    Then calculate the threshold for the origin and if it is larger than a number LENGTH then make the disappered car appear and initialize it.
+5. Do that for all of the roads and check if the system works.
+6. Add colisiion logic and set the speed of the player to 0 if a car is hit.
+7. *Fail - Iterate - Improove - Succeed*
+Lets start... Time for all of this is 1hr.
+*/

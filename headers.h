@@ -9,7 +9,9 @@
 #include <stdlib.h>
 #include <time.h>
 #include <math.h> //for the A* and especiallly for the heuristic function h(n) that will be used.
-
+//Notation:
+//For moving objects:
+//First we name what we want(e.g. SIZE). All words seperated by '_'.See why we opted to use #DEFINE in the documentatetion
 // Define some preset constatnts
 #define TIME_LIMIT 180 // Number of seconds in which the player has to fulfill all orders.
 #define WINDOW_WIDTH 1900
@@ -30,6 +32,12 @@
 #define MINIMAP_HEIGHT 200
 
 #define NPC_SMART_DELAY 100
+#define SIZE_OF_CAR_X 5
+#define SIZE_OF_CAR_Y 5
+#define SIZE_OF_CAR_Z 4
+#define NUM_OF_NPC_CARS_ON_X_ROAD 10
+#define NUM_OF_NPC_CARS_ON_Y_ROAD 10
+
 // In this section we define all the structure and types needed
 typedef struct // This is a type that we use to store the A* results.
 {
@@ -50,6 +58,24 @@ typedef struct
     bool isClosed;        // Have we already checked this node?
     bool isOpen;          // Is this node currently in the "To-Do" list?
 } Node;
+/*
+Implementing the first step to create straight line moving NPC's.(quick reminder of the step)
+1. An array of special type(typedefined in the header file) where all the precious data for the npc will be stored and namely:
+    -Current state(active or passive)
+    -Current coordinates
+    -Start position and end position coordiantes
+    -Size for drawing. SizeX, sizeY, sizeZ.
+    -Colour for drawing.*/
+typedef struct
+{
+    bool is_visible;//Visibility control for update and print logic use
+    Vector2 pos;//position of the NPC car
+    Vector2 start_pos;//starting position of the car
+    Vector2 end_pos;//Final position of the car before it becomes invisible
+    int sizeX, sizeY, sizeZ;//Size of the NPC car defined with #DEFINE(check above)
+    Color col;//colour of the NPC car
+}npc_car;//This is our object type.
+
 // We are going to need a structure for communication between world and grid coordinates. Used in the return value of the set_pickup_and_dropoof_location.
 typedef struct
 {
@@ -71,6 +97,8 @@ typedef struct
     int HEIGHT;
     float speed;
 } NPC;
+//This is a structure that is used to store the npc vehicle data.
+
 // This is used in the main for the main screen, the before and after of the game.
 enum Screen
 {
