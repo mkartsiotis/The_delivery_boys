@@ -39,6 +39,7 @@ int main(void)
     npc.HEIGHT = MAN_RECTANGLE_HEIGHT;
     npc.WIDTH = MAN_RECTANGLE_WIDTH;
     npc.speed = 2;
+    init_cars(); // Initialize all cars
     // Camera logic and initializtion
     // IN MAIN SETUP
     Camera3D camera3d = {0};
@@ -193,6 +194,7 @@ int main(void)
 
             // 5. NPC section
             updateNPC(&npc, pos, map);
+            update_npc_cars();
             // 6.Camera Section
 
             // Check if the npc has caught the player
@@ -231,6 +233,7 @@ int main(void)
                 draw_astar_results3D(a_star_results);
             }
             draw_npc3D(npc);
+            draw_cars();
             if (should_draw_grid == true)
                 draw_grid();
             EndMode3D(); // End camera 3d
@@ -243,7 +246,7 @@ int main(void)
             BeginScissorMode(1500, 50, MINIMAP_WIDTH, MINIMAP_HEIGHT);
 
             BeginMode2D(minimap_cam);
-            DrawRectangles(map);                                                 // Draws map
+            DrawRectangles(map);                                                         // Draws map
             DrawRectangle(Player.x, Player.y, Player.width * 5, Player.height * 5, col); // Draw player three times larger for better place visualizatiomn
             if (mission_active == true)
             {

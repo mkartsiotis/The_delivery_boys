@@ -19,8 +19,12 @@ How we are going to implement all this thinking:
 // We did that. Now lets make the functions.
 // Its now time to safely say that we are going to ditch that logic.
 #include "headers.h"
-int npc_smart_counter = 0; // This is a counter variable that tracks how many times before the NPC changes its target to match the players position. It is the NPC's update time.
-Vector2 target_npc_pos = {0};//This is the old pos used in the update NPC and is the NPC target pos
+// Initialize external variables
+int npc_smart_counter = 0;    // This is a counter variable that tracks how many times before the NPC changes its target to match the players position. It is the NPC's update time.
+Vector2 target_npc_pos = {0}; // This is the old pos used in the update NPC and is the NPC target pos
+npc_car cars_vertical[NUM_OF_RECTANGLES_X + 1][NUM_OF_NPC_CARS_ON_Y_ROAD] = {false, NPC_CAR_CEMETARY, NPC_CAR_CEMETARY, NPC_CAR_CEMETARY, SIZE_OF_CAR_X, SIZE_OF_CAR_Y, SIZE_OF_CAR_Z, PURPLE};
+npc_car cars_horizontal[NUM_OF_RECTANGLES_Y + 1][NUM_OF_NPC_CARS_ON_X_ROAD] = {false, NPC_CAR_CEMETARY, NPC_CAR_CEMETARY, NPC_CAR_CEMETARY, SIZE_OF_CAR_X, SIZE_OF_CAR_Y, SIZE_OF_CAR_Z, PURPLE};
+; // Create an array of cars for the X and Y axis respectively.
 
 void updateNPC(NPC *chaser, Vector2 player_pos, Rectangle map[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X]) //(In npc.c)Checks conditions and recalculates path if needed.
 {
@@ -31,7 +35,7 @@ void updateNPC(NPC *chaser, Vector2 player_pos, Rectangle map[NUM_OF_RECTANGLES_
     // 4.PERFORM IT!!!
     float dx = 0, dy = 0;
     if (npc_smart_counter == (int)NPC_SMART_DELAY)
-    {   
+    {
         target_npc_pos = player_pos;
         npc_smart_counter = 0;
     }
@@ -39,10 +43,10 @@ void updateNPC(NPC *chaser, Vector2 player_pos, Rectangle map[NUM_OF_RECTANGLES_
         npc_smart_counter++;
     Rectangle RequestedPos = {chaser->position.x - chaser->WIDTH / 2.0f, chaser->position.y - chaser->HEIGHT / 2.0f, chaser->WIDTH, chaser->HEIGHT};
     if (chaser->position.x == target_npc_pos.x && chaser->position.y == target_npc_pos.y)
-        {
-            npc_smart_counter = (int)NPC_SMART_DELAY;
-            return;
-        }
+    {
+        npc_smart_counter = (int)NPC_SMART_DELAY;
+        return;
+    }
     if (fabs(chaser->position.x - target_npc_pos.x) < chaser->speed)
         ;
     else if (chaser->position.x > target_npc_pos.x)
@@ -72,9 +76,9 @@ int check_if_caught(Vector2 playerpos, NPC npc) // Checks if they come in contac
     Rectangle NPCPlayer = {npc.position.x - (npc.WIDTH / 2.0f), npc.position.y - (npc.WIDTH / 2.0f), npc.WIDTH, npc.HEIGHT};
     return CheckCollisionRecs(Player, NPCPlayer);
 }
-//For the NPC random moving vehicles:
-//Lets first build a working prototype and then we'll refine it.
-//Objectives - steps- logic:
+// For the NPC random moving vehicles:
+// Lets first build a working prototype and then we'll refine it.
+// Objectives - steps- logic:
 /*
 The approach: Create a conveyer belt system where the player-npc starts from point A and drives straight to point B untill it reaches that and disappears.
 To do this we need:
@@ -84,7 +88,7 @@ To do this we need:
     -Start position and end position coordiantes
     -Size for drawing. SizeX, sizeY, sizeZ.
     -Colour for drawing.
-2. After that we need to assign a number of npc's to a number of roads.
+2. After that we need to assign a number of npcs to a number of roads.
     We assign N number of cars to each road(we can have differnt values for vertical and horizontal roads).
 3. We move those cars at every frame and then when we reach the end the car state should be disappeard.
 4. How will the car be visible?Easy!Check the visible car with the smallest coordinate according to the road's direction.
@@ -93,4 +97,106 @@ To do this we need:
 6. Add colisiion logic and set the speed of the player to 0 if a car is hit.
 7. *Fail - Iterate - Improove - Succeed*
 Lets start... Time for all of this is 1hr.
+What functions we are going to use:
+We do not need functions for initialization for the first time since we will use an extern array and all parameters will be saved.
+We need a function that for a specific road:
+-Decides if we need a new car
+-If we do it makes it visible and initializes it
+We need as well a function that:
+-Updates the cars' position according to the roads' state(initial vesrions will have all the cars moving away from the top-left of the screen(positive increase). Then we will implement road logic).
+And finally one that just prints the cars according to their parameters.
+Note that if we keep X and Y seperated(which I think is purposeful) we might need some additional functions(seperate) for the X and Y axis.
 */
+void update_npc_cars(void)
+{
+    // First we need to disembark on a journey to check the logic of block creation:
+    // How we initialize BLOCKS:
+    // We divide the screen dimensions with the NUMBER_OF_RECTANGLES * 4 in each axis
+    // Then for the nth block in the x axis(same logic for the y axis) starting from 0 untill NUMBER_OF_RECTANGLES - 1 we have:
+    /*float stepX = (float)MAP_WIDTH / (NUM_OF_RECTANGLES_X * 4.0f);
+    float x_value = (1 + 4 * n) * stepX;
+    (*map)[i][n] = (Rectangle){x_value, y_value, SIZE_OF_RECTANGLES_X, SIZE_OF_RECTANGLES_Y};
+    Remeber those are the top left coordintes.
+    But we defined: SIZE_OF_RECTANGLES_X (MAP_WIDTH / (2.0f * NUM_OF_RECTANGLES_X))
+    So the road size should be: 4 * stepX - SIZE_OF_RECTANGLES_X = ((float)MAP_WIDTH / (float)(NUM_OF_RECTANGLES_X)) - (float)SIZE_OF_RECTANGLES_X;
+    Same for the Y axis.
+    */
+    float stepX = (float)MAP_WIDTH / (4.0f * (float)NUM_OF_RECTANGLES_X);
+    float stepY = (float)MAP_HEIGHT / (4.0f * (float)NUM_OF_RECTANGLES_Y);
+
+    float roadlength_x = MAP_WIDTH;
+    float roadlength_y = MAP_HEIGHT;
+
+    float roadwidth_x = ((float)MAP_WIDTH / (float)(NUM_OF_RECTANGLES_X)) - (float)SIZE_OF_RECTANGLES_X;
+    float roadwidth_y = ((float)MAP_HEIGHT / (float)(NUM_OF_RECTANGLES_Y)) - (float)SIZE_OF_RECTANGLES_Y;
+
+    float tolerance_for_x_road = roadlength_x / (float)NUM_OF_NPC_CARS_ON_X_ROAD;
+    float tolerance_for_y_road = roadlength_y / (float)NUM_OF_NPC_CARS_ON_Y_ROAD;
+
+    // First check for the x axis(x roads)if there are any visible
+    for (int i = 0; i < NUM_OF_RECTANGLES_Y + 1; i++) // for all x roads
+    {
+        float min_pos_x = 10000, min_pos_y = 10000;
+        float prev_car_pos_x = 2000, prev_car_pos_y = 2000;
+
+        // First apply the move
+        //  Now for all visible cars update their position.
+        for (int j = 0; j < NUM_OF_NPC_CARS_ON_X_ROAD; j++) // for all cars on those roads
+            if (cars_horizontal[i][j].is_visible == true)
+            {
+                // Check if we meet the threshold.
+                if (cars_horizontal[i][j].pos.x < cars_horizontal[i][j].end_pos.x)
+                {
+                    cars_horizontal[i][j].pos.x += 2.0f;
+                }
+                else
+                {
+                    cars_horizontal[i][j].pos = NPC_CAR_CEMETARY;
+                    cars_horizontal[i][j].is_visible = false;
+                    cars_horizontal[i][j].start_pos = NPC_CAR_CEMETARY;
+                    cars_horizontal[i][j].end_pos = NPC_CAR_CEMETARY;
+                    cars_horizontal[i][j].col = GREEN;
+                    printf("LOST CAR\n");
+                }
+            }
+        // Then check the minimum distance to add a car if needed
+        for (int j = 0; j < NUM_OF_NPC_CARS_ON_X_ROAD; j++) // for all cars on those roads
+            if (cars_horizontal[i][j].is_visible == true)
+            {
+                if (cars_horizontal[i][j].pos.x < min_pos_x)
+                {
+                    min_pos_x = cars_horizontal[i][j].pos.x;
+                }
+            }
+        // Now if the minimum distance is larger than the thershold or if no car is in the map initialize a new car.
+        if (min_pos_x < tolerance_for_x_road && min_pos_x != -1)
+            ;
+        else
+        {
+            // Make visible a new car.
+            int invisible_car_num = -1;
+            for (int j = 0; j < NUM_OF_NPC_CARS_ON_X_ROAD; j++) // for all cars on those roads
+                if (cars_horizontal[i][j].is_visible == false)
+                {
+                    invisible_car_num = j;
+                    break;
+                }
+            if (invisible_car_num == -1)
+                continue;
+            // Now put the car in the road start. Make it visible
+            cars_horizontal[i][invisible_car_num].pos = (Vector2){0, stepY * 4 * i};
+            cars_horizontal[i][invisible_car_num].is_visible = true;
+            cars_horizontal[i][invisible_car_num].start_pos = (Vector2){0, stepY * 4 * i};
+            cars_horizontal[i][invisible_car_num].end_pos = (Vector2){roadlength_x, stepY * 4 * i};
+            cars_horizontal[i][invisible_car_num].col = GREEN;
+            printf("MADE NEW CAR VISIBLE! IN ROAD %d \n", i);
+        }
+    }
+}
+
+void init_cars(void)
+{
+    for (int i = 0; i < NUM_OF_RECTANGLES_Y + 1; i++)       // for all x roads
+        for (int j = 0; j < NUM_OF_NPC_CARS_ON_X_ROAD; j++) // for all cars on those roads
+            cars_horizontal[i][j] = (npc_car){false, NPC_CAR_CEMETARY, NPC_CAR_CEMETARY, NPC_CAR_CEMETARY, SIZE_OF_CAR_X, SIZE_OF_CAR_Y, SIZE_OF_CAR_Z, PURPLE};
+}

@@ -3,7 +3,7 @@ Node grid[COLS][ROWS] = {0}; // Initialize the Node we declared in the header fi
 
 void Initialize_Map(Rectangle (*map)[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X])
 {
-    // Here we create a map of blocks in a desired area which in this case is the screen window and in later versions will be the whole map.
+    // Here we create a map of blocks in a desired area..
     float stepX = (float)MAP_WIDTH / (NUM_OF_RECTANGLES_X * 4.0f); // Calculate stepX and StepY in the same way as the screen is spit into cells with the grid.
     float stepY = (float)MAP_HEIGHT / (NUM_OF_RECTANGLES_Y * 4.0f);
     for (int i = 0; i < NUM_OF_RECTANGLES_Y; i++) // Temporary solution:Just split the window in the same way as grid to make it work. Later we will add random generation.

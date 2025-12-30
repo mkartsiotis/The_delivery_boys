@@ -53,11 +53,11 @@ void draw_grid(void) //(In draw.c)Draws the grid of the big map in world-map coo
     float stepX = (float)MAP_WIDTH / (4 * NUM_OF_RECTANGLES_X);
     float stepY = (float)MAP_HEIGHT / (4 * NUM_OF_RECTANGLES_Y);
     for (int i = 1; i < 4 * NUM_OF_RECTANGLES_Y; i++) // For every iteration of the number of divisions of the plane:
-        DrawLine(0, i * stepY, MAP_WIDTH, i * stepY, YELLOW);
+        DrawLine3D((Vector3){0, 0, i * stepY}, (Vector3){MAP_WIDTH, 0, i * stepY}, YELLOW);
 
     for (int j = 1; j < 4 * NUM_OF_RECTANGLES_X; j++) // Be carefull!We are starting from 1(If I use the function later)
 
-        DrawLine(j * stepX, 0, j * stepX, MAP_HEIGHT, YELLOW);
+        DrawLine3D((Vector3){j * stepX, 0, 0}, (Vector3){j * stepX, 0, MAP_HEIGHT}, YELLOW);
 }
 void draw_astar_results(best_possible_path A_STAR_RESULT) // Decodes the string of the A* results.
 {
@@ -111,4 +111,13 @@ void drawspeed(void) //(in draw.c). Draws a speedometer.
     char ch[30] = {0};
     sprintf(ch, "%.0f", speed * 10);
     DrawText(ch, (WINDOW_WIDTH / 2.0f) - (MeasureText(ch, 20) / 2.0f), 105, 20, GREEN);
+}
+void draw_cars(void) // Draws all the cars.
+{
+    for (int i = 0; i < NUM_OF_RECTANGLES_Y + 1; i++)       // for all x roads
+        for (int j = 0; j < NUM_OF_NPC_CARS_ON_X_ROAD; j++) // for all cars on those roads
+            if (cars_horizontal[i][j].is_visible == true)
+            {
+                DrawCube((Vector3){cars_horizontal[i][j].pos.x, cars_horizontal[i][j].sizeZ / 2.0f, cars_horizontal[i][j].pos.y}, cars_horizontal[i][j].sizeX, cars_horizontal[i][j].sizeZ, cars_horizontal[i][j].sizeY, cars_horizontal[i][j].col);
+            }
 }

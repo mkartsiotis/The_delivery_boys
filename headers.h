@@ -9,10 +9,10 @@
 #include <stdlib.h>
 #include <time.h>
 #include <math.h> //for the A* and especiallly for the heuristic function h(n) that will be used.
-//Notation:
-//For moving objects:
-//First we name what we want(e.g. SIZE). All words seperated by '_'.See why we opted to use #DEFINE in the documentatetion
-// Define some preset constatnts
+// Notation:
+// For moving objects:
+// First we name what we want(e.g. SIZE). All words seperated by '_'.See why we opted to use #DEFINE in the documentatetion
+//  Define some preset constatnts
 #define TIME_LIMIT 180 // Number of seconds in which the player has to fulfill all orders.
 #define WINDOW_WIDTH 1900
 #define WINDOW_HEIGHT 1000
@@ -37,7 +37,6 @@
 #define SIZE_OF_CAR_Z 4
 #define NUM_OF_NPC_CARS_ON_X_ROAD 10
 #define NUM_OF_NPC_CARS_ON_Y_ROAD 10
-
 // In this section we define all the structure and types needed
 typedef struct // This is a type that we use to store the A* results.
 {
@@ -68,13 +67,13 @@ Implementing the first step to create straight line moving NPC's.(quick reminder
     -Colour for drawing.*/
 typedef struct
 {
-    bool is_visible;//Visibility control for update and print logic use
-    Vector2 pos;//position of the NPC car
-    Vector2 start_pos;//starting position of the car
-    Vector2 end_pos;//Final position of the car before it becomes invisible
-    int sizeX, sizeY, sizeZ;//Size of the NPC car defined with #DEFINE(check above)
-    Color col;//colour of the NPC car
-}npc_car;//This is our object type.
+    bool is_visible;         // Visibility control for update and print logic use
+    Vector2 pos;             // position of the NPC car
+    Vector2 start_pos;       // starting position of the car
+    Vector2 end_pos;         // Final position of the car before it becomes invisible
+    int sizeX, sizeY, sizeZ; // Size of the NPC car defined with #DEFINE(check above)
+    Color col;               // colour of the NPC car
+} npc_car;                   // This is our object type.
 
 // We are going to need a structure for communication between world and grid coordinates. Used in the return value of the set_pickup_and_dropoof_location.
 typedef struct
@@ -97,7 +96,7 @@ typedef struct
     int HEIGHT;
     float speed;
 } NPC;
-//This is a structure that is used to store the npc vehicle data.
+// This is a structure that is used to store the npc vehicle data.
 
 // This is used in the main for the main screen, the before and after of the game.
 enum Screen
@@ -111,10 +110,14 @@ extern Node grid[COLS][ROWS]; // We declare grid as external and initialize it i
 
 // Declaring and  initializing constants and other main parameters
 static const int MAN_RECTANGLE_WIDTH = 5, MAN_RECTANGLE_HEIGHT = 5; // Initialize player height and width
-static const int MAN_3D_HEIGHT = 4;
+static const int MAN_3D_HEIGHT = 4;                                 // Height of player
+
 extern float speed; // Declare speed of the player as a global external int accessible and modifiable by all functions in all files
-extern int npc_smart_counter;//This is the counter variable that tracks the calls of the updateNPC function.
-extern Vector2 target_npc_pos;//This is the old pos used in the update NPC and is the NPC target pos
+
+extern int npc_smart_counter;                                                                                                                          // This is the counter variable that tracks the calls of the updateNPC function.
+extern Vector2 target_npc_pos;                                                                                                                         // This is the old pos used in the update NPC and is the NPC target pos
+static const Vector2 NPC_CAR_CEMETARY = (Vector2){-2000, -2000};                                                                                       // Set the place where all the invisible cars will stay and this is used primarily for initialization purposes(might very well be unnecessary)
+extern npc_car cars_vertical[NUM_OF_RECTANGLES_X + 1][NUM_OF_NPC_CARS_ON_Y_ROAD], cars_horizontal[NUM_OF_RECTANGLES_Y + 1][NUM_OF_NPC_CARS_ON_X_ROAD]; // Create an array of cars for the X and Y axis respectively.
 // Functions in all files. Syntax of comments is //(FILENAME_WHERE_FUNTCTION_IS_LOCATED) USE_AND_DEFINITION
 // Initialization functions
 void Initialize_Map(Rectangle (*map)[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X]); //(In layout.c) Initialize the map of the square blocks that will constitute the road
@@ -144,6 +147,7 @@ void draw_current_timer(int CURRENT_TIME_DIFFERNCE);                     //(In d
 void draw_grid(void);                                                    //(In draw.c)Draws the grid of the big map in world-map coordinates. Note that this function does not draw the lines of the coordinates of the grid[i][j] but the outside sides of the rectangles that represent a 2D division of the map plane.
 void DrawCubes(Rectangle map[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X]); // Draws the cubes for the 3D version.
 void draw_npc3D(NPC chaser);                                             // Draws the NPC in 3d
+void draw_cars(void);//Draws all the cars.
 // A* functions
 //  Initialize all functions(All in astar_search.c)
 void initGrid(void);                                                          // Initializes the grid that will be used for finding the best path
@@ -154,7 +158,9 @@ best_possible_path aStarSearch(int startX, int startY, int destX, int destY); //
 grid_coordinates RealToGrid(Vector2 pos);                                     //(In astar_search.c) converts real map coordinates to grid coordinates for a_star_search. Remember pos is the center position not the top-left.
 Vector2 GridToReal(int gridX, int gridY);                                     //(In astar_search.c) converts grid coordinates to real map ones.
 // This is the set of functions used in the NPC creation and movement
-void updateNPC(NPC *chaser, Vector2 player_pos, Rectangle map[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X]); //(In npc.c)Checks conditions and recalculates path if needed.
-int check_if_caught(Vector2 playerpos, NPC npc);                                                          //(Inn npc.c)Checks if they come in contact
+void updateNPC(NPC *chaser, Vector2 player_pos, Rectangle map[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X]);                                                                       //(In npc.c)Checks conditions and recalculates path if needed.
+int check_if_caught(Vector2 playerpos, NPC npc);                                                                                                                                //(Inn npc.c)Checks if they come in contact
+void update_npc_cars(void); //(In npc.c)Controls npc car movement and specifically APPEARNCE - DISAPPEARENCE - POSITION - COLOUR - START AND END POSITION.
+void init_cars(void);//Initializes the array of cars
 // Camera logic(IN cam.c file)
 void TurnCam(Camera3D *camera3d, Vector2 pos); // Turns 3D cam.

@@ -21,15 +21,15 @@ float delta_move(void)
     if (IsKeyDown(KEY_DOWN))
     {
         delta = speed;
-        speed += 0.1;
+        speed += 0.03;
     }
     else if (IsKeyDown(KEY_UP))
     {
         delta = -speed;
-        speed += 0.1;
+        speed += 0.03;
     }
-    else
-        speed = 0;
+    else if (speed > 0)
+        speed -= 0.2;
     if (speed > 4)
         speed = 4;
     return delta;
