@@ -127,21 +127,17 @@ void update_npc_cars(void)
     float roadlength_x = MAP_WIDTH;
     float roadlength_y = MAP_HEIGHT;
 
-    float roadwidth_x = ((float)MAP_WIDTH / (float)(NUM_OF_RECTANGLES_X)) - (float)SIZE_OF_RECTANGLES_X;
-    float roadwidth_y = ((float)MAP_HEIGHT / (float)(NUM_OF_RECTANGLES_Y)) - (float)SIZE_OF_RECTANGLES_Y;
-
     float tolerance_for_x_road = roadlength_x / (float)NUM_OF_NPC_CARS_ON_X_ROAD;
     float tolerance_for_y_road = roadlength_y / (float)NUM_OF_NPC_CARS_ON_Y_ROAD;
 
     // First check for the x axis(x roads)if there are any visible
-    for (int i = 0; i < NUM_OF_RECTANGLES_Y + 1; i++) // for all x roads
+    for (int i = 0; i < NUM_OF_RECTANGLES_Y + 1; i += 2) // for all even x roads
     {
-        float min_pos_x = 10000, min_pos_y = 10000;
-        float prev_car_pos_x = 2000, prev_car_pos_y = 2000;
+        float min_pos_x = 10000;
 
         // First apply the move
         //  Now for all visible cars update their position.
-        for (int j = 0; j < NUM_OF_NPC_CARS_ON_X_ROAD; j++) // for all cars on those roads
+        for (int j = 0; j < NUM_OF_NPC_CARS_ON_X_ROAD; j++) // for all cars on some of those roads
             if (cars_horizontal[i][j].is_visible == true)
             {
                 // Check if we meet the threshold.
@@ -155,7 +151,7 @@ void update_npc_cars(void)
                     cars_horizontal[i][j].is_visible = false;
                     cars_horizontal[i][j].start_pos = NPC_CAR_CEMETARY;
                     cars_horizontal[i][j].end_pos = NPC_CAR_CEMETARY;
-                    cars_horizontal[i][j].col = GREEN;
+                    cars_horizontal[i][j].col = choseRandomColour();
                     printf("LOST CAR\n");
                 }
             }
@@ -188,7 +184,183 @@ void update_npc_cars(void)
             cars_horizontal[i][invisible_car_num].is_visible = true;
             cars_horizontal[i][invisible_car_num].start_pos = (Vector2){0, stepY * 4 * i};
             cars_horizontal[i][invisible_car_num].end_pos = (Vector2){roadlength_x, stepY * 4 * i};
-            cars_horizontal[i][invisible_car_num].col = GREEN;
+            cars_horizontal[i][invisible_car_num].col = choseRandomColour();
+            printf("MADE NEW CAR VISIBLE! IN ROAD %d \n", i);
+        }
+    }
+
+    // Do the same for odd roads.
+    for (int i = 1; i < NUM_OF_RECTANGLES_Y + 1; i += 2) // for all even x roads
+    {
+        float max_pos_x = -10000;
+
+        // First apply the move
+        //  Now for all visible cars update their position.
+        for (int j = 0; j < NUM_OF_NPC_CARS_ON_X_ROAD; j++) // for all cars on some of those roads
+            if (cars_horizontal[i][j].is_visible == true)
+            {
+                // Check if we meet the threshold.
+                if (cars_horizontal[i][j].pos.x > cars_horizontal[i][j].end_pos.x)
+                {
+                    cars_horizontal[i][j].pos.x -= 2.0f;
+                }
+                else
+                {
+                    cars_horizontal[i][j].pos = NPC_CAR_CEMETARY;
+                    cars_horizontal[i][j].is_visible = false;
+                    cars_horizontal[i][j].start_pos = NPC_CAR_CEMETARY;
+                    cars_horizontal[i][j].end_pos = NPC_CAR_CEMETARY;
+                    cars_horizontal[i][j].col = choseRandomColour();
+                    printf("LOST CAR\n");
+                }
+            }
+        // Then check the minimum distance to add a car if needed
+        for (int j = 0; j < NUM_OF_NPC_CARS_ON_X_ROAD; j++) // for all cars on those roads
+            if (cars_horizontal[i][j].is_visible == true)
+            {
+                if (cars_horizontal[i][j].pos.x > max_pos_x) // FIND THE CAR WITH THE MAXIMUM POSITION
+                {
+                    max_pos_x = cars_horizontal[i][j].pos.x;
+                }
+            }
+        // Now if the minimum distance is larger than the thershold or if no car is in the map initialize a new car.
+        if (MAP_WIDTH - max_pos_x < tolerance_for_x_road && max_pos_x != -10000)
+            ;
+        else
+        {
+            // Make visible a new car.
+            int invisible_car_num = -1;
+            for (int j = 0; j < NUM_OF_NPC_CARS_ON_X_ROAD; j++) // for all cars on those roads
+                if (cars_horizontal[i][j].is_visible == false)
+                {
+                    invisible_car_num = j;
+                    break;
+                }
+            if (invisible_car_num == -1)
+                continue;
+            // Now put the car in the road start. Make it visible
+            cars_horizontal[i][invisible_car_num].pos = (Vector2){roadlength_x, stepY * 4 * i};
+            cars_horizontal[i][invisible_car_num].is_visible = true;
+            cars_horizontal[i][invisible_car_num].start_pos = (Vector2){roadlength_x, stepY * 4 * i};
+            cars_horizontal[i][invisible_car_num].end_pos = (Vector2){0, stepY * 4 * i};
+            cars_horizontal[i][invisible_car_num].col = choseRandomColour();
+            printf("MADE NEW CAR VISIBLE! IN ROAD %d \n", i);
+        }
+    }
+    // Do the same for the Y axis.
+    //  First check for the x axis(x roads)if there are any visible
+    for (int i = 0; i < NUM_OF_RECTANGLES_X + 1; i += 2) // for all y roads
+    {
+        float min_pos_y = 10000;
+
+        // First apply the move
+        //  Now for all visible cars update their position.
+        for (int j = 0; j < NUM_OF_NPC_CARS_ON_Y_ROAD; j++) // for all cars on those roads
+            if (cars_vertical[i][j].is_visible == true)
+            {
+                // Check if we meet the threshold.
+                if (cars_vertical[i][j].pos.y < cars_vertical[i][j].end_pos.y)
+                {
+                    cars_vertical[i][j].pos.y += 2.0f;
+                }
+                else
+                {
+                    cars_vertical[i][j].pos = NPC_CAR_CEMETARY;
+                    cars_vertical[i][j].is_visible = false;
+                    cars_vertical[i][j].start_pos = NPC_CAR_CEMETARY;
+                    cars_vertical[i][j].end_pos = NPC_CAR_CEMETARY;
+                    cars_vertical[i][j].col = choseRandomColour();
+                    printf("LOST CAR\n");
+                }
+            }
+        // Then check the minimum distance to add a car if needed
+        for (int j = 0; j < NUM_OF_NPC_CARS_ON_Y_ROAD; j++) // for all cars on those roads
+            if (cars_vertical[i][j].is_visible == true)
+            {
+                if (cars_vertical[i][j].pos.y < min_pos_y)
+                {
+                    min_pos_y = cars_vertical[i][j].pos.y;
+                }
+            }
+        // Now if the minimum distance is larger than the thershold or if no car is in the map initialize a new car.
+        if (min_pos_y < tolerance_for_y_road && min_pos_y != -1)
+            ;
+        else
+        {
+            // Make visible a new car.
+            int invisible_car_num = -1;
+            for (int j = 0; j < NUM_OF_NPC_CARS_ON_Y_ROAD; j++) // for all cars on those roads
+                if (cars_vertical[i][j].is_visible == false)
+                {
+                    invisible_car_num = j;
+                    break;
+                }
+            if (invisible_car_num == -1)
+                continue;
+            // Now put the car in the road start. Make it visible
+            cars_vertical[i][invisible_car_num].pos = (Vector2){stepX * 4 * i, 0};
+            cars_vertical[i][invisible_car_num].is_visible = true;
+            cars_vertical[i][invisible_car_num].start_pos = (Vector2){stepX * 4 * i, 0};
+            cars_vertical[i][invisible_car_num].end_pos = (Vector2){stepX * 4 * i, roadlength_y};
+            cars_vertical[i][invisible_car_num].col = choseRandomColour();
+            printf("MADE NEW CAR VISIBLE! IN ROAD %d \n", i);
+        }
+    }
+    // Do the same for odd roads in the Y axis.
+    for (int i = 1; i < NUM_OF_RECTANGLES_X + 1; i += 2) // for all even x roads
+    {
+        float max_pos_y = -10000;
+
+        // First apply the move
+        //  Now for all visible cars update their position.
+        for (int j = 0; j < NUM_OF_NPC_CARS_ON_Y_ROAD; j++) // for all cars on some of those roads
+            if (cars_vertical[i][j].is_visible == true)
+            {
+                // Check if we meet the threshold.
+                if (cars_vertical[i][j].pos.y > cars_vertical[i][j].end_pos.y)
+                {
+                    cars_vertical[i][j].pos.y -= 2.0f;
+                }
+                else
+                {
+                    cars_vertical[i][j].pos = NPC_CAR_CEMETARY;
+                    cars_vertical[i][j].is_visible = false;
+                    cars_vertical[i][j].start_pos = NPC_CAR_CEMETARY;
+                    cars_vertical[i][j].end_pos = NPC_CAR_CEMETARY;
+                    cars_vertical[i][j].col = choseRandomColour();
+                    printf("LOST CAR\n");
+                }
+            }
+        // Then check the minimum distance to add a car if needed
+        for (int j = 0; j < NUM_OF_NPC_CARS_ON_X_ROAD; j++) // for all cars on those roads
+            if (cars_vertical[i][j].is_visible == true)
+            {
+                if (cars_vertical[i][j].pos.y > max_pos_y) // FIND THE CAR WITH THE MAXIMUM POSITION
+                {
+                    max_pos_y = cars_vertical[i][j].pos.y;
+                }
+            }
+        // Now if the minimum distance is larger than the thershold or if no car is in the map initialize a new car.
+        if (MAP_HEIGHT - max_pos_y < tolerance_for_y_road && max_pos_y != -10000)
+            ;
+        else
+        {
+            // Make visible a new car.
+            int invisible_car_num = -1;
+            for (int j = 0; j < NUM_OF_NPC_CARS_ON_Y_ROAD; j++) // for all cars on those roads
+                if (cars_vertical[i][j].is_visible == false)
+                {
+                    invisible_car_num = j;
+                    break;
+                }
+            if (invisible_car_num == -1)
+                continue;
+            // Now put the car in the road start. Make it visible
+            cars_vertical[i][invisible_car_num].pos = (Vector2){stepX * 4 * i, roadlength_y};
+            cars_vertical[i][invisible_car_num].is_visible = true;
+            cars_vertical[i][invisible_car_num].start_pos = (Vector2){stepX * 4 * i, roadlength_y};
+            cars_vertical[i][invisible_car_num].end_pos = (Vector2){stepX * 4 * i, 0};
+            cars_vertical[i][invisible_car_num].col = choseRandomColour();
             printf("MADE NEW CAR VISIBLE! IN ROAD %d \n", i);
         }
     }
@@ -199,4 +371,48 @@ void init_cars(void)
     for (int i = 0; i < NUM_OF_RECTANGLES_Y + 1; i++)       // for all x roads
         for (int j = 0; j < NUM_OF_NPC_CARS_ON_X_ROAD; j++) // for all cars on those roads
             cars_horizontal[i][j] = (npc_car){false, NPC_CAR_CEMETARY, NPC_CAR_CEMETARY, NPC_CAR_CEMETARY, SIZE_OF_CAR_X, SIZE_OF_CAR_Y, SIZE_OF_CAR_Z, PURPLE};
+    for (int i = 0; i < NUM_OF_RECTANGLES_X + 1; i++)       // for all y roads
+        for (int j = 0; j < NUM_OF_NPC_CARS_ON_Y_ROAD; j++) // for all cars on those roads
+            cars_vertical[i][j] = (npc_car){false, NPC_CAR_CEMETARY, NPC_CAR_CEMETARY, NPC_CAR_CEMETARY, SIZE_OF_CAR_X, SIZE_OF_CAR_Y, SIZE_OF_CAR_Z, PURPLE};
+}
+
+int check_for_car_crashes(Rectangle Player) // Checks for collisions with the npc cars.
+{
+    bool has_crushed = false;
+    for (int i = 0; i < NUM_OF_RECTANGLES_Y + 1; i++)       // for all x roads
+        for (int j = 0; j < NUM_OF_NPC_CARS_ON_X_ROAD; j++) // for all cars on those roads
+        {
+            if (cars_horizontal[i][j].is_visible == true)
+            {
+                Rectangle npc_rec = {cars_horizontal[i][j].pos.x - (cars_horizontal[i][j].sizeX / 2.0f), cars_horizontal[i][j].pos.y - (cars_horizontal[i][j].sizeY / 2.0f), cars_horizontal[i][j].sizeX, cars_horizontal[i][j].sizeY};
+                if (CheckCollisionRecs(Player, npc_rec) == 1)
+                {
+                    has_crushed = true;
+                    break;
+                }
+            }
+        }
+    for (int i = 0; i < NUM_OF_RECTANGLES_X + 1; i++)       // for all y roads
+        for (int j = 0; j < NUM_OF_NPC_CARS_ON_Y_ROAD; j++) // for all cars on those roads
+        {
+            if (cars_vertical[i][j].is_visible == true)
+            {
+                Rectangle npc_rec = {cars_vertical[i][j].pos.x - (cars_vertical[i][j].sizeX / 2.0f), cars_vertical[i][j].pos.y - (cars_vertical[i][j].sizeY / 2.0f), cars_vertical[i][j].sizeX, cars_vertical[i][j].sizeY};
+                if (CheckCollisionRecs(Player, npc_rec) == 1)
+                {
+                    has_crushed = true;
+                    break;
+                }
+            }
+        }
+    if (has_crushed == true)
+        return 1;
+    else
+        return 0;
+}
+
+Color choseRandomColour(void) // Returns a random colour from rand and a decoding method.
+{
+    Color return_col = (Color){rand() % 256, rand() % 256, rand() % 256, 255};
+    return return_col;
 }

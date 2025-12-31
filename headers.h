@@ -31,12 +31,12 @@
 #define MINIMAP_WIDTH 400
 #define MINIMAP_HEIGHT 200
 
-#define NPC_SMART_DELAY 100
+#define NPC_SMART_DELAY 50
 #define SIZE_OF_CAR_X 5
 #define SIZE_OF_CAR_Y 5
 #define SIZE_OF_CAR_Z 4
-#define NUM_OF_NPC_CARS_ON_X_ROAD 10
-#define NUM_OF_NPC_CARS_ON_Y_ROAD 10
+#define NUM_OF_NPC_CARS_ON_X_ROAD 5
+#define NUM_OF_NPC_CARS_ON_Y_ROAD 5
 // In this section we define all the structure and types needed
 typedef struct // This is a type that we use to store the A* results.
 {
@@ -148,6 +148,7 @@ void draw_grid(void);                                                    //(In d
 void DrawCubes(Rectangle map[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X]); // Draws the cubes for the 3D version.
 void draw_npc3D(NPC chaser);                                             // Draws the NPC in 3d
 void draw_cars(void);//Draws all the cars.
+Color choseRandomColour(void); // Returns a random colour from rand and a decoding method.
 // A* functions
 //  Initialize all functions(All in astar_search.c)
 void initGrid(void);                                                          // Initializes the grid that will be used for finding the best path
@@ -162,5 +163,6 @@ void updateNPC(NPC *chaser, Vector2 player_pos, Rectangle map[NUM_OF_RECTANGLES_
 int check_if_caught(Vector2 playerpos, NPC npc);                                                                                                                                //(Inn npc.c)Checks if they come in contact
 void update_npc_cars(void); //(In npc.c)Controls npc car movement and specifically APPEARNCE - DISAPPEARENCE - POSITION - COLOUR - START AND END POSITION.
 void init_cars(void);//Initializes the array of cars
+int check_for_car_crashes(Rectangle Player);//Checks for collisions with the npc cars.
 // Camera logic(IN cam.c file)
 void TurnCam(Camera3D *camera3d, Vector2 pos); // Turns 3D cam.

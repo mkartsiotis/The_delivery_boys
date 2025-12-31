@@ -79,3 +79,86 @@ Next goals:
 3. Add a better grading system and explain its logic
 4. According to Mr. Katsimanis suggestion decrease the maximum speed.
 5. Check if adding trafic lights is a good approach or not.
+So what we did is that we just added some cars that can move around(check out backup)
+The problem is that this move is a bit robotic and generally not nice for a quality game.
+We asked the A.I. and got these suggestions.
+Via google Gemini:
+"That system is the standard "industry trick" for background traffic in open-world games because it is computationally cheap.
+
+To make it feel professional without overcomplicating your code, you need to add "Emergent Behavior." This means simple rules that result in complex-looking situations (like traffic jams or distinct flows).
+
+Here are 4 logical upgrades you can implement, ordered from easiest to most impactful:
+
+1. The "Alternating Flow" Logic (Easiest)
+Currently, all your cars likely move from Left -> Right and Top -> Bottom. This looks unnatural.
+
+The Logic:
+
+Use the Road Index (the i in your loop).
+
+If the Road Index is Even (0, 2, 4...), the cars move Left to Right.
+
+If the Road Index is Odd (1, 3, 5...), the cars move Right to Left.
+
+The Effect: This instantly creates the illusion of two-way traffic or a busy city grid without adding any new collision logic. You just flip the speed to negative and swap the start/end points.
+
+2. The "Brake Light" Logic (Anti-Stacking)
+Right now, if a fast car spawns behind a slow car, it will drive through it. Real cars brake.
+
+The Logic:
+
+Every frame, before a car moves, it checks the distance to the car directly ahead of it on the same road.
+
+If Distance < Safe_Zone:
+
+The car's speed becomes 0 (or matches the speed of the car ahead).
+
+If Distance > Safe_Zone:
+
+The car accelerates back to its normal speed.
+
+The Effect: You will see natural traffic jams form. If one car stops (perhaps due to the traffic lights below), the cars behind it will queue up nicely.
+
+3. The "Global Traffic Light" System
+You don't need a complex object for every intersection. You can cheat using a global timer.
+
+The Logic:
+
+Create a global variable: TrafficState. It cycles between HORIZONTAL_GO and VERTICAL_GO every few seconds.
+
+Define "Intersection Zones" (ranges of X or Y coordinates where roads cross).
+
+For Horizontal Cars:
+
+If they are approaching an intersection AND TrafficState is VERTICAL_GO (Red Light for them):
+
+They treat the intersection line as a "solid wall" and stop just before it.
+
+Once the state changes to HORIZONTAL_GO, the "wall" disappears, and they accelerate.
+
+The Effect: This creates waves of traffic. You will see empty roads, then a huge cluster of cars moving together, which adds massive realism.
+
+4. Variable "Personalities"
+Uniformity looks robotic.
+
+The Logic:
+
+When you Spawn a car, assign it a random Type.
+
+Type A (Sports Car): Small size, High speed, Bright color (Red/Yellow).
+
+Type B (Truck): Long size (2x normal), Slow speed, Dull color (Gray/Blue).
+
+Type C (Sedan): Average size, Average speed.
+
+The Effect: Seeing a fast car get stuck behind a slow truck (using the Brake Light logic from #2) creates a little "story" that the player notices, making the world feel alive.
+
+Summary of the Plan
+Alternate Directions: Immediate visual variety.
+
+Variable Speeds/Sizes: Breaks the visual pattern.
+
+Brake Logic: Prevents overlap and allows queues.
+
+Traffic Lights: Controls the flow and creates clumps of traffic."
+So first lets try to implement the alternating pattern.

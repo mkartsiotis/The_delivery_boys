@@ -120,4 +120,10 @@ void draw_cars(void) // Draws all the cars.
             {
                 DrawCube((Vector3){cars_horizontal[i][j].pos.x, cars_horizontal[i][j].sizeZ / 2.0f, cars_horizontal[i][j].pos.y}, cars_horizontal[i][j].sizeX, cars_horizontal[i][j].sizeZ, cars_horizontal[i][j].sizeY, cars_horizontal[i][j].col);
             }
+    for (int i = 0; i < NUM_OF_RECTANGLES_X + 1; i++)       // for all y roads
+        for (int j = 0; j < NUM_OF_NPC_CARS_ON_Y_ROAD; j++) // for all cars on those roads
+            if (cars_vertical[i][j].is_visible == true)
+            {
+                DrawCube((Vector3){cars_vertical[i][j].pos.x, cars_vertical[i][j].sizeZ / 2.0f, cars_vertical[i][j].pos.y}, cars_vertical[i][j].sizeX, cars_vertical[i][j].sizeZ, cars_vertical[i][j].sizeY, cars_vertical[i][j].col);
+            }
 }

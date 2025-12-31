@@ -104,6 +104,9 @@ int main(void)
                 pos.y -= movelength * cos(angleRad); // Reverse movement in y axis
                 Player.y = pos.y - (MAN_RECTANGLE_HEIGHT / 2.0f);
             }
+            //Check if the player has colided with the npc cars
+            if(check_for_car_crashes(Player)==1)//If we collide just set the speed to 0.
+                speed = 0;
             // Turn the camera and set other parameters
             TurnCam(&camera3d, pos);
             // Contimue with the game logic
