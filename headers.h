@@ -139,7 +139,7 @@ void Initialize_Map(Rectangle (*map)[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X]);
 void draw_pickup_and_dropoff(Vector2 PICKUP, Vector2 DROPOFF);                // Draws small circles around dropoff and pickup locations
 void draw_pickup_and_dropoff3D(Vector2 PICKUP, Vector2 DROPOFF);              // Draws small circles around dropoff and pickup locations
 void DrawRectangles(Rectangle map[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X]); // (In draw.c) Draw the array of Rectangles Initialized as map in the main void function to create a map
-void Draw_and_update_score_window(int sucessful_deliveries);                  //(In draw.c)Draws a score window
+void Draw_and_update_score_window(int sucessful_deliveries, FILE *file);                  //(In draw.c)Draws a score window
 void draw_astar_results(best_possible_path A_STAR_RESULT);                    // Draws A* results in 2D.
 void draw_astar_results3D(best_possible_path A_STAR_RESULT);                  // Draws A* results in 3D.
 void draw_npc(NPC chaser);                                                    // Draws an NPC

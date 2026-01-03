@@ -34,13 +34,20 @@ void draw_pickup_and_dropoff3D(Vector2 PICKUP, Vector2 DROPOFF)
     DrawCylinder((Vector3){DROPOFF.x, 0.0f, DROPOFF.y}, 3, 6, 3.0f, 30, GREEN);
 }
 
-void Draw_and_update_score_window(int sucessful_deliveries)
+void Draw_and_update_score_window(int sucessful_deliveries, FILE *file)
 {
     Color Mycolour = Fade(BLUE, 0.2f);
     DrawRectangle(0, 0, WINDOW_WIDTH, 50, Mycolour);
     char score[15] = {0};
     sprintf(score, "SCORE IS : %d", sucessful_deliveries);
     DrawText(score, 25, 25, 20, WHITE);
+    // Find HIGH SCORE and READ IT
+    int HIGH_SCORE = 0;
+    fseek(file, 0, 0);
+    fscanf(file, "-%*d--%d-", &HIGH_SCORE);
+    char high_score_text[20] = {0};
+    sprintf(high_score_text, "HIGHSCORE: %d", HIGH_SCORE);
+    DrawText(high_score_text, 300, 25, 20, WHITE);
 }
 void draw_current_timer(int CURRENT_TIME_DIFFERNCE)
 {

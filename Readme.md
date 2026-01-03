@@ -226,3 +226,5 @@ Instructions:
 3. Press enter to load the screen!
 Have fun!!!!
 Next up is userlogs...Lay the foundation today..Finsh tommorow!!!
+Userlogs Completed(partially).
+Next is creating locked levels!See you tommorow Jim! 

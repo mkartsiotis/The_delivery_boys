@@ -62,6 +62,16 @@ int main(void)
     Mesh cubeMesh = GenMeshCube(MAN_RECTANGLE_WIDTH, MAN_3D_HEIGHT, MAN_RECTANGLE_HEIGHT);
     // Load it into a Model (The object you can draw)
     Model playerModel = LoadModelFromMesh(cubeMesh);
+    // User logs. File format:-LEVELS_LOCKED--HIGHSCORE-
+    FILE *file = fopen("userlogs.txt", "r+"); // Check if file is found and if so find it. If the file already exists it will open. If it does not exist a new file is automatically created.
+    if (file == NULL)                         // If file is not found create one
+    {
+        file = fopen("userlogs.txt", "w+"); // Create a new file that can be read and written
+        fseek(file, 0, 0);                  // Set cursor position to 0 -%1DGITINT--%INT-
+        fprintf(file, "-0--0-");
+    }
+    if (file == NULL) // If we are still unable to open a file just kill the programm
+        exit(EXIT_FAILURE);
     // Main game loop
     while (!WindowShouldClose())
     {
@@ -186,6 +196,20 @@ int main(void)
                     mission_active = false;
                     picked_order = false;
                     sucessful_deliveries++;
+                    // Check if we have surpassed the hich score and then if so write the new score
+                    int HIGH_SCORE = 0;
+                    fseek(file, 0, 0);
+                    fscanf(file, "-%*d--%d-", &HIGH_SCORE);
+                    if (HIGH_SCORE < sucessful_deliveries)
+                    {
+                        //Move to the start of the second integer
+                        // We use fseek(file, 4, SEEK_SET) assuming -X--Y- where X is 1 digit
+                        fseek(file, 4, SEEK_SET);
+                        // Write the new value
+                        fprintf(file, "%d-", sucessful_deliveries);
+                        long current_pos = ftell(file);
+                        fflush(file); 
+                    }
                     DROPOFF = (grid_and_map_coords){(Vector2){-100, -100}, -1, -1};
                 }
                 // If we have a mission check if where we are and draw the fastest route accordingly
@@ -277,8 +301,8 @@ int main(void)
 
             if (is_first_time == false)
                 draw_current_timer(timer_diff);
-            Draw_and_update_score_window(sucessful_deliveries); // Draw score
-            drawspeed();                                        // Draws a speedometer.
+            Draw_and_update_score_window(sucessful_deliveries, file); // Draw score
+            drawspeed();                                              // Draws a speedometer.
             char ch[50] = {0};
             sprintf(ch, "GRID COORDS ARE %d %d", current_grid_pos.gridX, current_grid_pos.gridY);
             DrawText(ch, 1400, 25, 20, WHITE);
@@ -288,5 +312,6 @@ int main(void)
     }
     UnloadModel(playerModel); // Unload the model we built
     CloseWindow();
+    fclose(file); // Closes the file
     return 0;
 }
