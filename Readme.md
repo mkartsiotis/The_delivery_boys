@@ -9,7 +9,7 @@
 -Να επηρεάζεται κα ο αστυνόμος από συγκρούσεις με αυτοκίνητα
 -Pdf με συναρτήσεις κλπ.
 ->Χρονόδιάγραμμα:
-Σήμερα τα επίπεδα.(Μ)
+-Σήμερα τα επίπεδα.(Μ)
 -Αύριο ή Δευτέρα(Μ) -High score logs. Το score να γίνει coins.(Μ)
 -Δευτέρα ή Τρίτη(Μ) -Ο τερματισμος να γινεται με βενζίνη όχι με χρόνο. Με αντάλλαγμα score.(Μ)
 1 Μέρα:(Δ)
@@ -20,8 +20,7 @@
 {-Η βαθμολογία να γίνεται με αρνητική βαθμολογία. Να μου δίνουν βαθμούς και να μειώνονται όσο αργούμε. 
 }Δ
 1 Μέρα Κενό(Δ).
-
-
+*ΡΑΒΑΣΑΚΙ->Η δημιουργία 3 επιπέδων ολοκληρώθηκε!!!Δες στο τέλος του αρχείου για τη λογική.(Μ)*
 
 
 
@@ -97,6 +96,7 @@ F A*. F complexity!
 SAVE THIS ON THE ARCHIVE.
 IT IS THE MOST TERRIBLE MOST COMPLEX CODE I HAVE WRITTEN AND IT IS TRASH>
 SEEEE YALL(SORRY FOR THE RAIGEBAIT).
+
 Updates of the last few days:
 1. Buily the 3d game
 2. Twuicked handling and logic
@@ -191,6 +191,38 @@ Brake Logic: Prevents overlap and allows queues.
 
 Traffic Lights: Controls the flow and creates clumps of traffic."
 So first lets try to implement the alternating pattern.
+I will check all of these approaches if time is enough...We'll see. The ideas are splendid!!!
 
-
-
+UPDATE #8:
+After a very insightful talk together we laid the foundations for the next few days. So the goal for today is to create multiple levels for the game.
+How this will be accomplished:
+1. Create some external variables and make some defines externs(those are the parameters that will be set at the beggining of every level)
+2. Create some additional parameters in the gamescreen enum
+3. Create a function that sets all of those parametres at the start of every level
+4. Modify the main function...
+Now lets talk about the levels...
+We need:
+-Level 1(No cars on the roads-empty city) very slow police car
+-Level 2 faster police car and some cars
+-Level 3 Full swing!Cars and crazy police guy!
+The question is...How will we be able to go from one level to another?
+Variant 1:
+-Create locked levels. How will we lock the levels? Typedef...new int which states if a level is locked...(Initially load these from the logs file)
+Variant 2:
+-Create settable levels from the main screen.
+Suggestion...Make the labels locked but add a cheatcode in the initial gamescreen to set all the parameters to 0.
+We will follow the suggestion.
+Lets build it!
+I have to report that we have a serious issue!And that is that all the npc logic is around a defined number!And there is nothing that can be done to change that numbers because that would result in arrays that change memory size!!!!
+So there are two options:
+1. Use calloc
+2. Create a big array and change the logic...
+I know that the first is the best but...I think that the second could do the same job easier(since there is npot a big ammount of data stored and we just use a partition of the arrays)
+So the second approach will be implemented to avoid increased complexity!
+Finished successfully the Variant 2.
+Instructions: 
+1. Press UP_ARROW from the preview screen to increase level number
+2. Press DOWN_ARROW from the preview screen to decrease level number
+3. Press enter to load the screen!
+Have fun!!!!
+Next up is userlogs...Lay the foundation today..Finsh tommorow!!!

@@ -35,8 +35,8 @@
 #define SIZE_OF_CAR_X 5
 #define SIZE_OF_CAR_Y 5
 #define SIZE_OF_CAR_Z 4
-#define NUM_OF_NPC_CARS_ON_X_ROAD 5
-#define NUM_OF_NPC_CARS_ON_Y_ROAD 5
+#define NUM_OF_NPC_CARS_ON_X_ROAD 15
+#define NUM_OF_NPC_CARS_ON_Y_ROAD 15
 // In this section we define all the structure and types needed
 typedef struct // This is a type that we use to store the A* results.
 {
@@ -102,21 +102,35 @@ typedef struct
 enum Screen
 {
     PREVIEW,
-    GAMEON,
+    LEVEL1,
+    LEVEL2,
+    LEVEL3,
     GAMEOVER
 };
+// This is a type that will store the useful information about the levels and the locked ones.
+typedef struct
+{
+    enum Screen CurrentScreen; // Screen type
+    bool isfitsttime;          // Bool that is used to set the parameters
+    int locked_levels;         // Determines how many locked levels there are. Those will be loaded from the file logs.
+} ScreenStatus;
+
 // Global Grid of Nodes
 extern Node grid[COLS][ROWS]; // We declare grid as external and initialize it in layout.c
 
 // Declaring and  initializing constants and other main parameters
 static const int MAN_RECTANGLE_WIDTH = 5, MAN_RECTANGLE_HEIGHT = 5; // Initialize player height and width
 static const int MAN_3D_HEIGHT = 4;                                 // Height of player
-extern float speed; // Declare speed of the player as a global external int accessible and modifiable by all functions in all files
+extern float speed;                                                 // Declare speed of the player as a global external int accessible and modifiable by all functions in all files
 
 extern int npc_smart_counter;                                                                                                                          // This is the counter variable that tracks the calls of the updateNPC function.
 extern Vector2 target_npc_pos;                                                                                                                         // This is the old pos used in the update NPC and is the NPC target pos
 static const Vector2 NPC_CAR_CEMETARY = (Vector2){-2000, -2000};                                                                                       // Set the place where all the invisible cars will stay and this is used primarily for initialization purposes(might very well be unnecessary)
 extern npc_car cars_vertical[NUM_OF_RECTANGLES_X + 1][NUM_OF_NPC_CARS_ON_Y_ROAD], cars_horizontal[NUM_OF_RECTANGLES_Y + 1][NUM_OF_NPC_CARS_ON_X_ROAD]; // Create an array of cars for the X and Y axis respectively.
+
+extern int NUM_OF_NPC_CARS_ON_X_ROAD_ON_CURRENT_LEVEL; //(Initialized in npc.c)This is a variable that is used to determine the most ammount of cars that appear on each level
+extern int NUM_OF_NPC_CARS_ON_Y_ROAD_ON_CURRENT_LEVEL; //(Initialized in npc.c)This is a variable that is used to determine the most ammount of cars that appear on each level
+
 // Functions in all files. Syntax of comments is //(FILENAME_WHERE_FUNTCTION_IS_LOCATED) USE_AND_DEFINITION
 // Initialization functions
 void Initialize_Map(Rectangle (*map)[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X]); //(In layout.c) Initialize the map of the square blocks that will constitute the road
@@ -146,8 +160,8 @@ void draw_current_timer(int CURRENT_TIME_DIFFERNCE);                     //(In d
 void draw_grid(void);                                                    //(In draw.c)Draws the grid of the big map in world-map coordinates. Note that this function does not draw the lines of the coordinates of the grid[i][j] but the outside sides of the rectangles that represent a 2D division of the map plane.
 void DrawCubes(Rectangle map[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X]); // Draws the cubes for the 3D version.
 void draw_npc3D(NPC chaser);                                             // Draws the NPC in 3d
-void draw_cars(void);//Draws all the cars.
-Color choseRandomColour(void); // Returns a random colour from rand and a decoding method.
+void draw_cars(void);                                                    // Draws all the cars.
+Color choseRandomColour(void);                                           // Returns a random colour from rand and a decoding method.
 // A* functions
 //  Initialize all functions(All in astar_search.c)
 void initGrid(void);                                                          // Initializes the grid that will be used for finding the best path
@@ -158,10 +172,12 @@ best_possible_path aStarSearch(int startX, int startY, int destX, int destY); //
 grid_coordinates RealToGrid(Vector2 pos);                                     //(In astar_search.c) converts real map coordinates to grid coordinates for a_star_search. Remember pos is the center position not the top-left.
 Vector2 GridToReal(int gridX, int gridY);                                     //(In astar_search.c) converts grid coordinates to real map ones.
 // This is the set of functions used in the NPC creation and movement
-void updateNPC(NPC *chaser, Vector2 player_pos, Rectangle map[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X]);                                                                       //(In npc.c)Checks conditions and recalculates path if needed.
-int check_if_caught(Vector2 playerpos, NPC npc);                                                                                                                                //(Inn npc.c)Checks if they come in contact
-void update_npc_cars(void); //(In npc.c)Controls npc car movement and specifically APPEARNCE - DISAPPEARENCE - POSITION - COLOUR - START AND END POSITION.
-void init_cars(void);//Initializes the array of cars
-int check_for_car_crashes(Rectangle Player);//Checks for collisions with the npc cars.
+void updateNPC(NPC *chaser, Vector2 player_pos, Rectangle map[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X]); //(In npc.c)Checks conditions and recalculates path if needed.
+int check_if_caught(Vector2 playerpos, NPC npc);                                                          //(Inn npc.c)Checks if they come in contact
+void update_npc_cars(void);                                                                               //(In npc.c)Controls npc car movement and specifically APPEARNCE - DISAPPEARENCE - POSITION - COLOUR - START AND END POSITION.
+void init_cars(void);                                                                                     // Initializes the array of cars
+int check_for_car_crashes(Rectangle Player);                                                              // Checks for collisions with the npc cars.
 // Camera logic(IN cam.c file)
 void TurnCam(Camera3D *camera3d, Vector2 pos); // Turns 3D cam.
+// Screen logic and level logic
+void set_game_parameters(ScreenStatus *GameScreen, NPC *npc); //(in layout.c) Sets all the parameters before a game level starts

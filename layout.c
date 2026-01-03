@@ -22,3 +22,29 @@ void Initialize_Map(Rectangle (*map)[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X])
 // B.Draw the route
 // But first we need to do something much more important. And that is drawing the grid
 // More about the A* algorithm and how we are going to implement it you can see in the documentation.
+// We have succesfully accomplished all of those tasks!Comment remains for historical reasons...
+void set_game_parameters(ScreenStatus *GameScreen, NPC *npc) //(in layout.c) Sets all the parameters before a game level starts
+{
+    switch (GameScreen->CurrentScreen)
+    {
+    case LEVEL1:
+        NUM_OF_NPC_CARS_ON_X_ROAD_ON_CURRENT_LEVEL = 0;
+        NUM_OF_NPC_CARS_ON_Y_ROAD_ON_CURRENT_LEVEL = 0;
+        npc->speed = 0.7;
+        break;
+    case LEVEL2:
+        NUM_OF_NPC_CARS_ON_X_ROAD_ON_CURRENT_LEVEL = 1;
+        NUM_OF_NPC_CARS_ON_Y_ROAD_ON_CURRENT_LEVEL = 1;
+        npc->speed = 2;
+        break;
+    case LEVEL3:
+        NUM_OF_NPC_CARS_ON_X_ROAD_ON_CURRENT_LEVEL = 5;
+        NUM_OF_NPC_CARS_ON_Y_ROAD_ON_CURRENT_LEVEL = 5;
+        npc->speed = 2;
+        break;
+    default:
+        return;
+    }
+
+    GameScreen->isfitsttime = false;
+}

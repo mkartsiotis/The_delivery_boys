@@ -55,7 +55,8 @@ int main(void)
     minimap_cam.target = (Vector2){MAP_WIDTH / 2.0f, MAP_HEIGHT / 2.0f};
     minimap_cam.zoom = ((float)MINIMAP_WIDTH / MAP_WIDTH) < ((float)MINIMAP_HEIGHT / MAP_HEIGHT) ? ((float)MINIMAP_WIDTH / MAP_WIDTH) : ((float)MINIMAP_HEIGHT / MAP_HEIGHT);
     // Gamescreen logic
-    enum Screen GameScreen = PREVIEW;
+    ScreenStatus GameScreen = {PREVIEW, true, 0}; // Be careful!Here we set the locked levels to 0.
+    enum Screen pre_load_screen = LEVEL1;
     // Models for 3d rendering
     //  Create a mesh (The geometry)
     Mesh cubeMesh = GenMeshCube(MAN_RECTANGLE_WIDTH, MAN_3D_HEIGHT, MAN_RECTANGLE_HEIGHT);
@@ -64,16 +65,28 @@ int main(void)
     // Main game loop
     while (!WindowShouldClose())
     {
+        // Here we initialize all parameters ahead of entering a level
+        set_game_parameters(&GameScreen, &npc);
         // Use a switch to tell which screen we are in
-        switch (GameScreen)
+        switch (GameScreen.CurrentScreen)
         {
         case PREVIEW:
             if (IsKeyPressed(KEY_ENTER))
             {
-                GameScreen = GAMEON;
+                GameScreen.CurrentScreen = pre_load_screen;
+            }
+            else if (IsKeyPressed(KEY_UP) && pre_load_screen != LEVEL3)
+            {
+                pre_load_screen += 1;
+            }
+            else if (IsKeyPressed(KEY_DOWN) && pre_load_screen != LEVEL1)
+            {
+                pre_load_screen -= 1;
             }
             break;
-        case GAMEON:
+        case GAMEOVER:
+            break;
+        default:
             /*What we need to do is:
             A. No Mapping Yet Y(Draw specified number of rectangles on screen)
             B. Single Full screen window Υ
@@ -104,8 +117,8 @@ int main(void)
                 pos.y -= movelength * cos(angleRad); // Reverse movement in y axis
                 Player.y = pos.y - (MAN_RECTANGLE_HEIGHT / 2.0f);
             }
-            //Check if the player has colided with the npc cars
-            if(check_for_car_crashes(Player)==1)//If we collide just set the speed to 0.
+            // Check if the player has colided with the npc cars
+            if (check_for_car_crashes(Player) == 1) // If we collide just set the speed to 0.
                 speed = 0;
             // Turn the camera and set other parameters
             TurnCam(&camera3d, pos);
@@ -138,7 +151,7 @@ int main(void)
                 PICKUP.grid_y = -1;
                 PICKUP.REAL = (Vector2){-100, -100};
                 // Now We are bad developers so we say game over!
-                GameScreen = GAMEOVER;
+                GameScreen.CurrentScreen = GAMEOVER;
                 break; // Breaks from the switch.
             }
 
@@ -202,22 +215,24 @@ int main(void)
 
             // Check if the npc has caught the player
             if (check_if_caught(pos, npc) == 1)
-                GameScreen = GAMEOVER;
+                GameScreen.CurrentScreen = GAMEOVER;
             break; // Breaks from the screen loop
-
-        default:
-            break;
         }
 
         // Draw section
         BeginDrawing();
         ClearBackground(DARKGRAY);
-        switch (GameScreen)
+        switch (GameScreen.CurrentScreen)
         {
         case PREVIEW:
-            DrawText("WELCOME PRESS ENTER TO CONTINUE", 500, 500, 50, BLACK);
+            char ch1[50] = {0};
+            sprintf(ch1, "WELCOME PRESS ENTER TO LOAD LEVEL %d", pre_load_screen);
+            DrawText(ch1, 500, 500, 50, WHITE);
             break;
-        case GAMEON:
+        case GAMEOVER:
+            DrawText("GAME OVER", 500, 500, 50, RED);
+            break;
+        default:
             // Start camera
             BeginMode3D(camera3d);
             DrawGrid(100, 50.0f);
@@ -268,11 +283,6 @@ int main(void)
             sprintf(ch, "GRID COORDS ARE %d %d", current_grid_pos.gridX, current_grid_pos.gridY);
             DrawText(ch, 1400, 25, 20, WHITE);
             break; // Breaks from the switch loop
-        case GAMEOVER:
-            DrawText("GAME OVER", 500, 500, 50, RED);
-            break;
-        default:
-            break;
         }
         EndDrawing();
     }
