@@ -1,3 +1,18 @@
+Στόχοι:
+-Δημιουργία 3 επιπέδων
+-Εισαγή 3d model για κτήρια και για το σκούτερ. 
+-Backround στις τέσσερις πλευρές.
+-Να επηρεάζεται κα ιο αστυνόμος από συγκρούσεις με αυτοκίμητα
+-
+
+
+
+
+
+
+
+
+
 This is the progress file #2!  
 Today I tried to use differt techniques of moving a player in a world map created by me.  
 Steps:  
@@ -162,3 +177,6 @@ Brake Logic: Prevents overlap and allows queues.
 
 Traffic Lights: Controls the flow and creates clumps of traffic."
 So first lets try to implement the alternating pattern.
+
+
+
