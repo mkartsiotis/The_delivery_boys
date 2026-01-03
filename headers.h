@@ -111,7 +111,6 @@ extern Node grid[COLS][ROWS]; // We declare grid as external and initialize it i
 // Declaring and  initializing constants and other main parameters
 static const int MAN_RECTANGLE_WIDTH = 5, MAN_RECTANGLE_HEIGHT = 5; // Initialize player height and width
 static const int MAN_3D_HEIGHT = 4;                                 // Height of player
-
 extern float speed; // Declare speed of the player as a global external int accessible and modifiable by all functions in all files
 
 extern int npc_smart_counter;                                                                                                                          // This is the counter variable that tracks the calls of the updateNPC function.
