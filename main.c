@@ -62,16 +62,19 @@ int main(void)
     Mesh cubeMesh = GenMeshCube(MAN_RECTANGLE_WIDTH, MAN_3D_HEIGHT, MAN_RECTANGLE_HEIGHT);
     // Load it into a Model (The object you can draw)
     Model playerModel = LoadModelFromMesh(cubeMesh);
-    // User logs. File format:-LEVELS_LOCKED--HIGHSCORE-
+    // User logs. File format: -%HIGHSCORE1-%HIGHSCORE2-%HIGHSCORE3-
     FILE *file = fopen("userlogs.txt", "r+"); // Check if file is found and if so find it. If the file already exists it will open. If it does not exist a new file is automatically created.
     if (file == NULL)                         // If file is not found create one
     {
         file = fopen("userlogs.txt", "w+"); // Create a new file that can be read and written
-        fseek(file, 0, 0);                  // Set cursor position to 0 -%1DGITINT--%INT-
-        fprintf(file, "-0--0-");
+        fseek(file, 0, 0);                  // Set cursor position to 0 -%HIGHSCORE1-%HIGHSCORE2-%HIGHSCORE3-
+        fprintf(file, "-%06d-%06d-%06d-", 0, 0, 0);
     }
     if (file == NULL) // If we are still unable to open a file just kill the programm
         exit(EXIT_FAILURE);
+    // Locked levels and previous highscores!
+    int HIGHSCORE1 = 0, HIGHSCORE2 = 0, HIGHSCORE3 = 0;
+    fscanf(file, "-%d-%d-%d-", &HIGHSCORE1, &HIGHSCORE2, &HIGHSCORE3); // scans and assigns the values to the highscores.
     // Main game loop
     while (!WindowShouldClose())
     {
@@ -81,9 +84,15 @@ int main(void)
         switch (GameScreen.CurrentScreen)
         {
         case PREVIEW:
+            // Game locked level logic! 1.Read the thersholds and set them!2. Let the player play iff the highscore has been completed!
             if (IsKeyPressed(KEY_ENTER))
             {
-                GameScreen.CurrentScreen = pre_load_screen;
+                if (pre_load_screen == LEVEL1)
+                    GameScreen.CurrentScreen = pre_load_screen;
+                else if (pre_load_screen == LEVEL2 && HIGHSCORE1 > 10) // IMPORTANT!SET HIGHSCORE THRESHOLDS
+                    GameScreen.CurrentScreen = pre_load_screen;
+                else if (pre_load_screen == LEVEL3 && HIGHSCORE2 > 5)
+                    GameScreen.CurrentScreen = pre_load_screen;
             }
             else if (IsKeyPressed(KEY_UP) && pre_load_screen != LEVEL3)
             {
@@ -199,16 +208,23 @@ int main(void)
                     // Check if we have surpassed the hich score and then if so write the new score
                     int HIGH_SCORE = 0;
                     fseek(file, 0, 0);
-                    fscanf(file, "-%*d--%d-", &HIGH_SCORE);
+                    if (GameScreen.CurrentScreen == LEVEL1)
+                        fscanf(file, "-%d-%*d-%*d-", &HIGH_SCORE);
+                    else if (GameScreen.CurrentScreen == LEVEL2)
+                        fscanf(file, "-%*d-%d-%*d-", &HIGH_SCORE);
+                    if (GameScreen.CurrentScreen == LEVEL3)
+                        fscanf(file, "-%*d-%*d-%d-", &HIGH_SCORE);
+
                     if (HIGH_SCORE < sucessful_deliveries)
                     {
-                        //Move to the start of the second integer
-                        // We use fseek(file, 4, SEEK_SET) assuming -X--Y- where X is 1 digit
-                        fseek(file, 4, SEEK_SET);
+                        // Move to the start of the second integer
+                        //  We use fseek(file, 4, SEEK_SET) assuming -X--Y- where X is 1 digit
+                        // We need to find the position!
+
+                        fseek(file, ((GameScreen.CurrentScreen - 1) * 7 + 1), SEEK_SET);
                         // Write the new value
-                        fprintf(file, "%d-", sucessful_deliveries);
-                        long current_pos = ftell(file);
-                        fflush(file); 
+                        fprintf(file, "%06d-", sucessful_deliveries);
+                        fflush(file);
                     }
                     DROPOFF = (grid_and_map_coords){(Vector2){-100, -100}, -1, -1};
                 }
@@ -301,8 +317,8 @@ int main(void)
 
             if (is_first_time == false)
                 draw_current_timer(timer_diff);
-            Draw_and_update_score_window(sucessful_deliveries, file); // Draw score
-            drawspeed();                                              // Draws a speedometer.
+            Draw_and_update_score_window(sucessful_deliveries, file, GameScreen); // Draw score
+            drawspeed();                                                          // Draws a speedometer.
             char ch[50] = {0};
             sprintf(ch, "GRID COORDS ARE %d %d", current_grid_pos.gridX, current_grid_pos.gridY);
             DrawText(ch, 1400, 25, 20, WHITE);

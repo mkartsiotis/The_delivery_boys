@@ -9,9 +9,9 @@
 -Να επηρεάζεται κα ο αστυνόμος από συγκρούσεις με αυτοκίνητα
 -Pdf με συναρτήσεις κλπ.
 ->Χρονόδιάγραμμα:
--Σήμερα τα επίπεδα.(Μ)
--Αύριο ή Δευτέρα(Μ) -High score logs. Το score να γίνει coins.(Μ)
--Δευτέρα ή Τρίτη(Μ) -Ο τερματισμος να γινεται με βενζίνη όχι με χρόνο. Με αντάλλαγμα score.(Μ)
+-Σήμερα τα επίπεδα.(Μ)(mark done)
+-Αύριο ή Δευτέρα(Μ) -High score logs. Το score να γίνει coins.(Μ)(half done)
+-Δευτέρα ή Τρίτη(Μ) -Ο τερματισμος να γινεται με βενζίνη όχι με χρόνο. Με αντάλλαγμα score.(Μ)(in progress)
 1 Μέρα:(Δ)
 {-Εισαγωγή 3d model για κτήρια και για το σκούτερ και npc. 
 -Backround στις τέσσερις πλευρές.
@@ -21,9 +21,12 @@
 }Δ
 1 Μέρα Κενό(Δ).
 *ΡΑΒΑΣΑΚΙ->Η δημιουργία 3 επιπέδων ολοκληρώθηκε!!!Δες στο τέλος του αρχείου για τη λογική.(Μ)*
-
-
-
+*ΡΑΒΑΣΑΚΙ2->Το κλείδωμα επιπέδων και το userlogs προστεθηκαν!Τελικά ια ήταν ωραίο να κλειδώμουν αλλά με bypass (e.g.πατώντας τη συντομευση c+s+e+v+a+s+t ;)(cheatcode)
+Δες στο τέλος του αρχείου για λεπτομέρειες...
+Τα επίπεδα κλειδώνουν με βάση το σκόρ του προηγούμενου(επηρεάζεται από το main γράφω αν δεις στην αρχή(93 γραμμή) του main.c).
+Κανονικά θα πρέπει να γίνει με #DEFINE αλλά αυριο βράδυ!!!!
+Επίσης αύριο θα δώ τα πάντα με το σκόρ και θα αξιολογήσω τις προϋποθέσεις του csevast.
+SeeeYAAA!>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 
 This is the progress file #2!  
@@ -228,3 +231,14 @@ Have fun!!!!
 Next up is userlogs...Lay the foundation today..Finsh tommorow!!!
 Userlogs Completed(partially).
 Next is creating locked levels!See you tommorow Jim! 
+
+Update #9:
+-Todays objectives:
+1. Make the levels locked(do not let the player enter an ivalid level)
+2. Create a system that updates the locked levels at the completion of every game.
+3. Just had a wonderfull idea!!!Next level is unlocked after player has made a ceratin highscore in the previous level!
+SO first we are going to:
+1. Twick the highscore encoding in the file as -%LOCKEDLEVELNUMBER-%HIGHSCORE1-%HIGHSCORE2-%HIGHSCORE3-
+Lets do that and I will inform you about what is next!
+Tweaked the high score!
+Now it works...
