@@ -10,8 +10,8 @@
 -Pdf με συναρτήσεις κλπ.
 ->Χρονόδιάγραμμα:
 -Σήμερα τα επίπεδα.(Μ)(mark done)
--Αύριο ή Δευτέρα(Μ) -High score logs. Το score να γίνει coins.(Μ)(half done)
--Δευτέρα ή Τρίτη(Μ) -Ο τερματισμος να γινεται με βενζίνη όχι με χρόνο. Με αντάλλαγμα score.(Μ)(in progress)
+-Αύριο ή Δευτέρα(Μ) -High score logs. Το score να γίνει coins.(Μ)(done)
+-Δευτέρα ή Τρίτη(Μ) -Ο τερματισμος να γινεται με βενζίνη όχι με χρόνο. Με αντάλλαγμα score.(Μ)(done tommorow adding fuel stations)
 1 Μέρα:(Δ)
 {-Εισαγωγή 3d model για κτήρια και για το σκούτερ και npc. 
 -Backround στις τέσσερις πλευρές.
@@ -26,6 +26,8 @@
 Τα επίπεδα κλειδώνουν με βάση το σκόρ του προηγούμενου(επηρεάζεται από το main γράφω αν δεις στην αρχή(93 γραμμή) του main.c).
 Κανονικά θα πρέπει να γίνει με #DEFINE αλλά αυριο βράδυ!!!!
 Επίσης αύριο θα δώ τα πάντα με το σκόρ και θα αξιολογήσω τις προϋποθέσεις του csevast.
+Δεν είδα τις προϋποθέσεις ακόμα αλλά έβαλα καύσιμα!Τώρα μένουν τα βενζινάδικα και οι βελτιώσεις στην κίνηση που γράφω.
+Τα λέμε αύριο(Μ)
 SeeeYAAA!>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 
@@ -242,3 +244,17 @@ SO first we are going to:
 Lets do that and I will inform you about what is next!
 Tweaked the high score!
 Now it works...
+
+Update #10: Developing a high score logic
+This is the score calculation formula.
+1. At the beggining the points awarded to the player are: manhantan_distance_to_pickup_from_pos + manhantan_distance_to_dropoff_from_pickup
+2. We deduce points each time:
+a. We hit a car
+b. When mooving deduce every second that passes. Do not deduce if score is larger than 0.
+Did all of that!
+Tomorow I will add gas stations.
+Lets gooooooo!
+TIME LOGIC->ELIMINATED
+FUEL lOGIC->REBORN
+BACKUPED ALL.
+SEeee yALlLLL

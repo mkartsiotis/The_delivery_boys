@@ -19,20 +19,16 @@ int main(void)
     bool mission_active = false;
     bool picked_order = false;
     int sucessful_deliveries = 0;
-    // Variable used to check if the player is in his first run or not
-    bool is_first_time = true;
     // Variables for delivery activation
     grid_and_map_coords PICKUP = {(Vector2){-100, -100}, -1, -1}, DROPOFF = {(Vector2){-100, -100}, -1, -1};
     // Set the colour of the player just for debugging purposes
     Color col = BLUE;
-    // Get the time of the start of the clock
-    time_t start_timer_time = 0; // This is a type of of variable that saves the time(included in time.h)
-    int timer_diff = 100;        // Variable for storing the time difference in a given moment of the game.
     // For debugging we add a variable that controls the grid drawing
     bool should_draw_grid = false;
     // Variables used in A*
     best_possible_path a_star_results = {0};    // Strores the A*results in a same type variable
     grid_coordinates current_grid_pos = {0, 0}; // For updating current_grid_pos every time;
+    int a_star_counter = 0;                     // Counts how many times before A star is called
     // NPC VARIABLES
     NPC npc = {0};
     npc.position.x = MAP_WIDTH - npc.WIDTH;
@@ -62,13 +58,24 @@ int main(void)
     Mesh cubeMesh = GenMeshCube(MAN_RECTANGLE_WIDTH, MAN_3D_HEIGHT, MAN_RECTANGLE_HEIGHT);
     // Load it into a Model (The object you can draw)
     Model playerModel = LoadModelFromMesh(cubeMesh);
+    // Model of minimap
+    //  Draw walls on texture
+    RenderTexture2D minimap_texture = LoadRenderTexture(MAP_WIDTH, MAP_HEIGHT);
+
+    // Start drawing onto this canvas (instead of the screen)
+    BeginTextureMode(minimap_texture);
+    ClearBackground(BLANK); // Make background transparent
+    DrawRectangles(map);    // Draw the static red blocks ONCE
+    EndTextureMode();
     // User logs. File format: -%HIGHSCORE1-%HIGHSCORE2-%HIGHSCORE3-
     FILE *file = fopen("userlogs.txt", "r+"); // Check if file is found and if so find it. If the file already exists it will open. If it does not exist a new file is automatically created.
     if (file == NULL)                         // If file is not found create one
     {
         file = fopen("userlogs.txt", "w+"); // Create a new file that can be read and written
-        fseek(file, 0, 0);                  // Set cursor position to 0 -%HIGHSCORE1-%HIGHSCORE2-%HIGHSCORE3-
         fprintf(file, "-%06d-%06d-%06d-", 0, 0, 0);
+        fflush(file);
+        fclose(file);
+        file = fopen("userlogs.txt", "r+");
     }
     if (file == NULL) // If we are still unable to open a file just kill the programm
         exit(EXIT_FAILURE);
@@ -117,8 +124,7 @@ int main(void)
             H.Award the player*/
 
             // Update Variables Section
-            CreateWalls(); // Creates the walls for the initGrid an other functions
-                           // 1. MOVE PLAYER SECTION
+            // 1. MOVE PLAYER SECTION
             float movelength = delta_move();
             pos.x += movelength * sin(angleRad);
             Player.x = pos.x - (MAN_RECTANGLE_WIDTH / 2.0f);
@@ -138,7 +144,10 @@ int main(void)
             }
             // Check if the player has colided with the npc cars
             if (check_for_car_crashes(Player) == 1) // If we collide just set the speed to 0.
+            {
                 speed = 0;
+                deduce_score_for_mission(); // Decrease the score if we ever crash
+            }
             // Turn the camera and set other parameters
             TurnCam(&camera3d, pos);
             // Contimue with the game logic
@@ -147,18 +156,14 @@ int main(void)
             Player.x = pos.x - (MAN_RECTANGLE_WIDTH / 2.0f);
             current_grid_pos = RealToGrid(pos); // Calcuate grid position of the player.
 
-            // 2. TIME SECTION AND SET PICKUP AND DROPOFF POSITIONS
-            if (is_first_time == true) // If it is the first mission Initialize_timer
-                start_timer_time = time(NULL);
-
-            else
-                timer_diff = current_timer_difference(start_timer_time); // Calculate timer diffence if distibutor is active(on duty)
+            // 2.SET PICKUP AND DROPOFF POSITIONS
+            burn_fuel();//Burn the neccessary fuel
             // Now we need to add the time limitation which we will also print on the window with the score
-            // We are in the mission, so what we need is: A. to get time(which we get with a difference from the initial time of the delivery) and
+            // We are in the mission, so what we need is: A. We have the fuel
             //                                            B. terminate the mission if we reached the time limit.
-            // For this we will use two functions the current_timer_difference(INITIAL TIME) and the draw_current_timer(int time). Check the headers for the definitions.
+            // For this we will use two functions the burn_fuel(void); and the draw_current_fuel(void). Check the headers for the definitions.
 
-            if (timer_diff <= 0) // If time_diff<=0 terminate mission due to reaching the time limit
+            if (gas <= 0) // If gas<=0 terminate mission due to reaching the gas limit
             {
                 col = BLUE;             // Reset colour
                 mission_active = false; // Reset mission
@@ -182,10 +187,9 @@ int main(void)
             {
                 PICKUP = initialize_pickup_location(map);
                 DROPOFF = initialize_dropoff_location(map, PICKUP.REAL);
+                set_score_for_current_mission(pos, PICKUP.REAL, DROPOFF.REAL); // Set the score to the initial value
                 // Start mission
                 mission_active = true;
-                // Tell the programm that the game has started(Delivery man is on duty)
-                is_first_time = false;
                 // Find shortest path and assign it to a_star_results
                 initGrid();
                 a_star_results = aStarSearch(current_grid_pos.gridX, current_grid_pos.gridY, PICKUP.grid_x, PICKUP.grid_y);
@@ -204,7 +208,8 @@ int main(void)
                     col = BLUE;
                     mission_active = false;
                     picked_order = false;
-                    sucessful_deliveries++;
+                    sucessful_deliveries += score_for_current_mission; // Increase score by the amount of things left
+                    score_for_current_mission = 0;
                     // Check if we have surpassed the hich score and then if so write the new score
                     int HIGH_SCORE = 0;
                     fseek(file, 0, 0);
@@ -231,14 +236,24 @@ int main(void)
                 // If we have a mission check if where we are and draw the fastest route accordingly
                 if (mission_active == true && picked_order == false)
                 {
-                    initGrid(); // First need to initialize the grid
-                    a_star_results = aStarSearch(current_grid_pos.gridX, current_grid_pos.gridY, PICKUP.grid_x, PICKUP.grid_y);
+                    if (a_star_counter > 20) // Use the heavy a star less times so that the fps are at high levels and the programm runs smoother
+                    {
+                        initGrid(); // First need to initialize the grid
+                        a_star_results = aStarSearch(current_grid_pos.gridX, current_grid_pos.gridY, PICKUP.grid_x, PICKUP.grid_y);
+                        a_star_counter = 0;
+                    }
                 }
+
                 else if (mission_active == true && picked_order == true)
                 {
-                    initGrid(); // First need to initialize the grid
-                    a_star_results = aStarSearch(current_grid_pos.gridX, current_grid_pos.gridY, DROPOFF.grid_x, DROPOFF.grid_y);
+                    if (a_star_counter > 20) // Use the heavy a star less times so that the fps are at high levels and the programm runs smoother
+                    {
+                        initGrid(); // First need to initialize the grid
+                        a_star_counter = 0;
+                        a_star_results = aStarSearch(current_grid_pos.gridX, current_grid_pos.gridY, DROPOFF.grid_x, DROPOFF.grid_y);
+                    }
                 }
+                a_star_counter++;
             }
             // 4. DRAW GRID FOR DEBUGGING
             //  Check before printing the grid
@@ -304,7 +319,9 @@ int main(void)
             BeginScissorMode(1500, 50, MINIMAP_WIDTH, MINIMAP_HEIGHT);
 
             BeginMode2D(minimap_cam);
-            DrawRectangles(map);                                                         // Draws map
+            DrawTextureRec(minimap_texture.texture,
+                           (Rectangle){0, 0, minimap_texture.texture.width, -minimap_texture.texture.height},
+                           (Vector2){0, 0}, WHITE);//Do not draw the rectangles but the model!
             DrawRectangle(Player.x, Player.y, Player.width * 5, Player.height * 5, col); // Draw player three times larger for better place visualizatiomn
             if (mission_active == true)
             {
@@ -315,8 +332,9 @@ int main(void)
             EndMode2D();
             EndScissorMode();
 
-            if (is_first_time == false)
-                draw_current_timer(timer_diff);
+            draw_fuel_bar();
+            if (mission_active == true)
+                draw_mission_score();                                             // Draw score that is going to be awarded if mission is active indeed
             Draw_and_update_score_window(sucessful_deliveries, file, GameScreen); // Draw score
             drawspeed();                                                          // Draws a speedometer.
             char ch[50] = {0};

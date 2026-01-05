@@ -37,7 +37,7 @@ float delta_move(void)
 
 void keep_in_boundaries(Vector2 *pos)
 {
-    if (pos->x < MAN_RECTANGLE_WIDTH / 2.0f)
+    if (pos->x - MAN_RECTANGLE_WIDTH / 2.0f < 0)
         pos->x += speed;
     else if (pos->x > WINDOW_WIDTH - (MAN_RECTANGLE_WIDTH / 2.0f))
         pos->x -= speed;

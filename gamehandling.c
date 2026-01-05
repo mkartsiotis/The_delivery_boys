@@ -11,6 +11,10 @@ enum Sides
     RIGHT1,
     RIGHT2
 };
+
+int score_for_current_mission = 0; // Variable that is responsible for storing the score for a mission.
+float gas = (float)INITIAL_GASOLINE;
+
 grid_and_map_coords initialize_pickup_location(Rectangle map[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X])
 {
     grid_and_map_coords coordinates;
@@ -148,10 +152,19 @@ grid_and_map_coords initialize_dropoff_location(Rectangle map[NUM_OF_RECTANGLES_
     return coordinates;
 }
 
-int current_timer_difference(time_t INITIAL_TIME)
+void burn_fuel(void)                       //(In gamehandling.c)Decreases the fuel amount.
 {
-    time_t END_TIME = INITIAL_TIME + TIME_LIMIT;
-    time_t current_time = time(NULL);
-    int seconds_passed = (int)difftime(END_TIME, current_time);
-    return seconds_passed;
+    gas -= speed / 50;//This formula calculates the amount of fuel that is burnt in every frame. 
+}
+
+void set_score_for_current_mission(Vector2 pos, Vector2 PICKUP, Vector2 DROPOFF) // Calculates the score for a given mission and assigns it to the global external variable score_for_current_mission.
+{
+    float points_award = 0;
+    points_award = fabs(pos.x - PICKUP.x) + fabs(pos.y - PICKUP.y) + fabs(DROPOFF.x - PICKUP.x) + fabs(DROPOFF.y - PICKUP.y);
+    score_for_current_mission = (int)points_award; // Assign the score to the global variable score_for_current_mission
+}
+void deduce_score_for_mission(void) // Deduces score for current mission when called in main(for time deduction and punishment when hitting a car or when doing something illegal)
+{
+    if (score_for_current_mission > 0)
+        score_for_current_mission -= 1; // Probably an unecessary function but ok...
 }

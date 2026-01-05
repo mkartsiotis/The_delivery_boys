@@ -55,11 +55,15 @@ void Draw_and_update_score_window(int sucessful_deliveries, FILE *file, ScreenSt
 
     DrawText(high_score_text, 300, 25, 20, WHITE);
 }
-void draw_current_timer(int CURRENT_TIME_DIFFERNCE)
+void draw_fuel_bar(void) //(In draw.c)Draws the remaining fuel in the depoisit.
 {
-    char time_differnce[20] = {0};                                    // Create an array for storing the time_diffence
-    sprintf(time_differnce, "Time left: %d", CURRENT_TIME_DIFFERNCE); // Store the time in the string
-    DrawText(time_differnce, 600, 25, 20, WHITE);                     // Draw
+    DrawRectangleLines(1800, (float)WINDOW_HEIGHT * 2.0f / 3.0f, 20, 100, WHITE);
+    Color tankcol;
+    if(gas > 80)
+        tankcol = GREEN;
+    else 
+        tankcol = RED;
+    DrawRectangle(1800, ((float)WINDOW_HEIGHT * 2.0f / 3.0f + 100 - (gas / (float)INITIAL_GASOLINE * 100)), 20, (gas / (float)INITIAL_GASOLINE * 100), tankcol);
 }
 void draw_grid(void) //(In draw.c)Draws the grid of the big map in world-map coordinates. Note that this function does not draw the lines of the coordinates of the grid[i][j] but the outside sides of the rectangles that represent a 2D division of the map plane.
 {
@@ -139,4 +143,13 @@ void draw_cars(void) // Draws all the cars.
             {
                 DrawCube((Vector3){cars_vertical[i][j].pos.x, cars_vertical[i][j].sizeZ / 2.0f, cars_vertical[i][j].pos.y}, cars_vertical[i][j].sizeX, cars_vertical[i][j].sizeZ, cars_vertical[i][j].sizeY, cars_vertical[i][j].col);
             }
+}
+
+void draw_mission_score(void) // Draws the score that is going to be awarded if no more points are deducted
+{
+    Font font = LoadFontEx("OldNewspaperTypes.ttf", 20, 0, 0);
+    char ch[50] = {0};
+    int fps = GetFPS();
+    sprintf(ch, "MISSION REWARDS: %d FPS: %d", score_for_current_mission, fps);
+    DrawTextEx(font, ch, (Vector2){800, 25}, 20, 2, WHITE); // Draw
 }
