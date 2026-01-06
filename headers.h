@@ -14,8 +14,6 @@
 // First we name what we want(e.g. SIZE). All words seperated by '_'.See why we opted to use #DEFINE in the documentatetion
 //  Define some preset constatnts
 #define TIME_LIMIT 180 // Number of seconds in which the player has to fulfill all orders.
-#define WINDOW_WIDTH 1900
-#define WINDOW_HEIGHT 1000
 #define MAP_WIDTH WINDOW_WIDTH
 #define MAP_HEIGHT WINDOW_HEIGHT
 
@@ -121,6 +119,9 @@ typedef struct
 extern Node grid[COLS][ROWS]; // We declare grid as external and initialize it in layout.c
 
 // Declaring and  initializing constants and other main parameters
+extern int WINDOW_WIDTH;
+extern int WINDOW_HEIGHT;
+
 static const int MAN_RECTANGLE_WIDTH = 5, MAN_RECTANGLE_HEIGHT = 5; // Initialize player height and width
 static const int MAN_3D_HEIGHT = 4;                                 // Height of player
 extern float speed;                                                 // Declare speed of the player as a global external int accessible and modifiable by all functions in all files
@@ -143,7 +144,7 @@ void Initialize_Map(Rectangle (*map)[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X]);
 void draw_pickup_and_dropoff(Vector2 PICKUP, Vector2 DROPOFF);                                    // Draws small circles around dropoff and pickup locations
 void draw_pickup_and_dropoff3D(Vector2 PICKUP, Vector2 DROPOFF);                                  // Draws small circles around dropoff and pickup locations
 void DrawRectangles(Rectangle map[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X]);                     // (In draw.c) Draw the array of Rectangles Initialized as map in the main void function to create a map
-void Draw_and_update_score_window(int sucessful_deliveries, FILE *file, ScreenStatus GameScreen); //(In draw.c)Draws a score window
+void Draw_and_update_score_window(int sucessful_deliveries, int HIGH1, int HIGH2, int HIGH3, ScreenStatus GameScreen); //(In draw.c)Draws a score window
 void draw_astar_results(best_possible_path A_STAR_RESULT);                                        // Draws A* results in 2D.
 void draw_astar_results3D(best_possible_path A_STAR_RESULT);                                      // Draws A* results in 3D.
 void draw_npc(NPC chaser);                                                                        // Draws an NPC
@@ -189,4 +190,4 @@ void TurnCam(Camera3D *camera3d, Vector2 pos); // Turns 3D cam.
 void set_game_parameters(ScreenStatus *GameScreen, NPC *npc); //(in layout.c) Sets all the parameters before a game level starts
 // Score handling(All functions in gamehandling.c)
 void set_score_for_current_mission(Vector2 pos, Vector2 PICKUP, Vector2 DROPOFF); // Calculates the score for a given mission and assigns it to the global external variable score_for_current_mission.
-void deduce_score_for_mission(void);                                              // Deduces score for current mission when called in main(for time deduction and punishment when hitting a car or when doing something illegal)
+void deduce_score_for_mission(int n);                                              // Deduces score for current mission when called in main(for time deduction and punishment when hitting a car or when doing something illegal)

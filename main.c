@@ -1,8 +1,17 @@
 #include "headers.h" //Including the header file
 
+// Initialize some parameters
+int WINDOW_WIDTH = 1900;
+int WINDOW_HEIGHT = 1000;
+
 int main(void)
 {
+    printf("WINDOW DIMENSIONS, %d, %d", WINDOW_WIDTH, WINDOW_HEIGHT);
     InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "The Delivery Man V0.2.0");
+    ToggleFullscreen();
+    int monitor = GetCurrentMonitor();
+    WINDOW_WIDTH = GetMonitorWidth(monitor);
+    WINDOW_HEIGHT = GetMonitorHeight(monitor);
     HideCursor();
     SetTargetFPS(60);
     /*This is the section where we initialize all the variables*/
@@ -19,10 +28,11 @@ int main(void)
     bool mission_active = false;
     bool picked_order = false;
     int sucessful_deliveries = 0;
+    int deduce_score_counter = 0;
     // Variables for delivery activation
     grid_and_map_coords PICKUP = {(Vector2){-100, -100}, -1, -1}, DROPOFF = {(Vector2){-100, -100}, -1, -1};
     // Set the colour of the player just for debugging purposes
-    Color col = BLUE;
+    Color col = GREEN;
     // For debugging we add a variable that controls the grid drawing
     bool should_draw_grid = false;
     // Variables used in A*
@@ -111,6 +121,8 @@ int main(void)
             }
             break;
         case GAMEOVER:
+            if (GetKeyPressed() != 0)
+                GameScreen.CurrentScreen = PREVIEW;
             break;
         default:
             /*What we need to do is:
@@ -133,6 +145,9 @@ int main(void)
             {
                 pos.x -= movelength * sin(angleRad); // Reverse movement in x axis
                 Player.x = pos.x - (MAN_RECTANGLE_WIDTH / 2.0f);
+                if (speed > 1)
+                    speed = 1;
+                printf("SOEDKOF00\n");
             }
             // Do the same for the y axis
             pos.y += movelength * cos(angleRad);
@@ -146,8 +161,11 @@ int main(void)
             if (check_for_car_crashes(Player) == 1) // If we collide just set the speed to 0.
             {
                 speed = 0;
-                deduce_score_for_mission(); // Decrease the score if we ever crash
+                deduce_score_for_mission(10); // Decrease the score if we ever crash
             }
+            deduce_score_counter++;
+            if (deduce_score_counter == 50)
+                deduce_score_for_mission(1);
             // Turn the camera and set other parameters
             TurnCam(&camera3d, pos);
             // Contimue with the game logic
@@ -157,7 +175,7 @@ int main(void)
             current_grid_pos = RealToGrid(pos); // Calcuate grid position of the player.
 
             // 2.SET PICKUP AND DROPOFF POSITIONS
-            burn_fuel();//Burn the neccessary fuel
+            burn_fuel(); // Burn the neccessary fuel
             // Now we need to add the time limitation which we will also print on the window with the score
             // We are in the mission, so what we need is: A. We have the fuel
             //                                            B. terminate the mission if we reached the time limit.
@@ -165,17 +183,16 @@ int main(void)
 
             if (gas <= 0) // If gas<=0 terminate mission due to reaching the gas limit
             {
-                col = BLUE;             // Reset colour
+                col = GREEN;            // Reset colour
                 mission_active = false; // Reset mission
                 picked_order = false;   // Reset var for picking orders
                 DROPOFF.grid_x = -1;
                 DROPOFF.grid_y = -1;
-                DROPOFF.REAL = (Vector2){-100, -100}; // Moving away pickup and dropoff locations
+                DROPOFF.REAL = (Vector2){-10000, -10000}; // Moving away pickup and dropoff locations
                 PICKUP.grid_x = -1;
                 PICKUP.grid_y = -1;
-                PICKUP.REAL = (Vector2){-100, -100};
+                PICKUP.REAL = (Vector2){-10000, -10000};
                 // Now We are bad developers so we say game over!
-                GameScreen.CurrentScreen = GAMEOVER;
                 break; // Breaks from the switch.
             }
 
@@ -193,6 +210,8 @@ int main(void)
                 // Find shortest path and assign it to a_star_results
                 initGrid();
                 a_star_results = aStarSearch(current_grid_pos.gridX, current_grid_pos.gridY, PICKUP.grid_x, PICKUP.grid_y);
+                fseek(file, 0, 0);                                                 // Go to the begginig of the file
+                fscanf(file, "-%d-%d-%d-", &HIGHSCORE1, &HIGHSCORE2, &HIGHSCORE3); // scans and assigns the values to the highscores.
             }
             else if (mission_active == true) // If we have the mission check if we acomplished it.
             {
@@ -205,7 +224,7 @@ int main(void)
                 }
                 else if (pos.x - (DROPOFF.REAL).x < MAN_RECTANGLE_WIDTH && pos.x - (DROPOFF.REAL).x > -MAN_RECTANGLE_WIDTH && pos.y - (DROPOFF.REAL).y < MAN_RECTANGLE_HEIGHT && pos.y - (DROPOFF.REAL).y > -MAN_RECTANGLE_HEIGHT && picked_order == true)
                 {
-                    col = BLUE;
+                    col = GREEN;
                     mission_active = false;
                     picked_order = false;
                     sucessful_deliveries += score_for_current_mission; // Increase score by the amount of things left
@@ -236,7 +255,7 @@ int main(void)
                 // If we have a mission check if where we are and draw the fastest route accordingly
                 if (mission_active == true && picked_order == false)
                 {
-                    if (a_star_counter > 20) // Use the heavy a star less times so that the fps are at high levels and the programm runs smoother
+                    if (a_star_counter > 6) // Use the heavy a star less times so that the fps are at high levels and the programm runs smoother
                     {
                         initGrid(); // First need to initialize the grid
                         a_star_results = aStarSearch(current_grid_pos.gridX, current_grid_pos.gridY, PICKUP.grid_x, PICKUP.grid_y);
@@ -246,7 +265,7 @@ int main(void)
 
                 else if (mission_active == true && picked_order == true)
                 {
-                    if (a_star_counter > 20) // Use the heavy a star less times so that the fps are at high levels and the programm runs smoother
+                    if (a_star_counter > 6) // Use the heavy a star less times so that the fps are at high levels and the programm runs smoother
                     {
                         initGrid(); // First need to initialize the grid
                         a_star_counter = 0;
@@ -276,7 +295,8 @@ int main(void)
 
         // Draw section
         BeginDrawing();
-        ClearBackground(DARKGRAY);
+        ClearBackground(SKYBLUE);
+        DrawFPS(900, 10);
         switch (GameScreen.CurrentScreen)
         {
         case PREVIEW:
@@ -285,12 +305,12 @@ int main(void)
             DrawText(ch1, 500, 500, 50, WHITE);
             break;
         case GAMEOVER:
-            DrawText("GAME OVER", 500, 500, 50, RED);
+            DrawText("GAME OVER. Press any key to continue", 400, 500, 50, RED);
             break;
         default:
             // Start camera
             BeginMode3D(camera3d);
-            DrawGrid(100, 50.0f);
+            DrawPlane((Vector3){(float)WINDOW_WIDTH / 2.0f, -0.1, (float)WINDOW_HEIGHT / 2.0f}, (Vector2){3000, 3000}, DARKGRAY);
 
             DrawCubes(map);          // Draws map
             DrawModelEx(playerModel, // Draw the model you laod from the playerModel
@@ -321,7 +341,7 @@ int main(void)
             BeginMode2D(minimap_cam);
             DrawTextureRec(minimap_texture.texture,
                            (Rectangle){0, 0, minimap_texture.texture.width, -minimap_texture.texture.height},
-                           (Vector2){0, 0}, WHITE);//Do not draw the rectangles but the model!
+                           (Vector2){0, 0}, WHITE);                                      // Do not draw the rectangles but the model!
             DrawRectangle(Player.x, Player.y, Player.width * 5, Player.height * 5, col); // Draw player three times larger for better place visualizatiomn
             if (mission_active == true)
             {
@@ -334,9 +354,9 @@ int main(void)
 
             draw_fuel_bar();
             if (mission_active == true)
-                draw_mission_score();                                             // Draw score that is going to be awarded if mission is active indeed
-            Draw_and_update_score_window(sucessful_deliveries, file, GameScreen); // Draw score
-            drawspeed();                                                          // Draws a speedometer.
+                draw_mission_score();                                                                           // Draw score that is going to be awarded if mission is active indeed
+            Draw_and_update_score_window(sucessful_deliveries, HIGHSCORE1, HIGHSCORE2, HIGHSCORE3, GameScreen); // Draw score
+            drawspeed();                                                                                        // Draws a speedometer.
             char ch[50] = {0};
             sprintf(ch, "GRID COORDS ARE %d %d", current_grid_pos.gridX, current_grid_pos.gridY);
             DrawText(ch, 1400, 25, 20, WHITE);

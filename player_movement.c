@@ -20,18 +20,20 @@ float delta_move(void)
         angleRad = 0;
     if (IsKeyDown(KEY_DOWN))
     {
-        delta = speed;
-        speed += 0.03;
+        delta = 0;
+        speed -= 0.1;
     }
     else if (IsKeyDown(KEY_UP))
     {
-        delta = -speed;
         speed += 0.03;
     }
     else if (speed > 0)
-        speed -= 0.2;
+        speed -= 0.03;
+    if (speed < 0)
+        speed = 0;
     if (speed > 4)
         speed = 4;
+    delta = -speed;
     return delta;
 }
 

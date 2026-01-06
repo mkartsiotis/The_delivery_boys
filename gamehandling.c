@@ -160,11 +160,11 @@ void burn_fuel(void)                       //(In gamehandling.c)Decreases the fu
 void set_score_for_current_mission(Vector2 pos, Vector2 PICKUP, Vector2 DROPOFF) // Calculates the score for a given mission and assigns it to the global external variable score_for_current_mission.
 {
     float points_award = 0;
-    points_award = fabs(pos.x - PICKUP.x) + fabs(pos.y - PICKUP.y) + fabs(DROPOFF.x - PICKUP.x) + fabs(DROPOFF.y - PICKUP.y);
+    points_award = (fabs(pos.x - PICKUP.x) + fabs(pos.y - PICKUP.y) + fabs(DROPOFF.x - PICKUP.x) + fabs(DROPOFF.y - PICKUP.y)) / 10.0f;
     score_for_current_mission = (int)points_award; // Assign the score to the global variable score_for_current_mission
 }
-void deduce_score_for_mission(void) // Deduces score for current mission when called in main(for time deduction and punishment when hitting a car or when doing something illegal)
+void deduce_score_for_mission(int n) // Deduces score for current mission when called in main(for time deduction and punishment when hitting a car or when doing something illegal)
 {
     if (score_for_current_mission > 0)
-        score_for_current_mission -= 1; // Probably an unecessary function but ok...
+        score_for_current_mission -= n; // Probably an unecessary function but ok...
 }

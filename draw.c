@@ -34,7 +34,7 @@ void draw_pickup_and_dropoff3D(Vector2 PICKUP, Vector2 DROPOFF)
     DrawCylinder((Vector3){DROPOFF.x, 0.0f, DROPOFF.y}, 3, 6, 3.0f, 30, GREEN);
 }
 
-void Draw_and_update_score_window(int sucessful_deliveries, FILE *file, ScreenStatus GameScreen)
+void Draw_and_update_score_window(int sucessful_deliveries, int HIGH1, int HIGH2, int HIGH3, ScreenStatus GameScreen)
 {
     Color Mycolour = Fade(BLUE, 0.2f);
     DrawRectangle(0, 0, WINDOW_WIDTH, 50, Mycolour);
@@ -42,16 +42,13 @@ void Draw_and_update_score_window(int sucessful_deliveries, FILE *file, ScreenSt
     sprintf(score, "SCORE IS : %d", sucessful_deliveries);
     DrawText(score, 25, 25, 20, WHITE);
     // Find HIGH SCORE and READ IT
-    int HIGH_SCORE1 = 0, HIGH_SCORE2 = 0, HIGH_SCORE3 = 0;
-    fseek(file, 0, 0);
-    fscanf(file, "-%d-%d-%d-", &HIGH_SCORE1, &HIGH_SCORE2, &HIGH_SCORE3);
     char high_score_text[20] = {0};
     if (GameScreen.CurrentScreen == LEVEL1)
-        sprintf(high_score_text, "HIGHSCORE: %d", HIGH_SCORE1); // Print the highscore relevant to the level
+        sprintf(high_score_text, "HIGHSCORE: %d", HIGH1); // Print the highscore relevant to the level
     else if (GameScreen.CurrentScreen == LEVEL2)
-        sprintf(high_score_text, "HIGHSCORE: %d", HIGH_SCORE2);
+        sprintf(high_score_text, "HIGHSCORE: %d", HIGH2);
     else if (GameScreen.CurrentScreen == LEVEL3)
-        sprintf(high_score_text, "HIGHSCORE: %d", HIGH_SCORE3);
+        sprintf(high_score_text, "HIGHSCORE: %d", HIGH3);
 
     DrawText(high_score_text, 300, 25, 20, WHITE);
 }
@@ -147,9 +144,7 @@ void draw_cars(void) // Draws all the cars.
 
 void draw_mission_score(void) // Draws the score that is going to be awarded if no more points are deducted
 {
-    Font font = LoadFontEx("OldNewspaperTypes.ttf", 20, 0, 0);
     char ch[50] = {0};
-    int fps = GetFPS();
-    sprintf(ch, "MISSION REWARDS: %d FPS: %d", score_for_current_mission, fps);
-    DrawTextEx(font, ch, (Vector2){800, 25}, 20, 2, WHITE); // Draw
+    sprintf(ch, "MISSION REWARDS: %d", score_for_current_mission);
+    DrawText(ch, 800, 25, 20, WHITE); // Draw
 }
