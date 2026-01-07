@@ -163,3 +163,17 @@ void print_refuel_station(Gas_Station SET_STATION) //(In gamehandling.c)Prints t
         DrawModelEx(GasStationModel, pos3D, (Vector3){0, 1, 0}, rotation_angle, (Vector3){4.0f, 4.0f, 4.0f}, WHITE);
     }
 }
+
+//Color transition
+Color LerpColor(Color start, Color end, float factor) //Fades a colour
+{
+    if (factor < 0.0f) factor = 0.0f;
+    if (factor > 1.0f) factor = 1.0f;
+    
+    return (Color){
+        (unsigned char)(start.r + (end.r - start.r) * factor),
+        (unsigned char)(start.g + (end.g - start.g) * factor),
+        (unsigned char)(start.b + (end.b - start.b) * factor),
+        255
+    };
+}

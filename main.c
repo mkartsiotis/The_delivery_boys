@@ -97,6 +97,10 @@ int main(void)
     fscanf(file, "-%d-%d-%d-", &HIGHSCORE1, &HIGHSCORE2, &HIGHSCORE3); // scans and assigns the values to the highscores.
     // Gas Refueling
     Gas_Station Gasoline_Refuel_Station = {0}; // This is a type gasstation and is used to set the parameters of the gas station that will be printed if neccessary.
+    // Dark and vibrant modes
+    bool turn_off_dark_mode = false, turn_on_dark_mode = false;
+    Color backround_col = SKYBLUE;
+    float night_progress = 0.0f; // Tells how much are we in the dark mode
     // Main game loop
     while (!WindowShouldClose())
     {
@@ -208,6 +212,10 @@ int main(void)
                 gas = INITIAL_GASOLINE;
                 sucessful_deliveries = 0;
                 pos = (Vector2){0, 0};
+                turn_off_dark_mode = false;
+                turn_on_dark_mode = false;
+                backround_col = SKYBLUE; 
+                night_progress = 0.0f;
                 // Now We are bad developers so we say game over!
                 GameScreen.CurrentScreen = GAMEOVER;
                 break; // Breaks from the switch.
@@ -334,7 +342,35 @@ int main(void)
 
         // Draw section
         BeginDrawing();
-        ClearBackground(SKYBLUE);
+        // This is the dimm mode to make the screen black.
+        if (gas < INITIAL_GASOLINE / 2.6f && turn_on_dark_mode == false && turn_off_dark_mode == false)
+            turn_on_dark_mode = true;
+
+        else if (gas < INITIAL_GASOLINE / 4.3f && turn_on_dark_mode == true && turn_off_dark_mode == false)
+        {
+            turn_off_dark_mode = true;
+            turn_on_dark_mode = false;
+        }
+        if (turn_on_dark_mode)
+        {
+            night_progress += 0.005f;
+        }
+        else if (turn_off_dark_mode)
+        {
+            night_progress -= 0.005f;
+        }
+        if (night_progress >= 1.0f) // Checks if we have surpassed the colour limit
+        {
+            night_progress = 1.0f;
+        }
+        if (night_progress <= 0.0f) // Stops if we go below 0.
+        {
+            night_progress = 0.0f;
+            turn_off_dark_mode = false;
+        }
+        backround_col = LerpColor(SKYBLUE, BLACK, night_progress); // Blend the colours
+        ClearBackground(backround_col);
+
         DrawFPS(900, 10);
         switch (GameScreen.CurrentScreen)
         {
@@ -406,7 +442,7 @@ int main(void)
             BeginMode2D(minimap_cam);
             if (Gasoline_Refuel_Station.isvisible == true)
             {
-                Color semicolor = ColorAlpha(DARKBLUE, 0.92f);                                                       // Create a colour that is semi transparent
+                Color semicolor = ColorAlpha(WHITE, 0.92f);                                                          // Create a colour that is semi transparent
                 DrawCircle((int)Gasoline_Refuel_Station.REAL.x, (int)Gasoline_Refuel_Station.REAL.y, 35, semicolor); // Draw the circle where the gas station is
             }
             DrawTextureRec(minimap_texture.texture,

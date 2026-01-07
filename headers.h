@@ -143,8 +143,8 @@ extern int NUM_OF_NPC_CARS_ON_Y_ROAD_ON_CURRENT_LEVEL; //(Initialized in npc.c)T
 extern int score_for_current_mission; //(Initialized in gamehandling.c) Variable that is responsible for storing the score for a mission.
 extern float gas;                     //(Initialized in gamehandling.c)This is the amount of gas in the tank of the scooter.
 
-//Thsi is the 3d Model section. Declare all the models that are going to be used!
-extern Model GasStationModel; //Thsi is the gas sation model(as all models it is initialized in main.c before the window should close)
+// Thsi is the 3d Model section. Declare all the models that are going to be used!
+extern Model GasStationModel; // Thsi is the gas sation model(as all models it is initialized in main.c before the window should close)
 // Functions in all files. Syntax of comments is //(FILENAME_WHERE_FUNTCTION_IS_LOCATED) USE_AND_DEFINITION
 // Initialization functions
 void Initialize_Map(Rectangle (*map)[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X]); //(In layout.c) Initialize the map of the square blocks that will constitute the road
@@ -178,6 +178,7 @@ void draw_npc3D(NPC chaser);                                             // Draw
 void draw_cars(void);                                                    // Draws all the cars.
 void draw_mission_score(void);                                           // Draws the score that is going to be awarded if no more points are deducted
 Color choseRandomColour(void);                                           // Returns a random colour from rand and a decoding method.
+Color LerpColor(Color start, Color end, float factor);                   //(in draw.c)Fades a colour
 // A* functions
 //  Initialize all functions(All in astar_search.c)
 void initGrid(void);                                                          // Initializes the grid that will be used for finding the best path
@@ -201,6 +202,6 @@ void set_game_parameters(ScreenStatus *GameScreen, NPC *npc); //(in layout.c) Se
 void set_score_for_current_mission(Vector2 pos, Vector2 PICKUP, Vector2 DROPOFF); // Calculates the score for a given mission and assigns it to the global external variable score_for_current_mission.
 void deduce_score_for_mission(int n);                                             // Deduces score for current mission when called in main(for time deduction and punishment when hitting a car or when doing something illegal)
 // Gas station parameters
-Gas_Station refuel_station(void);                   //(In gamehandling.c)This is the function that is responsible for setting the gas station when the fuel low enough at a random position
-void print_refuel_station(Gas_Station SET_STATION); //(In gamehandling.c)Prints the station if visible
+Gas_Station refuel_station(void);                         //(In gamehandling.c)This is the function that is responsible for setting the gas station when the fuel low enough at a random position
+void print_refuel_station(Gas_Station SET_STATION);       //(In gamehandling.c)Prints the station if visible
 void check_for_refuel(Gas_Station *STATION, Vector2 pos); //(In gamehandling.c)Checks if the player is near to a gas station and refuels
