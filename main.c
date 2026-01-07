@@ -71,7 +71,7 @@ int main(void)
     // Model of minimap
     //  Draw walls on texture
     RenderTexture2D minimap_texture = LoadRenderTexture(MAP_WIDTH, MAP_HEIGHT);
-
+    Texture2D wallTexture = LoadTexture("cityskyline.png");
     // Start drawing onto this canvas (instead of the screen)
     BeginTextureMode(minimap_texture);
     ClearBackground(BLANK); // Make background transparent
@@ -144,8 +144,6 @@ int main(void)
             {
                 pos.x -= movelength * sin(angleRad); // Reverse movement in x axis
                 Player.x = pos.x - (MAN_RECTANGLE_WIDTH / 2.0f);
-                if (speed > 1)
-                    speed = 1;
                 printf("SOEDKOF00\n");
             }
             // Do the same for the y axis
@@ -331,6 +329,23 @@ int main(void)
             // Start camera
             BeginMode3D(camera3d);
             DrawPlane((Vector3){(float)WINDOW_WIDTH / 2.0f, -0.1, (float)WINDOW_HEIGHT / 2.0f}, (Vector2){3000, 3000}, DARKGRAY);
+            // Here we implement the billboard logic which helps us make the outer barriers of the game
+            Vector3 wallPos = {-20.0f, 0.0f, -80.0f};
+            Vector3 lockUp = {0.0f, 1.0f, 0.0f};
+            Vector2 size = {50.0f, 50.0f};       
+            Vector2 anchor = {0.5f, 0.0f};       
+            Rectangle sourceRec = {0.0f, 0.0f, (float)wallTexture.width, (float)wallTexture.height};
+            //Draw command
+            DrawBillboardPro(
+                camera3d,    
+                wallTexture, 
+                sourceRec,   // The image rectangle
+                wallPos,     // Position {0,0,0}
+                lockUp,      // Locked Axis (prevents falling over)
+                size,
+                anchor,
+                0.0f,
+                WHITE);
 
             DrawCubes(map);          // Draws map
             DrawModelEx(playerModel, // Draw the model you laod from the playerModel

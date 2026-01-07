@@ -8,11 +8,11 @@ float delta_move(void)
     float delta = 0;
     if (IsKeyDown(KEY_RIGHT))
     {
-        angleRad -= 0.05;
+        angleRad -= 0.043;
     }
     else if (IsKeyDown(KEY_LEFT))
     {
-        angleRad += 0.05;
+        angleRad += 0.043;
     }
     if (angleRad > 4 * 1.5707)
         angleRad = 0;
