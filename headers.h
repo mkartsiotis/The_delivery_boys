@@ -98,6 +98,12 @@ typedef struct
 } NPC;
 // This is a structure that is used to store the npc vehicle data.
 
+// This is a structure to hold the data for gas station drawings when in the game
+typedef struct GasStationParameters
+{
+    bool isvisible;      // For the draw function station and the updatefunction as well.
+    grid_and_map_coords; // This holds the stations position which will be randomly selected.
+} Gas_Station;
 // This is used in the main for the main screen, the before and after of the game.
 enum Screen
 {
@@ -136,19 +142,22 @@ extern int NUM_OF_NPC_CARS_ON_Y_ROAD_ON_CURRENT_LEVEL; //(Initialized in npc.c)T
 
 extern int score_for_current_mission; //(Initialized in gamehandling.c) Variable that is responsible for storing the score for a mission.
 extern float gas;                     //(Initialized in gamehandling.c)This is the amount of gas in the tank of the scooter.
+
+//Thsi is the 3d Model section. Declare all the models that are going to be used!
+extern Model GasStationModel; //Thsi is the gas sation model(as all models it is initialized in main.c before the window should close)
 // Functions in all files. Syntax of comments is //(FILENAME_WHERE_FUNTCTION_IS_LOCATED) USE_AND_DEFINITION
 // Initialization functions
 void Initialize_Map(Rectangle (*map)[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X]); //(In layout.c) Initialize the map of the square blocks that will constitute the road
 
 // Drawing functions
-void draw_pickup_and_dropoff(Vector2 PICKUP, Vector2 DROPOFF);                                    // Draws small circles around dropoff and pickup locations
-void draw_pickup_and_dropoff3D(Vector2 PICKUP, Vector2 DROPOFF);                                  // Draws small circles around dropoff and pickup locations
-void DrawRectangles(Rectangle map[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X]);                     // (In draw.c) Draw the array of Rectangles Initialized as map in the main void function to create a map
+void draw_pickup_and_dropoff(Vector2 PICKUP, Vector2 DROPOFF);                                                         // Draws small circles around dropoff and pickup locations
+void draw_pickup_and_dropoff3D(Vector2 PICKUP, Vector2 DROPOFF);                                                       // Draws small circles around dropoff and pickup locations
+void DrawRectangles(Rectangle map[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X]);                                          // (In draw.c) Draw the array of Rectangles Initialized as map in the main void function to create a map
 void Draw_and_update_score_window(int sucessful_deliveries, int HIGH1, int HIGH2, int HIGH3, ScreenStatus GameScreen); //(In draw.c)Draws a score window
-void draw_astar_results(best_possible_path A_STAR_RESULT);                                        // Draws A* results in 2D.
-void draw_astar_results3D(best_possible_path A_STAR_RESULT);                                      // Draws A* results in 3D.
-void draw_npc(NPC chaser);                                                                        // Draws an NPC
-void drawspeed(void);                                                                             //(in draw.c). Draws a speedometer.
+void draw_astar_results(best_possible_path A_STAR_RESULT);                                                             // Draws A* results in 2D.
+void draw_astar_results3D(best_possible_path A_STAR_RESULT);                                                           // Draws A* results in 3D.
+void draw_npc(NPC chaser);                                                                                             // Draws an NPC
+void drawspeed(void);                                                                                                  //(in draw.c). Draws a speedometer.
 // Game logic functions
 bool check_for_collisions(Rectangle Player, Rectangle map[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X]); // (In player_movement.c) Check for collisions between the player and the grid objects
 void keep_in_boundaries(Vector2 *pos);                                                                //(In playe_movement)Checks and modifies the pos.x and pos.y if player is out of the window
@@ -160,9 +169,9 @@ float delta_move(void); //(In player_movement.c) Calculates according to user in
 grid_and_map_coords initialize_pickup_location(Rectangle map[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X]);                  // Sets pickup location.
 grid_and_map_coords initialize_dropoff_location(Rectangle map[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X], Vector2 PICKUP); // Sets dropoff location.
 // Timer limitation functions
-void burn_fuel(void);                       //(In gamehandling.c)Decreases the fuel amount.
-//Draw functions
-void draw_fuel_bar(void);                     //(In draw.c)Draws the remaining fuel in the depoisit.
+void burn_fuel(void); //(In gamehandling.c)Decreases the fuel amount.
+// Draw functions
+void draw_fuel_bar(void);                                                //(In draw.c)Draws the remaining fuel in the depoisit.
 void draw_grid(void);                                                    //(In draw.c)Draws the grid of the big map in world-map coordinates. Note that this function does not draw the lines of the coordinates of the grid[i][j] but the outside sides of the rectangles that represent a 2D division of the map plane.
 void DrawCubes(Rectangle map[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X]); // Draws the cubes for the 3D version.
 void draw_npc3D(NPC chaser);                                             // Draws the NPC in 3d
@@ -190,4 +199,8 @@ void TurnCam(Camera3D *camera3d, Vector2 pos); // Turns 3D cam.
 void set_game_parameters(ScreenStatus *GameScreen, NPC *npc); //(in layout.c) Sets all the parameters before a game level starts
 // Score handling(All functions in gamehandling.c)
 void set_score_for_current_mission(Vector2 pos, Vector2 PICKUP, Vector2 DROPOFF); // Calculates the score for a given mission and assigns it to the global external variable score_for_current_mission.
-void deduce_score_for_mission(int n);                                              // Deduces score for current mission when called in main(for time deduction and punishment when hitting a car or when doing something illegal)
+void deduce_score_for_mission(int n);                                             // Deduces score for current mission when called in main(for time deduction and punishment when hitting a car or when doing something illegal)
+// Gas station parameters
+Gas_Station refuel_station(void);                   //(In gamehandling.c)This is the function that is responsible for setting the gas station when the fuel low enough at a random position
+void print_refuel_station(Gas_Station SET_STATION); //(In gamehandling.c)Prints the station if visible
+void check_for_refuel(Gas_Station *STATION, Vector2 pos); //(In gamehandling.c)Checks if the player is near to a gas station and refuels

@@ -1,5 +1,8 @@
 #include "headers.h"
 
+// Initialize extrenal models
+Model GasStationModel = {0};
+
 void DrawRectangles(Rectangle map[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X])
 {
     for (int i = 0; i < NUM_OF_RECTANGLES_Y; i++)
@@ -147,4 +150,16 @@ void draw_mission_score(void) // Draws the score that is going to be awarded if 
     char ch[50] = {0};
     sprintf(ch, "MISSION REWARDS: %d", score_for_current_mission);
     DrawText(ch, 800, 25, 20, WHITE); // Draw
+}
+
+//Refueling
+void print_refuel_station(Gas_Station SET_STATION) //(In gamehandling.c)Prints the station if visible
+{
+    static int rotation_angle = 0; //Set the roataion angle
+    rotation_angle+=0.1; //Make the thing rotate!!!
+    if(SET_STATION.isvisible == true)
+    {
+        Vector3 pos3D = { SET_STATION.REAL.x , 0.0f, SET_STATION.REAL.y}; //3d position
+        DrawModelEx(GasStationModel, pos3D, (Vector3){0, 1, 0}, rotation_angle, (Vector3){4.0f, 4.0f, 4.0f}, WHITE);
+    }
 }

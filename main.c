@@ -45,6 +45,7 @@ int main(void)
     npc.HEIGHT = MAN_RECTANGLE_HEIGHT;
     npc.WIDTH = MAN_RECTANGLE_WIDTH;
     npc.speed = 2;
+    bool has_crushed_with_npc = false;
     init_cars(); // Initialize all cars
     // Camera logic and initializtion
     // IN MAIN SETUP
@@ -64,12 +65,14 @@ int main(void)
     ScreenStatus GameScreen = {PREVIEW, true, 0}; // Be careful!Here we set the locked levels to 0.
     enum Screen pre_load_screen = LEVEL1;
     // Models for 3d rendering
-    //  Create a mesh (The geometry)
-    Mesh cubeMesh = GenMeshCube(MAN_RECTANGLE_WIDTH, MAN_3D_HEIGHT, MAN_RECTANGLE_HEIGHT);
-    // Load it into a Model (The object you can draw)
-    Model playerModel = LoadModelFromMesh(cubeMesh);
-    // Model of minimap
-    //  Draw walls on texture
+    // Player Cube(it is a model so that we can turn the cube by printing the model turned)
+    Mesh cubeMesh = GenMeshCube(MAN_RECTANGLE_WIDTH, MAN_3D_HEIGHT, MAN_RECTANGLE_HEIGHT); //  Create a mesh (The geometry)
+    Model playerModel = LoadModelFromMesh(cubeMesh);                                       // Load it into a Model
+    // Gas Station
+    GasStationModel = LoadModel("vintage_super_shell_gas_station_pump.glb");
+    // 2D TExtures and models
+    //  Model of minimap
+    //   Draw walls on texture
     RenderTexture2D minimap_texture = LoadRenderTexture(MAP_WIDTH, MAP_HEIGHT);
     Texture2D wallTexture = LoadTexture("cityskyline.png");
     // Start drawing onto this canvas (instead of the screen)
@@ -92,6 +95,8 @@ int main(void)
     // Locked levels and previous highscores!
     int HIGHSCORE1 = 0, HIGHSCORE2 = 0, HIGHSCORE3 = 0;
     fscanf(file, "-%d-%d-%d-", &HIGHSCORE1, &HIGHSCORE2, &HIGHSCORE3); // scans and assigns the values to the highscores.
+    // Gas Refueling
+    Gas_Station Gasoline_Refuel_Station = {0}; // This is a type gasstation and is used to set the parameters of the gas station that will be printed if neccessary.
     // Main game loop
     while (!WindowShouldClose())
     {
@@ -158,11 +163,21 @@ int main(void)
             if (check_for_car_crashes(Player) == 1) // If we collide just set the speed to 0.
             {
                 speed = 0;
-                deduce_score_for_mission(10); // Decrease the score if we ever crash
+
+                if (has_crushed_with_npc == false)
+                {
+                    deduce_score_for_mission(10); // Decrease the score if we ever crash}
+                    has_crushed_with_npc = true;
+                }
             }
-            deduce_score_counter++;
+            else
+            {
+                deduce_score_counter++;
+                has_crushed_with_npc = false;
+            }
             if (deduce_score_counter == 50)
                 deduce_score_for_mission(1);
+
             // Turn the camera and set other parameters
             TurnCam(&camera3d, pos);
             // Contimue with the game logic
@@ -173,6 +188,7 @@ int main(void)
 
             // 2.SET PICKUP AND DROPOFF POSITIONS
             burn_fuel(); // Burn the neccessary fuel
+
             // Now we need to add the time limitation which we will also print on the window with the score
             // We are in the mission, so what we need is: A. We have the fuel
             //                                            B. terminate the mission if we reached the time limit.
@@ -189,7 +205,11 @@ int main(void)
                 PICKUP.grid_x = -1;
                 PICKUP.grid_y = -1;
                 PICKUP.REAL = (Vector2){-10000, -10000};
+                gas = INITIAL_GASOLINE;
+                sucessful_deliveries = 0;
+                pos = (Vector2){0, 0};
                 // Now We are bad developers so we say game over!
+                GameScreen.CurrentScreen = GAMEOVER;
                 break; // Breaks from the switch.
             }
 
@@ -216,8 +236,7 @@ int main(void)
                 if (picked_order == false && pos.x - (PICKUP.REAL).x < MAN_RECTANGLE_WIDTH && pos.x - (PICKUP.REAL).x > -MAN_RECTANGLE_WIDTH && pos.y - (PICKUP.REAL).y < MAN_RECTANGLE_HEIGHT && pos.y - (PICKUP.REAL).y > -MAN_RECTANGLE_HEIGHT)
                 {
                     picked_order = true;
-                    PICKUP = (grid_and_map_coords){(Vector2){-100, -100}, -1, -1};
-                    // Get the fastest route
+                    PICKUP = (grid_and_map_coords){(Vector2){-10000, -1000}, -1, -1};
                 }
                 else if (pos.x - (DROPOFF.REAL).x < MAN_RECTANGLE_WIDTH && pos.x - (DROPOFF.REAL).x > -MAN_RECTANGLE_WIDTH && pos.y - (DROPOFF.REAL).y < MAN_RECTANGLE_HEIGHT && pos.y - (DROPOFF.REAL).y > -MAN_RECTANGLE_HEIGHT && picked_order == true)
                 {
@@ -282,8 +301,10 @@ int main(void)
             // 5. NPC section
             updateNPC(&npc, pos, map);
             update_npc_cars();
-            // 6.Camera Section
-
+            // 6. Gas Station
+            if (Gasoline_Refuel_Station.isvisible == false)
+                Gasoline_Refuel_Station = refuel_station();
+            check_for_refuel(&Gasoline_Refuel_Station, pos); // check if we are inside a station and perform a refuel if needed
             // Check if the npc has caught the player
             if (check_if_caught(pos, npc) == 1)
             {
@@ -332,21 +353,22 @@ int main(void)
             // Here we implement the billboard logic which helps us make the outer barriers of the game
             Vector3 wallPos = {-20.0f, 0.0f, -80.0f};
             Vector3 lockUp = {0.0f, 1.0f, 0.0f};
-            Vector2 size = {50.0f, 50.0f};       
-            Vector2 anchor = {0.5f, 0.0f};       
+            Vector2 size = {50.0f, 50.0f};
+            Vector2 anchor = {0.5f, 0.0f};
             Rectangle sourceRec = {0.0f, 0.0f, (float)wallTexture.width, (float)wallTexture.height};
-            //Draw command
+            // Draw command
             DrawBillboardPro(
-                camera3d,    
-                wallTexture, 
-                sourceRec,   // The image rectangle
-                wallPos,     // Position {0,0,0}
-                lockUp,      // Locked Axis (prevents falling over)
+                camera3d,
+                wallTexture,
+                sourceRec, // The image rectangle
+                wallPos,   // Position {0,0,0}
+                lockUp,    // Locked Axis (prevents falling over)
                 size,
                 anchor,
                 0.0f,
                 WHITE);
 
+            print_refuel_station(Gasoline_Refuel_Station);
             DrawCubes(map);          // Draws map
             DrawModelEx(playerModel, // Draw the model you laod from the playerModel
                         (Vector3){pos.x, MAN_3D_HEIGHT / 2.0f, pos.y},
@@ -370,10 +392,23 @@ int main(void)
             DrawRectangle(1500, 50, MINIMAP_WIDTH, MINIMAP_HEIGHT, BLACK);
             DrawRectangleLines(1500, 50, MINIMAP_WIDTH, MINIMAP_HEIGHT, WHITE); // Border
 
+            // Draw where gas station is.
+            if (Gasoline_Refuel_Station.isvisible == true)
+            {
+                char gascoordstext[30] = {0};
+                sprintf(gascoordstext, "GAS IN X:%d Y:%d", Gasoline_Refuel_Station.grid_x, Gasoline_Refuel_Station.grid_y);
+                DrawText(gascoordstext, 5, WINDOW_HEIGHT - 50, 20, WHITE);
+            }
+
             // 2. Start Clipping (Only draw inside this box)
             BeginScissorMode(1500, 50, MINIMAP_WIDTH, MINIMAP_HEIGHT);
 
             BeginMode2D(minimap_cam);
+            if (Gasoline_Refuel_Station.isvisible == true)
+            {
+                Color semicolor = ColorAlpha(DARKBLUE, 0.92f);                                                       // Create a colour that is semi transparent
+                DrawCircle((int)Gasoline_Refuel_Station.REAL.x, (int)Gasoline_Refuel_Station.REAL.y, 35, semicolor); // Draw the circle where the gas station is
+            }
             DrawTextureRec(minimap_texture.texture,
                            (Rectangle){0, 0, minimap_texture.texture.width, -minimap_texture.texture.height},
                            (Vector2){0, 0}, WHITE);                                      // Do not draw the rectangles but the model!
@@ -399,7 +434,8 @@ int main(void)
         }
         EndDrawing();
     }
-    UnloadModel(playerModel); // Unload the model we built
+    UnloadModel(playerModel);     // Unload the model we built
+    UnloadModel(GasStationModel); // Unload the gas station model
     CloseWindow();
     fclose(file); // Closes the file
     return 0;

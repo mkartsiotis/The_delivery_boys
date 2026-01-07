@@ -152,9 +152,9 @@ grid_and_map_coords initialize_dropoff_location(Rectangle map[NUM_OF_RECTANGLES_
     return coordinates;
 }
 
-void burn_fuel(void)                       //(In gamehandling.c)Decreases the fuel amount.
+void burn_fuel(void) //(In gamehandling.c)Decreases the fuel amount.
 {
-    gas -= speed / 50;//This formula calculates the amount of fuel that is burnt in every frame. 
+    gas -= speed / 50; // This formula calculates the amount of fuel that is burnt in every frame.
 }
 
 void set_score_for_current_mission(Vector2 pos, Vector2 PICKUP, Vector2 DROPOFF) // Calculates the score for a given mission and assigns it to the global external variable score_for_current_mission.
@@ -168,3 +168,45 @@ void deduce_score_for_mission(int n) // Deduces score for current mission when c
     if (score_for_current_mission > 0)
         score_for_current_mission -= n; // Probably an unecessary function but ok...
 }
+// Gas staion logic
+Gas_Station refuel_station(void) //(In gamehandling.c)This is the function that is responsible for setting the gas station when the fuel low enough at a random position
+{
+    Gas_Station return_station = {0};
+    if (gas > (2.0f / 7.0f) * (float)INITIAL_GASOLINE)
+        return return_station;
+    else
+    {
+        return_station.isvisible = true;
+        // Randomly select an available grid position on the map
+        // select a random point on the grid,
+        int randx = (rand() % (4 * NUM_OF_RECTANGLES_X));
+        int randy = (rand() % (4 * NUM_OF_RECTANGLES_Y));
+        return_station.grid_x = grid[randx][randy].x;
+        return_station.grid_y = grid[randx][randy].y;
+        while (grid[randx][randy].isObstacle == true) // If the grid point is an obstacle
+        {
+            randx = (rand() % (4 * NUM_OF_RECTANGLES_X));//Try again to find a valid point
+            randy = (rand() % (4 * NUM_OF_RECTANGLES_Y));
+            return_station.grid_x = grid[randx][randy].x; 
+            return_station.grid_y = grid[randx][randy].y;
+        }
+        return_station.REAL = GridToReal(return_station.grid_x, return_station.grid_y);
+        return return_station;
+    }
+}
+
+void check_for_refuel(Gas_Station *STATION, Vector2 pos) //(In gamehandling.c)Checks if the player is near to a gas station and refuels
+{
+    if(STATION->isvisible == false)
+        return;
+    else
+    {
+        //Check if the player is near to the station.
+        if(fabs(pos.x - STATION->REAL.x) < MAN_RECTANGLE_WIDTH && fabs(pos.y - STATION->REAL.y) < MAN_RECTANGLE_HEIGHT)
+        {
+            gas += 100;
+            (*STATION) = (Gas_Station){0};
+        }
+    }
+}
+
