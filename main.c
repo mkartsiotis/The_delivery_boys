@@ -95,8 +95,6 @@ int main(void)
     // Main game loop
     while (!WindowShouldClose())
     {
-        // Here we initialize all parameters ahead of entering a level
-        set_game_parameters(&GameScreen, &npc);
         // Use a switch to tell which screen we are in
         switch (GameScreen.CurrentScreen)
         {
@@ -110,6 +108,7 @@ int main(void)
                     GameScreen.CurrentScreen = pre_load_screen;
                 else if (pre_load_screen == LEVEL3 && HIGHSCORE2 > 5)
                     GameScreen.CurrentScreen = pre_load_screen;
+                set_game_parameters(&GameScreen, &npc);
             }
             else if (IsKeyPressed(KEY_UP) && pre_load_screen != LEVEL3)
             {
@@ -289,7 +288,28 @@ int main(void)
 
             // Check if the npc has caught the player
             if (check_if_caught(pos, npc) == 1)
+            {
                 GameScreen.CurrentScreen = GAMEOVER;
+                Initialize_Map(&map);
+                CreateWalls(); // Now we create the rectangle of the player with parameters defined in headers
+                gas = INITIAL_GASOLINE;
+                pos = (Vector2){MAN_RECTANGLE_WIDTH / 2.0f, MAN_RECTANGLE_HEIGHT / 2.0f}; // Remember pos is the center so for the top-left corner we need adjustments
+                Player = (Rectangle){pos.x - (MAN_RECTANGLE_WIDTH / 2.0f), pos.y - (MAN_RECTANGLE_HEIGHT / 2.0f), MAN_RECTANGLE_WIDTH, MAN_RECTANGLE_HEIGHT};
+                mission_active = false;
+                picked_order = false;
+                sucessful_deliveries = 0;
+                deduce_score_counter = 0;
+                PICKUP = (grid_and_map_coords){(Vector2){-100, -100}, -1, -1}, DROPOFF = (grid_and_map_coords){(Vector2){-100, -100}, -1, -1};
+                col = GREEN;
+                should_draw_grid = false;
+                a_star_counter = 0; // Counts how many times before A star is called
+                npc.position.x = MAP_WIDTH - npc.WIDTH;
+                npc.HEIGHT = MAN_RECTANGLE_HEIGHT;
+                npc.WIDTH = MAN_RECTANGLE_WIDTH;
+                npc.speed = 2;
+                init_cars(); // Initialize all cars
+                WaitTime(1.5);
+            }
             break; // Breaks from the screen loop
         }
 

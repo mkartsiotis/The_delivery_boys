@@ -40,13 +40,25 @@ float delta_move(void)
 void keep_in_boundaries(Vector2 *pos)
 {
     if (pos->x - MAN_RECTANGLE_WIDTH / 2.0f < 0)
-        pos->x += speed;
+    {
+        float diff = pos->x - MAN_RECTANGLE_WIDTH / 2.0f;
+        pos->x -= diff;
+    }
     else if (pos->x > WINDOW_WIDTH - (MAN_RECTANGLE_WIDTH / 2.0f))
-        pos->x -= speed;
+    {
+        float diff = pos->x + MAN_RECTANGLE_WIDTH / 2.0f - WINDOW_WIDTH;
+        pos->x -= diff;
+    }
     if (pos->y < MAN_RECTANGLE_HEIGHT / 2.0f)
-        pos->y += speed;
+    {
+        float diff = pos->y - MAN_RECTANGLE_HEIGHT / 2.0f;
+        pos->y -= diff;
+    }
     else if (pos->y > WINDOW_HEIGHT - (MAN_RECTANGLE_HEIGHT / 2.0f))
-        pos->y -= speed;
+    {
+        float diff = pos->y + MAN_RECTANGLE_HEIGHT / 2.0f - WINDOW_HEIGHT;
+        pos->y -= diff;
+    }
 }
 
 bool check_for_collisions(Rectangle Player, Rectangle map[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X])
