@@ -50,16 +50,21 @@ int main(void)
     // Camera logic and initializtion
     // IN MAIN SETUP
     Camera3D camera3d = {0};
-    camera3d.position = (Vector3){0.0f, 800.0f, 800.0f}; // Camera is up in the sky (Y=20) and back a bit (Z=10)
-    camera3d.target = (Vector3){0.0f, 0.0f, 0.0f};       // Looking at the center
-    camera3d.up = (Vector3){0.0f, 1.0f, 0.0f};           // "Up" is Y
-    camera3d.fovy = 45.0f;                               // Field of view
-    camera3d.projection = CAMERA_PERSPECTIVE;            // Makes it look 3D
+    camera3d.position = (Vector3){
+        0.0f, 800.0f, 800.0f}; // Camera is up in the sky (Y=20) and back a bit (Z=10)
+    camera3d.target = (Vector3){
+        0.0f, 0.0f, 0.0f}; // Looking at the center
+    camera3d.up = (Vector3){
+        0.0f, 1.0f, 0.0f};                    // "Up" is Y
+    camera3d.fovy = 45.0f;                    // Field of view
+    camera3d.projection = CAMERA_PERSPECTIVE; // Makes it look 3D
     // MiniMap logic
     Camera2D minimap_cam;
-    minimap_cam.offset = (Vector2){1500 + MINIMAP_WIDTH / 2.0f, 50 + MINIMAP_HEIGHT / 2.0f};
+    minimap_cam.offset = (Vector2){
+        1500 + MINIMAP_WIDTH / 2.0f, 50 + MINIMAP_HEIGHT / 2.0f};
     minimap_cam.rotation = 0.0f;
-    minimap_cam.target = (Vector2){MAP_WIDTH / 2.0f, MAP_HEIGHT / 2.0f};
+    minimap_cam.target = (Vector2){
+        MAP_WIDTH / 2.0f, MAP_HEIGHT / 2.0f};
     minimap_cam.zoom = ((float)MINIMAP_WIDTH / MAP_WIDTH) < ((float)MINIMAP_HEIGHT / MAP_HEIGHT) ? ((float)MINIMAP_WIDTH / MAP_WIDTH) : ((float)MINIMAP_HEIGHT / MAP_HEIGHT);
     // Gamescreen logic
     ScreenStatus GameScreen = {PREVIEW, true, 0}; // Be careful!Here we set the locked levels to 0.
@@ -68,11 +73,27 @@ int main(void)
     // Player Cube(it is a model so that we can turn the cube by printing the model turned)
     Mesh cubeMesh = GenMeshCube(MAN_RECTANGLE_WIDTH, MAN_3D_HEIGHT, MAN_RECTANGLE_HEIGHT); //  Create a mesh (The geometry)
     Model playerModel = LoadModelFromMesh(cubeMesh);                                       // Load it into a Model
+    // Bamboo house
+    Bamboo_House = LoadModel("game_ready_building_3.glb");
+    if (Bamboo_House.meshCount == 0)
+    {
+        printf("ERROR: Bamboo House failed to load! Check filename/path.\n");
+    }
+    else
+    {
+        printf("SUCCESS: Bamboo House loaded with %d meshes.\n", Bamboo_House.meshCount);
+    }
     // Gas Station
     GasStationModel = LoadModel("vintage_super_shell_gas_station_pump.glb");
     // 2D TExtures and models
     //  Model of minimap
     //   Draw walls on texture
+    /*BoundingBox box = GetModelBoundingBox(Bamboo_House); //We need to find the model's bounding box, so that we can later scale it to fit in the blank cubes
+    Vector3 modelSize = {
+        box.max.x - box.min.x,
+        box.max.y - box.min.y,
+        box.max.z - box.min.z
+    };*/
     RenderTexture2D minimap_texture = LoadRenderTexture(MAP_WIDTH, MAP_HEIGHT);
     Texture2D wallTexture = LoadTexture("cityskyline.png");
     // Start drawing onto this canvas (instead of the screen)
@@ -163,7 +184,7 @@ int main(void)
                 pos.y -= movelength * cos(angleRad); // Reverse movement in y axis
                 Player.y = pos.y - (MAN_RECTANGLE_HEIGHT / 2.0f);
             }
-            // Check if the player has colided with the npc cars
+            // Check if the player has collided with the npc cars
             if (check_for_car_crashes(Player) == 1) // If we collide just set the speed to 0.
             {
                 speed = 0;
@@ -184,15 +205,17 @@ int main(void)
 
             // Turn the camera and set other parameters
             TurnCam(&camera3d, pos);
-            // Contimue with the game logic
+            // Continue with the game logic
             keep_in_boundaries(&pos);                         // Check if pos is in boundaries and keep him in
             Player.y = pos.y - (MAN_RECTANGLE_HEIGHT / 2.0f); // Update x and y coordinates of the square after the keep in boundaries function
             Player.x = pos.x - (MAN_RECTANGLE_WIDTH / 2.0f);
-            current_grid_pos = RealToGrid(pos); // Calcuate grid position of the player.
+            current_grid_pos = RealToGrid(pos); // Calculate grid position of the player.
 
             // 2.SET PICKUP AND DROPOFF POSITIONS
-            burn_fuel(); // Burn the neccessary fuel
+            burn_fuel();
 
+
+            // Burn the necessary fuel
             // Now we need to add the time limitation which we will also print on the window with the score
             // We are in the mission, so what we need is: A. We have the fuel
             //                                            B. terminate the mission if we reached the time limit.
@@ -211,11 +234,13 @@ int main(void)
                 PICKUP.REAL = (Vector2){-10000, -10000};
                 gas = INITIAL_GASOLINE;
                 sucessful_deliveries = 0;
-                pos = (Vector2){0, 0};
+                pos = (Vector2){
+                    0, 0};
                 turn_off_dark_mode = false;
                 turn_on_dark_mode = false;
-                backround_col = SKYBLUE; 
+                backround_col = SKYBLUE;
                 night_progress = 0.0f;
+                Gasoline_Refuel_Station.isvisible = false;
                 // Now We are bad developers so we say game over!
                 GameScreen.CurrentScreen = GAMEOVER;
                 break; // Breaks from the switch.
@@ -244,7 +269,8 @@ int main(void)
                 if (picked_order == false && pos.x - (PICKUP.REAL).x < MAN_RECTANGLE_WIDTH && pos.x - (PICKUP.REAL).x > -MAN_RECTANGLE_WIDTH && pos.y - (PICKUP.REAL).y < MAN_RECTANGLE_HEIGHT && pos.y - (PICKUP.REAL).y > -MAN_RECTANGLE_HEIGHT)
                 {
                     picked_order = true;
-                    PICKUP = (grid_and_map_coords){(Vector2){-10000, -1000}, -1, -1};
+                    PICKUP = (grid_and_map_coords){
+                        (Vector2){-10000, -1000}, -1, -1};
                 }
                 else if (pos.x - (DROPOFF.REAL).x < MAN_RECTANGLE_WIDTH && pos.x - (DROPOFF.REAL).x > -MAN_RECTANGLE_WIDTH && pos.y - (DROPOFF.REAL).y < MAN_RECTANGLE_HEIGHT && pos.y - (DROPOFF.REAL).y > -MAN_RECTANGLE_HEIGHT && picked_order == true)
                 {
@@ -274,7 +300,8 @@ int main(void)
                         fprintf(file, "%06d-", sucessful_deliveries);
                         fflush(file);
                     }
-                    DROPOFF = (grid_and_map_coords){(Vector2){-100, -100}, -1, -1};
+                    DROPOFF = (grid_and_map_coords){
+                        (Vector2){-100, -100}, -1, -1};
                 }
                 // If we have a mission check if where we are and draw the fastest route accordingly
                 if (mission_active == true && picked_order == false)
@@ -320,8 +347,10 @@ int main(void)
                 Initialize_Map(&map);
                 CreateWalls(); // Now we create the rectangle of the player with parameters defined in headers
                 gas = INITIAL_GASOLINE;
-                pos = (Vector2){MAN_RECTANGLE_WIDTH / 2.0f, MAN_RECTANGLE_HEIGHT / 2.0f}; // Remember pos is the center so for the top-left corner we need adjustments
-                Player = (Rectangle){pos.x - (MAN_RECTANGLE_WIDTH / 2.0f), pos.y - (MAN_RECTANGLE_HEIGHT / 2.0f), MAN_RECTANGLE_WIDTH, MAN_RECTANGLE_HEIGHT};
+                pos = (Vector2){
+                    MAN_RECTANGLE_WIDTH / 2.0f, MAN_RECTANGLE_HEIGHT / 2.0f}; // Remember pos is the center so for the top-left corner we need adjustments
+                Player = (Rectangle){
+                    pos.x - (MAN_RECTANGLE_WIDTH / 2.0f), pos.y - (MAN_RECTANGLE_HEIGHT / 2.0f), MAN_RECTANGLE_WIDTH, MAN_RECTANGLE_HEIGHT};
                 mission_active = false;
                 picked_order = false;
                 sucessful_deliveries = 0;
@@ -359,7 +388,7 @@ int main(void)
         {
             night_progress -= 0.005f;
         }
-        if (night_progress >= 1.0f) // Checks if we have surpassed the colour limit
+        if (night_progress >= 1.0f) // Checks if we have surpassed the color limit
         {
             night_progress = 1.0f;
         }
@@ -368,7 +397,7 @@ int main(void)
             night_progress = 0.0f;
             turn_off_dark_mode = false;
         }
-        backround_col = LerpColor(SKYBLUE, BLACK, night_progress); // Blend the colours
+        backround_col = LerpColor(SKYBLUE, BLACK, night_progress); // Blend the colors
         ClearBackground(backround_col);
 
         DrawFPS(900, 10);
@@ -385,7 +414,9 @@ int main(void)
         default:
             // Start camera
             BeginMode3D(camera3d);
-            DrawPlane((Vector3){(float)WINDOW_WIDTH / 2.0f, -0.1, (float)WINDOW_HEIGHT / 2.0f}, (Vector2){3000, 3000}, DARKGRAY);
+            DrawPlane((Vector3){
+                          (float)WINDOW_WIDTH / 2.0f, -0.1, (float)WINDOW_HEIGHT / 2.0f},
+                      (Vector2){3000, 3000}, DARKGRAY);
             // Here we implement the billboard logic which helps us make the outer barriers of the game
             Vector3 wallPos = {-20.0f, 0.0f, -80.0f};
             Vector3 lockUp = {0.0f, 1.0f, 0.0f};
@@ -406,7 +437,7 @@ int main(void)
 
             print_refuel_station(Gasoline_Refuel_Station);
             DrawCubes(map);          // Draws map
-            DrawModelEx(playerModel, // Draw the model you laod from the playerModel
+            DrawModelEx(playerModel, // Draw the model you load from the playerModel
                         (Vector3){pos.x, MAN_3D_HEIGHT / 2.0f, pos.y},
                         (Vector3){0.0f, 1.0f, 0.0f},
                         angleRad * RAD2DEG,
@@ -446,8 +477,11 @@ int main(void)
                 DrawCircle((int)Gasoline_Refuel_Station.REAL.x, (int)Gasoline_Refuel_Station.REAL.y, 35, semicolor); // Draw the circle where the gas station is
             }
             DrawTextureRec(minimap_texture.texture,
-                           (Rectangle){0, 0, minimap_texture.texture.width, -minimap_texture.texture.height},
-                           (Vector2){0, 0}, WHITE);                                      // Do not draw the rectangles but the model!
+                           (Rectangle){
+                               0, 0, minimap_texture.texture.width, -minimap_texture.texture.height},
+                           (Vector2){
+                               0, 0},
+                           WHITE);                                                       // Do not draw the rectangles but the model!
             DrawRectangle(Player.x, Player.y, Player.width * 5, Player.height * 5, col); // Draw player three times larger for better place visualizatiomn
             if (mission_active == true)
             {
@@ -464,7 +498,7 @@ int main(void)
             Draw_and_update_score_window(sucessful_deliveries, HIGHSCORE1, HIGHSCORE2, HIGHSCORE3, GameScreen); // Draw score
             drawspeed();                                                                                        // Draws a speedometer.
             char ch[50] = {0};
-            sprintf(ch, "GRID COORDS ARE %d %d", current_grid_pos.gridX, current_grid_pos.gridY);
+            sprintf(ch, "GRID COORDS: %d %d", current_grid_pos.gridX, current_grid_pos.gridY);
             DrawText(ch, 1400, 25, 20, WHITE);
             break; // Breaks from the switch loop
         }
@@ -472,6 +506,7 @@ int main(void)
     }
     UnloadModel(playerModel);     // Unload the model we built
     UnloadModel(GasStationModel); // Unload the gas station model
+    UnloadModel(Bamboo_House);    // Unload the building's model
     CloseWindow();
     fclose(file); // Closes the file
     return 0;

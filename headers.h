@@ -143,8 +143,9 @@ extern int NUM_OF_NPC_CARS_ON_Y_ROAD_ON_CURRENT_LEVEL; //(Initialized in npc.c)T
 extern int score_for_current_mission; //(Initialized in gamehandling.c) Variable that is responsible for storing the score for a mission.
 extern float gas;                     //(Initialized in gamehandling.c)This is the amount of gas in the tank of the scooter.
 
-// Thsi is the 3d Model section. Declare all the models that are going to be used!
-extern Model GasStationModel; // Thsi is the gas sation model(as all models it is initialized in main.c before the window should close)
+// This is the 3d Model section. Declare all the models that are going to be used!
+extern Model GasStationModel; // This is the gas station model(as all models it is initialized in main.c before the window should close)
+extern Model Bamboo_House;    // Same for the bamboo house
 // Functions in all files. Syntax of comments is //(FILENAME_WHERE_FUNTCTION_IS_LOCATED) USE_AND_DEFINITION
 // Initialization functions
 void Initialize_Map(Rectangle (*map)[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X]); //(In layout.c) Initialize the map of the square blocks that will constitute the road
@@ -170,20 +171,21 @@ grid_and_map_coords initialize_pickup_location(Rectangle map[NUM_OF_RECTANGLES_Y
 grid_and_map_coords initialize_dropoff_location(Rectangle map[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X], Vector2 PICKUP); // Sets dropoff location.
 // Timer limitation functions
 void burn_fuel(void); //(In gamehandling.c)Decreases the fuel amount.
-// Draw functions
+// Draw functions(All in draw.c)
 void draw_fuel_bar(void);                                                //(In draw.c)Draws the remaining fuel in the depoisit.
 void draw_grid(void);                                                    //(In draw.c)Draws the grid of the big map in world-map coordinates. Note that this function does not draw the lines of the coordinates of the grid[i][j] but the outside sides of the rectangles that represent a 2D division of the map plane.
 void DrawCubes(Rectangle map[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X]); // Draws the cubes for the 3D version.
 void draw_npc3D(NPC chaser);                                             // Draws the NPC in 3d
 void draw_cars(void);                                                    // Draws all the cars.
 void draw_mission_score(void);                                           // Draws the score that is going to be awarded if no more points are deducted
-Color choseRandomColour(void);                                           // Returns a random colour from rand and a decoding method.
-Color LerpColor(Color start, Color end, float factor);                   //(in draw.c)Fades a colour
+void DrawBambooHouse(Vector3 pos);                                       // Draws the bamboohouse
+Color choseRandomColour(void);                                           // Returns a random color from rand and a decoding method.
+Color LerpColor(Color start, Color end, float factor);                   //(in draw.c)Fades a color
 // A* functions
 //  Initialize all functions(All in astar_search.c)
 void initGrid(void);                                                          // Initializes the grid that will be used for finding the best path
 void CreateWalls(void);                                                       // Sets the walls where they need to be.
-double calculateH(int x, int y, int destX, int destY);                        // Calculates heuristic function. More abouth the A* algorith in the docs.
+double calculateH(int x, int y, int destX, int destY);                        // Calculates heuristic function. More about the A* algorithm in the docs.
 bool isValid(int x, int y);                                                   // Check validity of coordinates given
 best_possible_path aStarSearch(int startX, int startY, int destX, int destY); // Output the A* results
 grid_coordinates RealToGrid(Vector2 pos);                                     //(In astar_search.c) converts real map coordinates to grid coordinates for a_star_search. Remember pos is the center position not the top-left.

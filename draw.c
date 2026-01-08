@@ -1,7 +1,8 @@
 #include "headers.h"
 
-// Initialize extrenal models
+// Initialize external models
 Model GasStationModel = {0};
+Model Bamboo_House = {0};
 
 void DrawRectangles(Rectangle map[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X])
 {
@@ -11,21 +12,64 @@ void DrawRectangles(Rectangle map[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X])
 }
 
 // In draw.c
+// In draw.c
 void DrawCubes(Rectangle map[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X])
 {
+    // 1. ANALYZE MODEL DATA
+    BoundingBox box = GetModelBoundingBox(Bamboo_House);
+    float modelWidth = box.max.x - box.min.x;
+    float modelHeight = box.max.y - box.min.y; // Height is Y
+    float modelLength = box.max.z - box.min.z; // Length is Z
+
+    // Safety check
+    if (modelWidth == 0.0f)
+        modelWidth = 1.0f;
+
+    // 2. CALCULATE SCALE
+    // Note: We rename these to match 3D space (X, Y=Up, Z=Depth)
+    float scaleX_Axis = (SIZE_OF_RECTANGLES_X / modelWidth);
+    float scaleZ_Axis = (SIZE_OF_RECTANGLES_Y / modelLength) * 1.15f;  // Map Y is 3D Z
+    float scaleY_Axis = (SIZE_OF_RECTANGLES_3DHEIGHT / modelHeight); // Vertical Scale
+
+    // 3. CALCULATE OFFSETS
+
+    // --- THE FIX IS HERE ---
+    // You must multiply box.min.y by the VERTICAL scale (scaleY_Axis), not the Z scale.
+    float yOffset = -box.min.y * scaleY_Axis;
+
+    // X/Z-OFFSET
+    float localCenterX = (box.min.x + box.max.x) / 2.0f;
+    float localCenterZ = (box.min.z + box.max.z) / 2.0f;
+
+    float xOffset = -localCenterX * scaleX_Axis;
+    float zOffset = -localCenterZ * scaleZ_Axis + 7;
+
     for (int i = 0; i < NUM_OF_RECTANGLES_Y; i++)
+    {
         for (int j = 0; j < NUM_OF_RECTANGLES_X; j++)
         {
-            float width = SIZE_OF_RECTANGLES_X;
-            float length = SIZE_OF_RECTANGLES_Y; // The "height" in 2D is length in 3D
+            float mapCenterX = map[i][j].x + SIZE_OF_RECTANGLES_X / 2.0f;
+            float mapCenterZ = map[i][j].y + SIZE_OF_RECTANGLES_Y / 2.0f;
 
-            // OFFSET MATH: Move the center to the middle of the rectangle
-            float centerX = map[i][j].x + SIZE_OF_RECTANGLES_X / 2.0f;
-            float centerZ = map[i][j].y + SIZE_OF_RECTANGLES_Y / 2.0f;
-            DrawCube((Vector3){centerX, ((float)SIZE_OF_RECTANGLES_3DHEIGHT / 2.0f), centerZ}, width, SIZE_OF_RECTANGLES_3DHEIGHT, length, RED);
-            DrawCubeWires((Vector3){centerX, ((float)SIZE_OF_RECTANGLES_3DHEIGHT / 2.0f), centerZ}, width, SIZE_OF_RECTANGLES_3DHEIGHT, length, BLACK);
+            Vector3 finalPos = {
+                mapCenterX + xOffset,
+                0.0f + yOffset, // Now uses the correct vertical scaling logic
+                mapCenterZ + zOffset};
+
+            DrawModelEx(Bamboo_House,
+                        finalPos,
+                        (Vector3){0, 1, 0},
+                        0.0f,
+                        (Vector3){scaleX_Axis, scaleY_Axis, scaleZ_Axis}, // X, Y, Z
+                        WHITE);
+
+            // Debug Wires
+            DrawCubeWires((Vector3){mapCenterX, ((float)SIZE_OF_RECTANGLES_3DHEIGHT / 2.0f), mapCenterZ},
+                          SIZE_OF_RECTANGLES_X, SIZE_OF_RECTANGLES_3DHEIGHT, SIZE_OF_RECTANGLES_Y, BLACK);
         }
+    }
 }
+
 void draw_pickup_and_dropoff(Vector2 PICKUP, Vector2 DROPOFF)
 {
     DrawCircle(PICKUP.x, PICKUP.y, 4, YELLOW);
@@ -59,9 +103,9 @@ void draw_fuel_bar(void) //(In draw.c)Draws the remaining fuel in the depoisit.
 {
     DrawRectangleLines(1800, (float)WINDOW_HEIGHT * 2.0f / 3.0f, 20, 100, WHITE);
     Color tankcol;
-    if(gas > 80)
+    if (gas > 80)
         tankcol = GREEN;
-    else 
+    else
         tankcol = RED;
     DrawRectangle(1800, ((float)WINDOW_HEIGHT * 2.0f / 3.0f + 100 - (gas / (float)INITIAL_GASOLINE * 100)), 20, (gas / (float)INITIAL_GASOLINE * 100), tankcol);
 }
@@ -72,8 +116,7 @@ void draw_grid(void) //(In draw.c)Draws the grid of the big map in world-map coo
     for (int i = 1; i < 4 * NUM_OF_RECTANGLES_Y; i++) // For every iteration of the number of divisions of the plane:
         DrawLine3D((Vector3){0, 0, i * stepY}, (Vector3){MAP_WIDTH, 0, i * stepY}, YELLOW);
 
-    for (int j = 1; j < 4 * NUM_OF_RECTANGLES_X; j++) // Be carefull!We are starting from 1(If I use the function later)
-
+    for (int j = 1; j < 4 * NUM_OF_RECTANGLES_X; j++) // Be careful!We are starting from 1(If I use the function later)
         DrawLine3D((Vector3){j * stepX, 0, 0}, (Vector3){j * stepX, 0, MAP_HEIGHT}, YELLOW);
 }
 void draw_astar_results(best_possible_path A_STAR_RESULT) // Decodes the string of the A* results.
@@ -152,28 +195,29 @@ void draw_mission_score(void) // Draws the score that is going to be awarded if 
     DrawText(ch, 800, 25, 20, WHITE); // Draw
 }
 
-//Refueling
+// Refueling
 void print_refuel_station(Gas_Station SET_STATION) //(In gamehandling.c)Prints the station if visible
 {
-    static int rotation_angle = 0; //Set the roataion angle
-    rotation_angle+=0.1; //Make the thing rotate!!!
-    if(SET_STATION.isvisible == true)
+    static int rotation_angle = 0; // Set the rotation angle
+    rotation_angle += 20;          // Make the thing rotate!!!
+    if (SET_STATION.isvisible == true)
     {
-        Vector3 pos3D = { SET_STATION.REAL.x , 0.0f, SET_STATION.REAL.y}; //3d position
+        Vector3 pos3D = {SET_STATION.REAL.x, 0.0f, SET_STATION.REAL.y}; // 3d position
         DrawModelEx(GasStationModel, pos3D, (Vector3){0, 1, 0}, rotation_angle, (Vector3){4.0f, 4.0f, 4.0f}, WHITE);
     }
 }
 
-//Color transition
-Color LerpColor(Color start, Color end, float factor) //Fades a colour
+// Color transition
+Color LerpColor(Color start, Color end, float factor) // Fades a color
 {
-    if (factor < 0.0f) factor = 0.0f;
-    if (factor > 1.0f) factor = 1.0f;
-    
+    if (factor < 0.0f)
+        factor = 0.0f;
+    if (factor > 1.0f)
+        factor = 1.0f;
+
     return (Color){
         (unsigned char)(start.r + (end.r - start.r) * factor),
         (unsigned char)(start.g + (end.g - start.g) * factor),
         (unsigned char)(start.b + (end.b - start.b) * factor),
-        255
-    };
+        255};
 }
