@@ -174,7 +174,6 @@ int main(void)
             {
                 pos.x -= movelength * sin(angleRad); // Reverse movement in x axis
                 Player.x = pos.x - (MAN_RECTANGLE_WIDTH / 2.0f);
-                printf("SOEDKOF00\n");
             }
             // Do the same for the y axis
             pos.y += movelength * cos(angleRad);

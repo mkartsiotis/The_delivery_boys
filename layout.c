@@ -33,14 +33,14 @@ void set_game_parameters(ScreenStatus *GameScreen, NPC *npc) //(in layout.c) Set
         npc->speed = 0.7;
         break;
     case LEVEL2:
-        NUM_OF_NPC_CARS_ON_X_ROAD_ON_CURRENT_LEVEL = 1;
-        NUM_OF_NPC_CARS_ON_Y_ROAD_ON_CURRENT_LEVEL = 1;
+        NUM_OF_NPC_CARS_ON_X_ROAD_ON_CURRENT_LEVEL = 4;
+        NUM_OF_NPC_CARS_ON_Y_ROAD_ON_CURRENT_LEVEL = 4;
         npc->speed = 2;
         break;
     case LEVEL3:
-        NUM_OF_NPC_CARS_ON_X_ROAD_ON_CURRENT_LEVEL = 5;
-        NUM_OF_NPC_CARS_ON_Y_ROAD_ON_CURRENT_LEVEL = 5;
-        npc->speed = 0.0f;
+        NUM_OF_NPC_CARS_ON_X_ROAD_ON_CURRENT_LEVEL = 20;
+        NUM_OF_NPC_CARS_ON_Y_ROAD_ON_CURRENT_LEVEL = 15;
+        npc->speed = 2.5f;
         break;
     default:
         return;

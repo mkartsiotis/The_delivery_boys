@@ -49,6 +49,13 @@ See you mate!!!
 6. Increased smartness of the npc to reduce sticking phenomena.
 Se ya!!!Do not forget to update!!!!
 
+
+Ωρα 1.40ΠΜ 10.1.2026(Μετά από Seemous)
+Μολις τελείωσα τις βελτιώσεις που ήθελα για τα αυτοκίνητα στους δρόμους. Το παραδίδω στα χέρια σου.......
+ΚΑλή τύχη και εύχομαι για μία αποδοτική μέρα αύριο.
+Το pdf το βάζω ως word...
+Έχουμε ακόμα δουλειά!!!!!!!!!!!!!!!!!!!Αύριο θα δώ ξανά τις προϋποθέσεις.
+
 This, is the progress file #2!  
 Today I tried to use differt techniques of moving a player in a world map created by me.  
 Steps:  

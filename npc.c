@@ -24,6 +24,7 @@ int npc_smart_counter = 0;    // This is a counter variable that tracks how many
 Vector2 target_npc_pos = {0}; // This is the old pos used in the update NPC and is the NPC target pos
 npc_car cars_vertical[NUM_OF_RECTANGLES_X + 1][NUM_OF_NPC_CARS_ON_Y_ROAD] = {false, NPC_CAR_CEMETARY, NPC_CAR_CEMETARY, NPC_CAR_CEMETARY, SIZE_OF_CAR_X, SIZE_OF_CAR_Y, SIZE_OF_CAR_Z, 0.0f, PURPLE};
 npc_car cars_horizontal[NUM_OF_RECTANGLES_Y + 1][NUM_OF_NPC_CARS_ON_X_ROAD] = {false, NPC_CAR_CEMETARY, NPC_CAR_CEMETARY, NPC_CAR_CEMETARY, SIZE_OF_CAR_X, SIZE_OF_CAR_Y, SIZE_OF_CAR_Z, 0.0f, PURPLE}; // Create an array of cars for the X and Y axis respectively.
+Traffic_state Traffic_Cop;                                                                                                                                                                              //(Initialized in npc.c)This just creates a vertica and a horizontal go to make the cars behave according to the law.
 int NUM_OF_NPC_CARS_ON_X_ROAD_ON_CURRENT_LEVEL = 0;                                                                                                                                                     //(Initialized in npc.c)This is a variable that is used to determine the most ammount of cars that appear on each level
 int NUM_OF_NPC_CARS_ON_Y_ROAD_ON_CURRENT_LEVEL = 0;                                                                                                                                                     //(Initialized in npc.c)This is a variable that is used to determine the most ammount of cars that appear on each level
 
@@ -131,6 +132,8 @@ void update_npc_cars(void)
     float tolerance_for_x_road = roadlength_x / (float)NUM_OF_NPC_CARS_ON_X_ROAD_ON_CURRENT_LEVEL;
     float tolerance_for_y_road = roadlength_y / (float)NUM_OF_NPC_CARS_ON_Y_ROAD_ON_CURRENT_LEVEL;
 
+    adress_traffic(); // helps with traffic management. (see below)
+
     // First check for the x axis(x roads)if there are any visible
     for (int i = 0; i < NUM_OF_RECTANGLES_Y + 1; i += 2) // for all even x roads
     {
@@ -185,7 +188,7 @@ void update_npc_cars(void)
             cars_horizontal[i][invisible_car_num].is_visible = true;
             cars_horizontal[i][invisible_car_num].start_pos = (Vector2){0, stepY * 4 * i};
             cars_horizontal[i][invisible_car_num].end_pos = (Vector2){roadlength_x, stepY * 4 * i};
-            cars_horizontal[i][invisible_car_num].speed = (rand() % 40 + 5) / 10.0f; // Formula for speed calculation.
+            cars_horizontal[i][invisible_car_num].speed = (rand() % 25 + 10.0f) / 10.0f; // Formula for speed calculation.
             cars_horizontal[i][invisible_car_num].col = choseRandomColour();
         }
     }
@@ -244,7 +247,7 @@ void update_npc_cars(void)
             cars_horizontal[i][invisible_car_num].is_visible = true;
             cars_horizontal[i][invisible_car_num].start_pos = (Vector2){roadlength_x, stepY * 4 * i};
             cars_horizontal[i][invisible_car_num].end_pos = (Vector2){0, stepY * 4 * i};
-            cars_horizontal[i][invisible_car_num].speed = (rand() % 40 + 5) / 10.0f; // Formula for speed calculation.
+            cars_horizontal[i][invisible_car_num].speed = (rand() % 25 + 10.0f) / 10.0f; // Formula for speed calculation.
             cars_horizontal[i][invisible_car_num].col = choseRandomColour();
         }
     }
@@ -263,7 +266,7 @@ void update_npc_cars(void)
                 if (cars_vertical[i][j].pos.y < cars_vertical[i][j].end_pos.y)
                 {
                     adjust_speedy(i, j); // Adξust the car speed
-                    cars_vertical[i][j].pos.y += cars_horizontal[i][j].speed;
+                    cars_vertical[i][j].pos.y += cars_vertical[i][j].speed;
                 }
                 else
                 {
@@ -303,7 +306,7 @@ void update_npc_cars(void)
             cars_vertical[i][invisible_car_num].is_visible = true;
             cars_vertical[i][invisible_car_num].start_pos = (Vector2){stepX * 4 * i, 0};
             cars_vertical[i][invisible_car_num].end_pos = (Vector2){stepX * 4 * i, roadlength_y};
-            cars_vertical[i][invisible_car_num].speed = (rand() % 40 + 5) / 10.0f; // Formula for speed calculation.
+            cars_vertical[i][invisible_car_num].speed = (rand() % 25 + 10.0f) / 10.0f; // Formula for speed calculation.
             cars_vertical[i][invisible_car_num].col = choseRandomColour();
         }
     }
@@ -361,7 +364,7 @@ void update_npc_cars(void)
             cars_vertical[i][invisible_car_num].is_visible = true;
             cars_vertical[i][invisible_car_num].start_pos = (Vector2){stepX * 4 * i, roadlength_y};
             cars_vertical[i][invisible_car_num].end_pos = (Vector2){stepX * 4 * i, 0};
-            cars_vertical[i][invisible_car_num].speed = (rand() % 40 + 5) / 10.0f; // Formula for speed calculation.
+            cars_vertical[i][invisible_car_num].speed = (rand() % 25 + 10.0f) / 10.0f; // Formula for speed calculation.
             cars_vertical[i][invisible_car_num].col = choseRandomColour();
         }
     }
@@ -476,13 +479,13 @@ void adjust_speedx(int i, int j) //(In npc.c)This function sets the speed of the
         int car_ahead_index = -1;
 
         // Check all the cars in our line
-        for (int k = 0; k < NUM_OF_NPC_CARS_ON_Y_ROAD_ON_CURRENT_LEVEL; k++)
+        for (int k = 0; k < NUM_OF_NPC_CARS_ON_X_ROAD_ON_CURRENT_LEVEL; k++)
         {
             // Skip the current or invisible cars
             if (k == j || cars_horizontal[i][k].is_visible == false)
                 continue;
 
-            float distance = cars_horizontal[i][j].pos.y - cars_horizontal[i][k].pos.y;
+            float distance = cars_horizontal[i][j].pos.x - cars_horizontal[i][k].pos.x;
             if (distance > 0) // For all the cars ahead...
             {
                 // Find the minimum value
@@ -585,5 +588,151 @@ void adjust_speedy(int i, int j) //(In npc.c)This function sets the speed of the
                 cars_vertical[i][j].speed = cars_vertical[i][car_ahead_index].speed;
             }
         }
+    }
+}
+
+void adress_traffic(void) //(in npc.c)This function creates a vertical and a horizontal go for the cars.
+{
+    /*This function creates a vertical and a horizontal go for the cars.
+    Main Logic:
+    1.Create a vertical and a horizontal go.(see headder files)
+    2.Set that variable according to time.....We will do that by implementing a static variable to the function nad thus track the numbrer of times the function is called.
+    3.We need to track if an npc is close to a intersection. We will do that by implementing the grid coordinate system we alraedy use.
+    4.If a car is close to an intersection if the variable indicates a red light stop. Else...If the previous distance was stop go!!!!
+    Wish me luck....*/
+    static int timer_counter = 0;
+    timer_counter++;
+
+    // Track how close are the horizontal cars to intersections
+    if (Traffic_Cop == Vertical_GO) // If light for horizontal cars is 0
+    {
+        // For all the stationary vertical cars give them the green light!!!
+        for (int i = 0; i < NUM_OF_RECTANGLES_X + 1; i++)                        // for all y roads
+            for (int j = 0; j < NUM_OF_NPC_CARS_ON_Y_ROAD_ON_CURRENT_LEVEL; j++) // for all cars on some of those roads
+            {
+                if (cars_vertical[i][j].is_visible == false) // If the cars are invisible go to the end of the loop and ignore all the changes
+                    continue;
+                // If their speed is 0 give them speed!!!
+                if (cars_vertical[i][j].speed == 0)
+                {
+                    cars_vertical[i][j].speed = (rand() % 25 + 10.0f) / 10.0f;
+                }
+            }
+
+        // For even roads
+        for (int i = 0; i < NUM_OF_RECTANGLES_Y + 1; i += 2)                     // for all even x roads
+            for (int j = 0; j < NUM_OF_NPC_CARS_ON_X_ROAD_ON_CURRENT_LEVEL; j++) // for all cars on some of those roads
+            {
+                if (cars_horizontal[i][j].is_visible == false) // If the cars are invisible go to the end of the loop and ignore all the changes
+                    continue;
+                // Now we need to remind to ourselves how we have set the parameters of the game and its core logic.
+                float cellXsize = WINDOW_WIDTH / ((float)NUM_OF_RECTANGLES_X * 4); // Remember the by 4 architexture(see docs).
+
+                float distance = 0, min_distance = 10000.0f;
+                // We now need to find the minimum distance
+                for (int k = 0; k < NUM_OF_RECTANGLES_X; k++) // For all the intersections
+                {
+                    distance = (3 + 4 * k) * cellXsize - cars_horizontal[i][j].pos.x;
+                    if (distance >= 0 && distance < min_distance)
+                        min_distance = distance;
+                }
+                if (min_distance < cars_horizontal[i][j].speed + 1) // If we are close enough to an intersection and we are before of it.
+                {
+                    cars_horizontal[i][j].speed = 0; // Stop the car
+                }
+            }
+        // For odd roads
+        for (int i = 1; i < NUM_OF_RECTANGLES_Y + 1; i += 2)                     // for all odd x roads
+            for (int j = 0; j < NUM_OF_NPC_CARS_ON_X_ROAD_ON_CURRENT_LEVEL; j++) // for all cars on some of those roads
+            {
+                if (cars_horizontal[i][j].is_visible == false) // If the cars are invisible go to the end of the loop and ignore all the changes
+                    continue;
+                // Now we need to remind to ourselves how we have set the parameters of the game and its core logic.
+                float cellXsize = WINDOW_WIDTH / ((float)NUM_OF_RECTANGLES_X * 4); // Remember the by 4 architexture(see docs).
+
+                float distance = 0, min_distance = 10000.0f;
+                // We now need to find the minimum distance
+                for (int k = 0; k < NUM_OF_RECTANGLES_X; k++) // For all the intersections
+                {
+                    distance = cars_horizontal[i][j].pos.x - (5 + 4 * k) * cellXsize; // For the odd roads stop points are different.
+                    if (distance >= 0 && distance < min_distance)
+                        min_distance = distance;
+                }
+                if (min_distance < cars_horizontal[i][j].speed + 1) // If we are close enough to an intersection and we are before of it.
+                {
+                    cars_horizontal[i][j].speed = 0; // Stop the car
+                }
+            }
+    }
+
+    if (Traffic_Cop == Horizontal_GO) // If green is for horizontal...
+    {
+        // If it is green for the horizontal cars let them go!!!
+        for (int i = 0; i < NUM_OF_RECTANGLES_Y + 1; i++)                        // for all x roads
+            for (int j = 0; j < NUM_OF_NPC_CARS_ON_X_ROAD_ON_CURRENT_LEVEL; j++) // for all cars on some of those roads
+            {
+                if (cars_horizontal[i][j].is_visible == false) // If the cars are invisible go to the end of the loop and ignore all the changes
+                    continue;
+                // If their speed is 0 give them speed!!!
+                if (cars_horizontal[i][j].speed == 0)
+                {
+                    cars_horizontal[i][j].speed = (rand() % 25 + 10.0f) / 10.0f;
+                }
+            }
+
+        // Traffic light logic
+        //  For even roads
+        for (int i = 0; i < NUM_OF_RECTANGLES_X + 1; i += 2)                     // for all even x roads
+            for (int j = 0; j < NUM_OF_NPC_CARS_ON_Y_ROAD_ON_CURRENT_LEVEL; j++) // for all cars on some of those roads
+            {
+                if (cars_vertical[i][j].is_visible == false) // If the cars are invisible go to the end of the loop and ignore all the changes
+                    continue;
+                // Now we need to remind to ourselves how we have set the parameters of the game and its core logic.
+                float cellYsize = WINDOW_HEIGHT / ((float)NUM_OF_RECTANGLES_Y * 4); // Remember the by 4 architexture(see docs).
+
+                float distance = 0, min_distance = 10000.0f;
+                // We now need to find the minimum distance
+                for (int k = 0; k < NUM_OF_RECTANGLES_Y; k++) // For all the intersections
+                {
+                    distance = (3 + 4 * k) * cellYsize - cars_vertical[i][j].pos.y;
+                    if (distance >= 0 && distance < min_distance)
+                        min_distance = distance;
+                }
+                if (min_distance < cars_vertical[i][j].speed + 1) // If we are close enough to an intersection and we are before of it.
+                {
+                    cars_vertical[i][j].speed = 0; // Stop the car
+                }
+            }
+        // For odd roads
+        for (int i = 1; i < NUM_OF_RECTANGLES_X + 1; i += 2)                     // for all odd x roads
+            for (int j = 0; j < NUM_OF_NPC_CARS_ON_Y_ROAD_ON_CURRENT_LEVEL; j++) // for all cars on some of those roads
+            {
+                if (cars_vertical[i][j].is_visible == false) // If the cars are invisible go to the end of the loop and ignore all the changes
+                    continue;
+                // Now we need to remind to ourselves how we have set the parameters of the game and its core logic.
+                float cellYsize = WINDOW_HEIGHT / ((float)NUM_OF_RECTANGLES_Y * 4); // Remember the by 4 architexture(see docs).
+
+                float distance = 0, min_distance = 10000.0f;
+                // We now need to find the minimum distance
+                for (int k = 0; k < NUM_OF_RECTANGLES_Y; k++) // For all the intersections
+                {
+                    distance = cars_vertical[i][j].pos.y - (5 + 4 * k) * cellYsize; // For the odd roads stop points are different.
+                    if (distance >= 0 && distance < min_distance)
+                        min_distance = distance;
+                }
+                if (min_distance < cars_vertical[i][j].speed + 1) // If we are close enough to an intersection and we are before of it.
+                {
+                    cars_vertical[i][j].speed = 0; // Stop the car
+                }
+            }
+    }
+
+    if (timer_counter > 180) // Every 3 seconds
+    {
+        timer_counter = 0;
+        if (Traffic_Cop == Vertical_GO)
+            Traffic_Cop = Horizontal_GO;
+        else
+            Traffic_Cop = Vertical_GO;
     }
 }

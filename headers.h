@@ -33,8 +33,8 @@
 #define SIZE_OF_CAR_X 5
 #define SIZE_OF_CAR_Y 5
 #define SIZE_OF_CAR_Z 4
-#define NUM_OF_NPC_CARS_ON_X_ROAD 15
-#define NUM_OF_NPC_CARS_ON_Y_ROAD 15
+#define NUM_OF_NPC_CARS_ON_X_ROAD 30
+#define NUM_OF_NPC_CARS_ON_Y_ROAD 25
 
 #define INITIAL_GASOLINE 500
 // In this section we define all the structure and types needed
@@ -89,6 +89,12 @@ typedef struct
     int gridX;
     int gridY;
 } grid_coordinates;
+// Trafic light implementation. This is an enumeration that holds all the information for traffic lights.
+typedef enum TRAFIC_LIGHTS
+{
+    Vertical_GO,
+    Horizontal_GO
+} Traffic_state;
 // NPC structure
 typedef struct
 {
@@ -143,6 +149,7 @@ extern int NUM_OF_NPC_CARS_ON_Y_ROAD_ON_CURRENT_LEVEL; //(Initialized in npc.c)T
 
 extern int score_for_current_mission; //(Initialized in gamehandling.c) Variable that is responsible for storing the score for a mission.
 extern float gas;                     //(Initialized in gamehandling.c)This is the amount of gas in the tank of the scooter.
+extern Traffic_state Traffic_Cop;     //(Initialized in npc.c)This just creates a vertica and a horizontal go to make the cars behave according to the law.
 
 // This is the 3d Model section. Declare all the models that are going to be used!
 extern Model GasStationModel; // This is the gas station model(as all models it is initialized in main.c before the window should close)
@@ -197,10 +204,11 @@ int check_if_caught(Vector2 playerpos, NPC npc);                                
 void update_npc_cars(void);                                                                               //(In npc.c)Controls npc car movement and specifically APPEARNCE - DISAPPEARENCE - POSITION - COLOUR - START AND END POSITION.
 void init_cars(void);                                                                                     // Initializes the array of cars
 int check_for_car_crashes(Rectangle Player);                                                              // Checks for collisions with the npc cars.
-void adjust_speedx(int i, int j); //(In npc.c)This function sets the speed of the following cars to the speed of the the slower mooving first car.
-void adjust_speedy(int i, int j); //(In npc.c)This function sets the speed of the following cars to the speed of the the slower mooving first car.
-// Camera logic(IN cam.c file)
-void TurnCam(Camera3D *camera3d, Vector2 pos); // Turns 3D cam.
+void adjust_speedx(int i, int j);                                                                         //(In npc.c)This function sets the speed of the following cars to the speed of the the slower mooving first car.
+void adjust_speedy(int i, int j);                                                                         //(In npc.c)This function sets the speed of the following cars to the speed of the the slower mooving first car.
+void adress_traffic(void);                                                                                 //(in npc.c)This function creates a vertical and a horizontal go for the cars.
+    // Camera logic(IN cam.c file)
+    void TurnCam(Camera3D *camera3d, Vector2 pos); // Turns 3D cam.
 // Screen logic and level logic
 void set_game_parameters(ScreenStatus *GameScreen, NPC *npc); //(in layout.c) Sets all the parameters before a game level starts
 // Score handling(All functions in gamehandling.c)
