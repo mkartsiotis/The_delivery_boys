@@ -74,7 +74,7 @@ int main(void)
     Mesh cubeMesh = GenMeshCube(MAN_RECTANGLE_WIDTH, MAN_3D_HEIGHT, MAN_RECTANGLE_HEIGHT); //  Create a mesh (The geometry)
     Model playerModel = LoadModelFromMesh(cubeMesh);                                       // Load it into a Model
     // Bamboo house
-    Bamboo_House = LoadModel("game_ready_building_3.glb");
+    Bamboo_House = LoadModel("city_building.glb");
     if (Bamboo_House.meshCount == 0)
     {
         printf("ERROR: Bamboo House failed to load! Check filename/path.\n");

@@ -284,5 +284,8 @@ How we will implement gas station features
     b. 3 new functions. A draw function that draws the station and a function that randomply selects a point in thne map and places a gasoline there. And an update function as well. DONE
 2. Better car and npc movement with the creation of traffic lights as we have told multiple times. Not yet done
 3. Full coin mode and highscore logic print when in preview. Not yet done
-4. Night and boost mode. Now
+4. Night mode. Done
+
+Today is npc day!!!!!
+
 

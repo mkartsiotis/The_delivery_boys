@@ -22,10 +22,10 @@ How we are going to implement all this thinking:
 // Initialize external variables
 int npc_smart_counter = 0;    // This is a counter variable that tracks how many times before the NPC changes its target to match the players position. It is the NPC's update time.
 Vector2 target_npc_pos = {0}; // This is the old pos used in the update NPC and is the NPC target pos
-npc_car cars_vertical[NUM_OF_RECTANGLES_X + 1][NUM_OF_NPC_CARS_ON_Y_ROAD] = {false, NPC_CAR_CEMETARY, NPC_CAR_CEMETARY, NPC_CAR_CEMETARY, SIZE_OF_CAR_X, SIZE_OF_CAR_Y, SIZE_OF_CAR_Z, PURPLE};
-npc_car cars_horizontal[NUM_OF_RECTANGLES_Y + 1][NUM_OF_NPC_CARS_ON_X_ROAD] = {false, NPC_CAR_CEMETARY, NPC_CAR_CEMETARY, NPC_CAR_CEMETARY, SIZE_OF_CAR_X, SIZE_OF_CAR_Y, SIZE_OF_CAR_Z, PURPLE}; // Create an array of cars for the X and Y axis respectively.
-int NUM_OF_NPC_CARS_ON_X_ROAD_ON_CURRENT_LEVEL = 0;                                                                                                                                               //(Initialized in npc.c)This is a variable that is used to determine the most ammount of cars that appear on each level
-int NUM_OF_NPC_CARS_ON_Y_ROAD_ON_CURRENT_LEVEL = 0;                                                                                                                                               //(Initialized in npc.c)This is a variable that is used to determine the most ammount of cars that appear on each level
+npc_car cars_vertical[NUM_OF_RECTANGLES_X + 1][NUM_OF_NPC_CARS_ON_Y_ROAD] = {false, NPC_CAR_CEMETARY, NPC_CAR_CEMETARY, NPC_CAR_CEMETARY, SIZE_OF_CAR_X, SIZE_OF_CAR_Y, SIZE_OF_CAR_Z, 0.0f, PURPLE};
+npc_car cars_horizontal[NUM_OF_RECTANGLES_Y + 1][NUM_OF_NPC_CARS_ON_X_ROAD] = {false, NPC_CAR_CEMETARY, NPC_CAR_CEMETARY, NPC_CAR_CEMETARY, SIZE_OF_CAR_X, SIZE_OF_CAR_Y, SIZE_OF_CAR_Z, 0.0f, PURPLE}; // Create an array of cars for the X and Y axis respectively.
+int NUM_OF_NPC_CARS_ON_X_ROAD_ON_CURRENT_LEVEL = 0;                                                                                                                                                     //(Initialized in npc.c)This is a variable that is used to determine the most ammount of cars that appear on each level
+int NUM_OF_NPC_CARS_ON_Y_ROAD_ON_CURRENT_LEVEL = 0;                                                                                                                                                     //(Initialized in npc.c)This is a variable that is used to determine the most ammount of cars that appear on each level
 
 void updateNPC(NPC *chaser, Vector2 player_pos, Rectangle map[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X]) //(In npc.c)Checks conditions and recalculates path if needed.
 {
@@ -144,7 +144,7 @@ void update_npc_cars(void)
                 // Check if we meet the threshold.
                 if (cars_horizontal[i][j].pos.x < cars_horizontal[i][j].end_pos.x)
                 {
-                    cars_horizontal[i][j].pos.x += 2.0f;
+                    cars_horizontal[i][j].pos.x += cars_horizontal[i][j].speed; // If we can move, move!!!
                 }
                 else
                 {
@@ -179,11 +179,12 @@ void update_npc_cars(void)
                 }
             if (invisible_car_num == -1)
                 continue;
-            // Now put the car in the road start. Make it visible
+            // Now we put the car in the road start and make it visible.
             cars_horizontal[i][invisible_car_num].pos = (Vector2){0, stepY * 4 * i};
             cars_horizontal[i][invisible_car_num].is_visible = true;
             cars_horizontal[i][invisible_car_num].start_pos = (Vector2){0, stepY * 4 * i};
             cars_horizontal[i][invisible_car_num].end_pos = (Vector2){roadlength_x, stepY * 4 * i};
+            cars_horizontal[i][invisible_car_num].speed = (rand() % 20 + 10) / 10.0f; // Formula for speed calculation.
             cars_horizontal[i][invisible_car_num].col = choseRandomColour();
         }
     }
@@ -201,7 +202,7 @@ void update_npc_cars(void)
                 // Check if we meet the threshold.
                 if (cars_horizontal[i][j].pos.x > cars_horizontal[i][j].end_pos.x)
                 {
-                    cars_horizontal[i][j].pos.x -= 2.0f;
+                    cars_horizontal[i][j].pos.x -= cars_horizontal[i][j].speed;
                 }
                 else
                 {
@@ -241,6 +242,7 @@ void update_npc_cars(void)
             cars_horizontal[i][invisible_car_num].is_visible = true;
             cars_horizontal[i][invisible_car_num].start_pos = (Vector2){roadlength_x, stepY * 4 * i};
             cars_horizontal[i][invisible_car_num].end_pos = (Vector2){0, stepY * 4 * i};
+            cars_horizontal[i][invisible_car_num].speed = (rand() % 20 + 10) / 10.0f; // Formula for speed calculation.
             cars_horizontal[i][invisible_car_num].col = choseRandomColour();
         }
     }
@@ -258,7 +260,7 @@ void update_npc_cars(void)
                 // Check if we meet the threshold.
                 if (cars_vertical[i][j].pos.y < cars_vertical[i][j].end_pos.y)
                 {
-                    cars_vertical[i][j].pos.y += 2.0f;
+                    cars_vertical[i][j].pos.y += cars_horizontal[i][j].speed;
                 }
                 else
                 {
@@ -298,6 +300,7 @@ void update_npc_cars(void)
             cars_vertical[i][invisible_car_num].is_visible = true;
             cars_vertical[i][invisible_car_num].start_pos = (Vector2){stepX * 4 * i, 0};
             cars_vertical[i][invisible_car_num].end_pos = (Vector2){stepX * 4 * i, roadlength_y};
+            cars_vertical[i][invisible_car_num].speed = (rand() % 20 + 10) / 10.0f; // Formula for speed calculation.
             cars_vertical[i][invisible_car_num].col = choseRandomColour();
         }
     }
@@ -314,7 +317,7 @@ void update_npc_cars(void)
                 // Check if we meet the threshold.
                 if (cars_vertical[i][j].pos.y > cars_vertical[i][j].end_pos.y)
                 {
-                    cars_vertical[i][j].pos.y -= 2.0f;
+                    cars_vertical[i][j].pos.y -= cars_vertical[i][j].speed;
                 }
                 else
                 {
@@ -354,6 +357,7 @@ void update_npc_cars(void)
             cars_vertical[i][invisible_car_num].is_visible = true;
             cars_vertical[i][invisible_car_num].start_pos = (Vector2){stepX * 4 * i, roadlength_y};
             cars_vertical[i][invisible_car_num].end_pos = (Vector2){stepX * 4 * i, 0};
+            cars_vertical[i][invisible_car_num].speed = (rand() % 20 + 10) / 10.0f; // Formula for speed calculation.
             cars_vertical[i][invisible_car_num].col = choseRandomColour();
         }
     }
@@ -363,10 +367,10 @@ void init_cars(void)
 {
     for (int i = 0; i < NUM_OF_RECTANGLES_Y + 1; i++)       // for all x roads
         for (int j = 0; j < NUM_OF_NPC_CARS_ON_X_ROAD; j++) // for all cars on those roads
-            cars_horizontal[i][j] = (npc_car){false, NPC_CAR_CEMETARY, NPC_CAR_CEMETARY, NPC_CAR_CEMETARY, SIZE_OF_CAR_X, SIZE_OF_CAR_Y, SIZE_OF_CAR_Z, PURPLE};
+            cars_horizontal[i][j] = (npc_car){false, NPC_CAR_CEMETARY, NPC_CAR_CEMETARY, NPC_CAR_CEMETARY, SIZE_OF_CAR_X, SIZE_OF_CAR_Y, SIZE_OF_CAR_Z, 0.0f, PURPLE};
     for (int i = 0; i < NUM_OF_RECTANGLES_X + 1; i++)       // for all y roads
         for (int j = 0; j < NUM_OF_NPC_CARS_ON_Y_ROAD; j++) // for all cars on those roads
-            cars_vertical[i][j] = (npc_car){false, NPC_CAR_CEMETARY, NPC_CAR_CEMETARY, NPC_CAR_CEMETARY, SIZE_OF_CAR_X, SIZE_OF_CAR_Y, SIZE_OF_CAR_Z, PURPLE};
+            cars_vertical[i][j] = (npc_car){false, NPC_CAR_CEMETARY, NPC_CAR_CEMETARY, NPC_CAR_CEMETARY, SIZE_OF_CAR_X, SIZE_OF_CAR_Y, SIZE_OF_CAR_Z, 0.0f, PURPLE};
 }
 
 int check_for_car_crashes(Rectangle Player) // Checks for collisions with the npc cars.

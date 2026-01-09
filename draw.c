@@ -28,8 +28,8 @@ void DrawCubes(Rectangle map[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X])
     // 2. CALCULATE SCALE
     // Note: We rename these to match 3D space (X, Y=Up, Z=Depth)
     float scaleX_Axis = (SIZE_OF_RECTANGLES_X / modelWidth);
-    float scaleZ_Axis = (SIZE_OF_RECTANGLES_Y / modelLength) * 1.15f;  // Map Y is 3D Z
-    float scaleY_Axis = (SIZE_OF_RECTANGLES_3DHEIGHT / modelHeight); // Vertical Scale
+    float scaleZ_Axis = (SIZE_OF_RECTANGLES_Y / modelLength); // Map Y is 3D Z
+    float scaleY_Axis = (SIZE_OF_RECTANGLES_3DHEIGHT / modelHeight);  // Vertical Scale
 
     // 3. CALCULATE OFFSETS
 
@@ -42,7 +42,7 @@ void DrawCubes(Rectangle map[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X])
     float localCenterZ = (box.min.z + box.max.z) / 2.0f;
 
     float xOffset = -localCenterX * scaleX_Axis;
-    float zOffset = -localCenterZ * scaleZ_Axis + 7;
+    float zOffset = -localCenterZ * scaleZ_Axis;
 
     for (int i = 0; i < NUM_OF_RECTANGLES_Y; i++)
     {
@@ -53,7 +53,7 @@ void DrawCubes(Rectangle map[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X])
 
             Vector3 finalPos = {
                 mapCenterX + xOffset,
-                0.0f + yOffset, // Now uses the correct vertical scaling logic
+                +yOffset, // Now uses the correct vertical scaling logic
                 mapCenterZ + zOffset};
 
             DrawModelEx(Bamboo_House,

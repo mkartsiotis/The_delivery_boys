@@ -72,6 +72,7 @@ typedef struct
     Vector2 start_pos;       // starting position of the car
     Vector2 end_pos;         // Final position of the car before it becomes invisible
     int sizeX, sizeY, sizeZ; // Size of the NPC car defined with #DEFINE(check above)
+    float speed;             // Speed of the npc car
     Color col;               // colour of the NPC car
 } npc_car;                   // This is our object type.
 
