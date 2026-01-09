@@ -144,6 +144,7 @@ void update_npc_cars(void)
                 // Check if we meet the threshold.
                 if (cars_horizontal[i][j].pos.x < cars_horizontal[i][j].end_pos.x)
                 {
+                    adjust_speedx(i, j);                                        // Adjust the speed of the following car to ensure no car passes through another.
                     cars_horizontal[i][j].pos.x += cars_horizontal[i][j].speed; // If we can move, move!!!
                 }
                 else
@@ -184,7 +185,7 @@ void update_npc_cars(void)
             cars_horizontal[i][invisible_car_num].is_visible = true;
             cars_horizontal[i][invisible_car_num].start_pos = (Vector2){0, stepY * 4 * i};
             cars_horizontal[i][invisible_car_num].end_pos = (Vector2){roadlength_x, stepY * 4 * i};
-            cars_horizontal[i][invisible_car_num].speed = (rand() % 20 + 10) / 10.0f; // Formula for speed calculation.
+            cars_horizontal[i][invisible_car_num].speed = (rand() % 40 + 5) / 10.0f; // Formula for speed calculation.
             cars_horizontal[i][invisible_car_num].col = choseRandomColour();
         }
     }
@@ -202,6 +203,7 @@ void update_npc_cars(void)
                 // Check if we meet the threshold.
                 if (cars_horizontal[i][j].pos.x > cars_horizontal[i][j].end_pos.x)
                 {
+                    adjust_speedx(i, j);
                     cars_horizontal[i][j].pos.x -= cars_horizontal[i][j].speed;
                 }
                 else
@@ -242,7 +244,7 @@ void update_npc_cars(void)
             cars_horizontal[i][invisible_car_num].is_visible = true;
             cars_horizontal[i][invisible_car_num].start_pos = (Vector2){roadlength_x, stepY * 4 * i};
             cars_horizontal[i][invisible_car_num].end_pos = (Vector2){0, stepY * 4 * i};
-            cars_horizontal[i][invisible_car_num].speed = (rand() % 20 + 10) / 10.0f; // Formula for speed calculation.
+            cars_horizontal[i][invisible_car_num].speed = (rand() % 40 + 5) / 10.0f; // Formula for speed calculation.
             cars_horizontal[i][invisible_car_num].col = choseRandomColour();
         }
     }
@@ -260,6 +262,7 @@ void update_npc_cars(void)
                 // Check if we meet the threshold.
                 if (cars_vertical[i][j].pos.y < cars_vertical[i][j].end_pos.y)
                 {
+                    adjust_speedy(i, j); // Adξust the car speed
                     cars_vertical[i][j].pos.y += cars_horizontal[i][j].speed;
                 }
                 else
@@ -300,7 +303,7 @@ void update_npc_cars(void)
             cars_vertical[i][invisible_car_num].is_visible = true;
             cars_vertical[i][invisible_car_num].start_pos = (Vector2){stepX * 4 * i, 0};
             cars_vertical[i][invisible_car_num].end_pos = (Vector2){stepX * 4 * i, roadlength_y};
-            cars_vertical[i][invisible_car_num].speed = (rand() % 20 + 10) / 10.0f; // Formula for speed calculation.
+            cars_vertical[i][invisible_car_num].speed = (rand() % 40 + 5) / 10.0f; // Formula for speed calculation.
             cars_vertical[i][invisible_car_num].col = choseRandomColour();
         }
     }
@@ -318,6 +321,7 @@ void update_npc_cars(void)
                 if (cars_vertical[i][j].pos.y > cars_vertical[i][j].end_pos.y)
                 {
                     cars_vertical[i][j].pos.y -= cars_vertical[i][j].speed;
+                    adjust_speedy(i, j); // Adjust the car speed
                 }
                 else
                 {
@@ -357,7 +361,7 @@ void update_npc_cars(void)
             cars_vertical[i][invisible_car_num].is_visible = true;
             cars_vertical[i][invisible_car_num].start_pos = (Vector2){stepX * 4 * i, roadlength_y};
             cars_vertical[i][invisible_car_num].end_pos = (Vector2){stepX * 4 * i, 0};
-            cars_vertical[i][invisible_car_num].speed = (rand() % 20 + 10) / 10.0f; // Formula for speed calculation.
+            cars_vertical[i][invisible_car_num].speed = (rand() % 40 + 5) / 10.0f; // Formula for speed calculation.
             cars_vertical[i][invisible_car_num].col = choseRandomColour();
         }
     }
@@ -412,4 +416,174 @@ Color choseRandomColour(void) // Returns a random colour from rand and a decodin
 {
     Color return_col = (Color){rand() % 256, rand() % 256, rand() % 256, 255};
     return return_col;
+}
+
+/*
+Adjust speed logic:
+*
+1. Give random values to car speeds
+2. With this function find the closest car in front.
+3. For that closest car check if its distance from our car is less than a threshold
+4. If that holds true then set the speed of the following car to the speed of the car ahead
+AND do that only for visible cars of course!!!*/
+void adjust_speedx(int i, int j) //(In npc.c)This function sets the speed of the following cars to the speed of the the slower mooving first car.
+{
+    // Only run this for visible cars
+    if (!cars_horizontal[i][j].is_visible)
+        return;
+
+    // For Even i
+    if (i % 2 == 0)
+    {
+        float min_dist = 10000.0f; // distance from the front of the car
+        int car_ahead_index = -1;
+
+        // Check all the cars in our line
+        for (int k = 0; k < NUM_OF_NPC_CARS_ON_X_ROAD_ON_CURRENT_LEVEL; k++)
+        {
+            // Skip the current or invisible cars
+            if (k == j || cars_horizontal[i][k].is_visible == false)
+                continue;
+
+            float distance = cars_horizontal[i][k].pos.x - cars_horizontal[i][j].pos.x;
+            if (distance > 0) // For all the cars ahead...
+            {
+                // Find the minimum value
+                if (distance < min_dist)
+                {
+                    min_dist = distance;
+                    car_ahead_index = k;
+                }
+            }
+        }
+
+        // We have now just found the car directly in front. Now we check if that car is close enough to trigger the braking.(setting the speed of the current car equal to the car in front)
+        float safe_gap = 6.0f;
+        if (car_ahead_index != -1 && min_dist < (cars_horizontal[i][j].sizeX + safe_gap))
+        {
+            // Match the speed of the car ahead
+            if (cars_horizontal[i][j].speed > cars_horizontal[i][car_ahead_index].speed)
+            {
+                cars_horizontal[i][j].speed = cars_horizontal[i][car_ahead_index].speed;
+            }
+        }
+    }
+
+    // For odd i
+    if (i % 2 == 1)
+    {
+        float min_dist = 10000.0f; // distance from the front of the car
+        int car_ahead_index = -1;
+
+        // Check all the cars in our line
+        for (int k = 0; k < NUM_OF_NPC_CARS_ON_Y_ROAD_ON_CURRENT_LEVEL; k++)
+        {
+            // Skip the current or invisible cars
+            if (k == j || cars_horizontal[i][k].is_visible == false)
+                continue;
+
+            float distance = cars_horizontal[i][j].pos.y - cars_horizontal[i][k].pos.y;
+            if (distance > 0) // For all the cars ahead...
+            {
+                // Find the minimum value
+                if (distance < min_dist)
+                {
+                    min_dist = distance;
+                    car_ahead_index = k;
+                }
+            }
+        }
+
+        // We have now just found the car directly in front. Now we check if that car is close enough to trigger the braking.(setting the speed of the current car equal to the car in front)
+        float safe_gap = 6.0f;
+        if (car_ahead_index != -1 && min_dist < (cars_horizontal[i][j].sizeX + safe_gap))
+        {
+            // Match the speed of the car ahead
+            if (cars_horizontal[i][j].speed > cars_horizontal[i][car_ahead_index].speed)
+            {
+                cars_horizontal[i][j].speed = cars_horizontal[i][car_ahead_index].speed;
+            }
+        }
+    }
+}
+
+void adjust_speedy(int i, int j) //(In npc.c)This function sets the speed of the following cars to the speed of the the slower mooving first car.
+{
+    // Only run this for visible cars
+    if (!cars_vertical[i][j].is_visible)
+        return;
+
+    // For Even i
+    if (i % 2 == 0)
+    {
+        float min_dist = 10000.0f; // distance from the front of the car
+        int car_ahead_index = -1;
+
+        // Check all the cars in our line
+        for (int k = 0; k < NUM_OF_NPC_CARS_ON_Y_ROAD_ON_CURRENT_LEVEL; k++)
+        {
+            // Skip the current or invisible cars
+            if (k == j || cars_vertical[i][k].is_visible == false)
+                continue;
+
+            float distance = cars_vertical[i][k].pos.y - cars_vertical[i][j].pos.y;
+            if (distance > 0) // For all the cars ahead...
+            {
+                // Find the minimum value
+                if (distance < min_dist)
+                {
+                    min_dist = distance;
+                    car_ahead_index = k;
+                }
+            }
+        }
+
+        // We have now just found the car directly in front. Now we check if that car is close enough to trigger the braking.(setting the speed of the current car equal to the car in front)
+        float safe_gap = 6.0f;
+        if (car_ahead_index != -1 && min_dist < (cars_vertical[i][j].sizeY + safe_gap))
+        {
+            // Match the speed of the car ahead
+            if (cars_vertical[i][j].speed > cars_vertical[i][car_ahead_index].speed)
+            {
+                cars_vertical[i][j].speed = cars_vertical[i][car_ahead_index].speed;
+            }
+        }
+    }
+
+    // For odd i
+    if (i % 2 == 1)
+    {
+        float min_dist = 10000.0f; // distance from the front of the car
+        int car_ahead_index = -1;
+
+        // Check all the cars in our line
+        for (int k = 0; k < NUM_OF_NPC_CARS_ON_Y_ROAD_ON_CURRENT_LEVEL; k++)
+        {
+            // Skip the current or invisible cars
+            if (k == j || cars_vertical[i][k].is_visible == false)
+                continue;
+
+            float distance = cars_vertical[i][j].pos.y - cars_vertical[i][k].pos.y;
+            if (distance > 0) // For all the cars ahead...
+            {
+                // Find the minimum value
+                if (distance < min_dist)
+                {
+                    min_dist = distance;
+                    car_ahead_index = k;
+                }
+            }
+        }
+
+        // We have now just found the car directly in front. Now we check if that car is close enough to trigger the braking.(setting the speed of the current car equal to the car in front)
+        float safe_gap = 6.0f;
+        if (car_ahead_index != -1 && min_dist < (cars_vertical[i][j].sizeX + safe_gap))
+        {
+            // Match the speed of the car ahead
+            if (cars_vertical[i][j].speed > cars_vertical[i][car_ahead_index].speed)
+            {
+                cars_vertical[i][j].speed = cars_vertical[i][car_ahead_index].speed;
+            }
+        }
+    }
 }

@@ -197,6 +197,8 @@ int check_if_caught(Vector2 playerpos, NPC npc);                                
 void update_npc_cars(void);                                                                               //(In npc.c)Controls npc car movement and specifically APPEARNCE - DISAPPEARENCE - POSITION - COLOUR - START AND END POSITION.
 void init_cars(void);                                                                                     // Initializes the array of cars
 int check_for_car_crashes(Rectangle Player);                                                              // Checks for collisions with the npc cars.
+void adjust_speedx(int i, int j); //(In npc.c)This function sets the speed of the following cars to the speed of the the slower mooving first car.
+void adjust_speedy(int i, int j); //(In npc.c)This function sets the speed of the following cars to the speed of the the slower mooving first car.
 // Camera logic(IN cam.c file)
 void TurnCam(Camera3D *camera3d, Vector2 pos); // Turns 3D cam.
 // Screen logic and level logic

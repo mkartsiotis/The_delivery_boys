@@ -1,6 +1,6 @@
 #include "headers.h"
 // Initialize external int speed which is vital for movement control
-float speed = 4;
+float speed = 2;
 
 float delta_move(void)
 {
@@ -8,11 +8,11 @@ float delta_move(void)
     float delta = 0;
     if (IsKeyDown(KEY_RIGHT))
     {
-        angleRad -= 0.043;
+        angleRad -= 0.03;
     }
     else if (IsKeyDown(KEY_LEFT))
     {
-        angleRad += 0.043;
+        angleRad += 0.03;
     }
     if (angleRad > 4 * 1.5707)
         angleRad = 0;
@@ -31,8 +31,8 @@ float delta_move(void)
         speed -= 0.03;
     if (speed < 0)
         speed = 0;
-    if (speed > 4)
-        speed = 4;
+    if (speed > 3)
+        speed = 3;
     delta = -speed;
     return delta;
 }
