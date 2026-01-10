@@ -1,3 +1,37 @@
+/*
+ * Όνομα Παιχνιδιού: Ο Διανομέας (The Delivery Man)
+ * Συγγραφείς: Καρτσιώτης Μιχαήλ, ΑΕΜ: 11892
+ *             Κατσιμάνης Δημήτριος, ΑΕΜ:
+ *
+ * Περιγραφή: Ανάπτυξη λογισμικού παιχνιδιού διανομέα στη γλώσσα C με τη χρήση της βιβλιοθήκης raylib.h
+ *            Κανόνες παιχνιδιού - Οδηγίες: -Μετά την έναρξη του παιχνιδιού πατώντας space εισέσχεσθε στην κεντρική οθόνη.
+ *                                          -Από εκεί μπορείτε με τα βελάκια να επιλέξετε επίπεδο.
+ *                                          -Έχουν δημιουργηθεί τρία επίπεδα αυξανόμενης δυσκολίας στα οποία εισέρχεσθε ανάλογα με τις επιδόσεις σας στα προηγούμενα επίπεδα όπως εμφανίζονται στην οθόνη.
+ *                                          -Πατώντας Enter εισέρχεσθε στο επιλεγμένο επίπεδο.
+ *                                          -Η κίνηση του διανομέα γίνεται μέσω των βελών.
+ *                                          -Για την επιλογή αποστολής χρησιμοποιήστε το W η το S και για την επιλογή αποστολής πατήστε Εnter
+ *                                          -Μετά την επιλογή αποστολής εμφανίζεται με κίτρινη γραμμή ή βέλτιστη διαδρομή προς το σημείο παραλαβής της παραγγελίας και μετά την παραλαβή η βέλτιστη διαδρομή προς το σημείο παράδοσης
+ *                                          -Το σκορ που λαμβάνετε με την ολοκλήρωση κάθε αποστολής εμφανίζεται στο κεντρικό πάνω μέρος της οθόνης. Να σημειωθεί ότι κατά την σύγκρουσή σας με άλλα οχήματα και με την παρεύλευση χρόνου οι βαθμοί αφαιρούνται!
+ *                                          -Κάτω δεξιά στην οθόνη σας εμφανίζεται μία μπάρα με τη διαθέσιμη ποσότητα καυσίμου στη δεξαμενή. Λίγο πριν το απόθεμα στη δεξαμενή εξαντληθεί εμφανίζεται στο χάρτη πρατήριο με τη μορφή δοχείου καυσίμου σε σημείο που επισημαίνεται στον μικρό χάρτη πάνω και αριστερά στην οθόνη με λευκό κύκλο.
+ *                                          -Λαμβάνωντας το δοχείο καυσίμου που εμφανλίζεται παρατείνεται η διάρκεια ζωής σας.
+ *                                          -Το παιχνίδι τερματίζεται είτε με την σύγκρουσή σας με το αστυνομικό όχημα είτε με την εξάντληση του αποθετηρίου καυσίμων.
+ *                                          -Στόχος: Η συγκέντωση όσο το δυνατόν περισσότερων χρημάτων που ξεκλειδώνουν επίπεδα και προνόμια.                 
+ *
+ * Copyright (C) 2025-2026 Καρτσιώτης Μιχαήλ και Κατσιμάνης Δημήτριος
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
 /*This is the file that includes:   1.The declarations of all the functonions
                                     2.All The Global Integers externs and statics
                                     3.All the libraries used
@@ -37,6 +71,7 @@
 #define NUM_OF_NPC_CARS_ON_Y_ROAD 25
 
 #define INITIAL_GASOLINE 500
+#define NUM_OF_ITEMS_ON_LIST 4
 // In this section we define all the structure and types needed
 typedef struct // This is a type that we use to store the A* results.
 {
@@ -96,6 +131,7 @@ typedef enum TRAFIC_LIGHTS
     Horizontal_GO
 } Traffic_state;
 // NPC structure
+// This is a structure that is used to store the npc vehicle data.
 typedef struct
 {
     Vector2 position;
@@ -103,8 +139,14 @@ typedef struct
     int HEIGHT;
     float speed;
 } NPC;
-// This is a structure that is used to store the npc vehicle data.
-
+// This structure handles delivery points
+typedef struct
+{
+    grid_and_map_coords;  // The coordiinates of the Delivery_location
+    bool is_set;          // Variable that checks if we have initialzed the location
+    bool is_selected;     // Have we selected the mission?
+    bool is_pre_selected; // Have we preselected the mission?
+} Delivery_Location;
 // This is a structure to hold the data for gas station drawings when in the game
 typedef struct GasStationParameters
 {
@@ -147,9 +189,9 @@ extern npc_car cars_vertical[NUM_OF_RECTANGLES_X + 1][NUM_OF_NPC_CARS_ON_Y_ROAD]
 extern int NUM_OF_NPC_CARS_ON_X_ROAD_ON_CURRENT_LEVEL; //(Initialized in npc.c)This is a variable that is used to determine the most ammount of cars that appear on each level
 extern int NUM_OF_NPC_CARS_ON_Y_ROAD_ON_CURRENT_LEVEL; //(Initialized in npc.c)This is a variable that is used to determine the most ammount of cars that appear on each level
 
-extern int score_for_current_mission; //(Initialized in gamehandling.c) Variable that is responsible for storing the score for a mission.
-extern float gas;                     //(Initialized in gamehandling.c)This is the amount of gas in the tank of the scooter.
-extern Traffic_state Traffic_Cop;     //(Initialized in npc.c)This just creates a vertica and a horizontal go to make the cars behave according to the law.
+extern int score_for_current_mission[NUM_OF_ITEMS_ON_LIST]; //(Initialized in gamehandling.c) Variable that is responsible for storing the score for a mission.
+extern float gas;                                           //(Initialized in gamehandling.c)This is the amount of gas in the tank of the scooter.
+extern Traffic_state Traffic_Cop;                           //(Initialized in npc.c)This just creates a vertica and a horizontal go to make the cars behave according to the law.
 
 // This is the 3d Model section. Declare all the models that are going to be used!
 extern Model GasStationModel; // This is the gas station model(as all models it is initialized in main.c before the window should close)
@@ -174,21 +216,24 @@ void keep_in_boundaries(Vector2 *pos);                                          
 extern double angleRad; // Initialized in cam.c
 // UI
 float delta_move(void); //(In player_movement.c) Calculates according to user input the required movement
-// Delivery and pickup handling
-grid_and_map_coords initialize_pickup_location(Rectangle map[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X]);                  // Sets pickup location.
-grid_and_map_coords initialize_dropoff_location(Rectangle map[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X], Vector2 PICKUP); // Sets dropoff location.
+// Delivery and pickup handling(ALL FUNCTIONS in gamehandling.c)
+Delivery_Location initialize_pickup_location(Rectangle map[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X]);                           // Sets pickup location.
+Delivery_Location initialize_dropoff_location(Rectangle map[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X], Vector2 PICKUP);          // Sets dropoff location.
+void check_and_apply_mission(Delivery_Location *PICKUP, Delivery_Location *DROPOFF); // Sets all the parameters for current mission
+void init_PICKUP_and_DROPOFF(Delivery_Location *PICKUP, Delivery_Location *DROPOFF); // Initializes PICKUP and DROPOFF location
 // Timer limitation functions
 void burn_fuel(void); //(In gamehandling.c)Decreases the fuel amount.
 // Draw functions(All in draw.c)
-void draw_fuel_bar(void);                                                //(In draw.c)Draws the remaining fuel in the depoisit.
-void draw_grid(void);                                                    //(In draw.c)Draws the grid of the big map in world-map coordinates. Note that this function does not draw the lines of the coordinates of the grid[i][j] but the outside sides of the rectangles that represent a 2D division of the map plane.
-void DrawCubes(Rectangle map[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X]); // Draws the cubes for the 3D version.
-void draw_npc3D(NPC chaser);                                             // Draws the NPC in 3d
-void draw_cars(void);                                                    // Draws all the cars.
-void draw_mission_score(void);                                           // Draws the score that is going to be awarded if no more points are deducted
-void DrawBambooHouse(Vector3 pos);                                       // Draws the bamboohouse
-Color choseRandomColour(void);                                           // Returns a random color from rand and a decoding method.
-Color LerpColor(Color start, Color end, float factor);                   //(in draw.c)Fades a color
+void draw_fuel_bar(void);                                                                                                      //(In draw.c)Draws the remaining fuel in the depoisit.
+void draw_grid(void);                                                                                                          //(In draw.c)Draws the grid of the big map in world-map coordinates. Note that this function does not draw the lines of the coordinates of the grid[i][j] but the outside sides of the rectangles that represent a 2D division of the map plane.
+void DrawCubes(Rectangle map[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X]);                                                       // Draws the cubes for the 3D version.
+void draw_npc3D(NPC chaser);                                                                                                   // Draws the NPC in 3d
+void draw_cars(void);                                                                                                          // Draws all the cars.
+void draw_mission_score(int selected_mission_index);                                                                                                 // Draws the score that is going to be awarded if no more points are deducted
+void DrawBambooHouse(Vector3 pos);                                                                                             // Draws the bamboohouse
+void Draw_list_of_deliveries(Delivery_Location PICKUP[NUM_OF_ITEMS_ON_LIST], Delivery_Location DROPOFF[NUM_OF_ITEMS_ON_LIST]); // Draws the list of possible deliveries
+Color choseRandomColour(void);                                                                                                 // Returns a random color from rand and a decoding method.
+Color LerpColor(Color start, Color end, float factor);                                                                         //(in draw.c)Fades a color
 // A* functions
 //  Initialize all functions(All in astar_search.c)
 void initGrid(void);                                                          // Initializes the grid that will be used for finding the best path
@@ -206,14 +251,14 @@ void init_cars(void);                                                           
 int check_for_car_crashes(Rectangle Player);                                                              // Checks for collisions with the npc cars.
 void adjust_speedx(int i, int j);                                                                         //(In npc.c)This function sets the speed of the following cars to the speed of the the slower mooving first car.
 void adjust_speedy(int i, int j);                                                                         //(In npc.c)This function sets the speed of the following cars to the speed of the the slower mooving first car.
-void adress_traffic(void);                                                                                 //(in npc.c)This function creates a vertical and a horizontal go for the cars.
-    // Camera logic(IN cam.c file)
-    void TurnCam(Camera3D *camera3d, Vector2 pos); // Turns 3D cam.
+void adress_traffic(void);                                                                                //(in npc.c)This function creates a vertical and a horizontal go for the cars.
+// Camera logic(IN cam.c file)
+void TurnCam(Camera3D *camera3d, Vector2 pos); // Turns 3D cam.
 // Screen logic and level logic
 void set_game_parameters(ScreenStatus *GameScreen, NPC *npc); //(in layout.c) Sets all the parameters before a game level starts
 // Score handling(All functions in gamehandling.c)
-void set_score_for_current_mission(Vector2 pos, Vector2 PICKUP, Vector2 DROPOFF); // Calculates the score for a given mission and assigns it to the global external variable score_for_current_mission.
-void deduce_score_for_mission(int n);                                             // Deduces score for current mission when called in main(for time deduction and punishment when hitting a car or when doing something illegal)
+void set_score_for_current_mission(Vector2 pos, Vector2 PICKUP, Vector2 DROPOFF, int i); // Calculates the score for a given mission and assigns it to the global external variable score_for_current_mission.
+void deduce_score_for_mission(int n, int selected_mission_index);                        // Deduces score for current mission when called in main(for time deduction and punishment when hitting a car or when doing something illegal)
 // Gas station parameters
 Gas_Station refuel_station(void);                         //(In gamehandling.c)This is the function that is responsible for setting the gas station when the fuel low enough at a random position
 void print_refuel_station(Gas_Station SET_STATION);       //(In gamehandling.c)Prints the station if visible

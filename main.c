@@ -1,3 +1,37 @@
+/*
+ * Όνομα Παιχνιδιού: Ο Διανομέας (The Delivery Man)
+ * Συγγραφείς: Καρτσιώτης Μιχαήλ, ΑΕΜ: 11892
+ *             Κατσιμάνης Δημήτριος, ΑΕΜ:
+ *
+ * Περιγραφή: Ανάπτυξη λογισμικού παιχνιδιού διανομέα στη γλώσσα C με τη χρήση της βιβλιοθήκης raylib.h
+ *            Κανόνες παιχνιδιού - Οδηγίες: -Μετά την έναρξη του παιχνιδιού πατώντας space εισέσχεσθε στην κεντρική οθόνη.
+ *                                          -Από εκεί μπορείτε με τα βελάκια να επιλέξετε επίπεδο.
+ *                                          -Έχουν δημιουργηθεί τρία επίπεδα αυξανόμενης δυσκολίας στα οποία εισέρχεσθε ανάλογα με τις επιδόσεις σας στα προηγούμενα επίπεδα όπως εμφανίζονται στην οθόνη.
+ *                                          -Πατώντας Enter εισέρχεσθε στο επιλεγμένο επίπεδο.
+ *                                          -Η κίνηση του διανομέα γίνεται μέσω των βελών.
+ *                                          -Για την επιλογή αποστολής χρησιμοποιήστε το W η το S και για την επιλογή αποστολής πατήστε Εnter
+ *                                          -Μετά την επιλογή αποστολής εμφανίζεται με κίτρινη γραμμή ή βέλτιστη διαδρομή προς το σημείο παραλαβής της παραγγελίας και μετά την παραλαβή η βέλτιστη διαδρομή προς το σημείο παράδοσης
+ *                                          -Το σκορ που λαμβάνετε με την ολοκλήρωση κάθε αποστολής εμφανίζεται στο κεντρικό πάνω μέρος της οθόνης. Να σημειωθεί ότι κατά την σύγκρουσή σας με άλλα οχήματα και με την παρεύλευση χρόνου οι βαθμοί αφαιρούνται!
+ *                                          -Κάτω δεξιά στην οθόνη σας εμφανίζεται μία μπάρα με τη διαθέσιμη ποσότητα καυσίμου στη δεξαμενή. Λίγο πριν το απόθεμα στη δεξαμενή εξαντληθεί εμφανίζεται στο χάρτη πρατήριο με τη μορφή δοχείου καυσίμου σε σημείο που επισημαίνεται στον μικρό χάρτη πάνω και αριστερά στην οθόνη με λευκό κύκλο.
+ *                                          -Λαμβάνωντας το δοχείο καυσίμου που εμφανλίζεται παρατείνεται η διάρκεια ζωής σας.
+ *                                          -Το παιχνίδι τερματίζεται είτε με την σύγκρουσή σας με το αστυνομικό όχημα είτε με την εξάντληση του αποθετηρίου καυσίμων.
+ *                                          -Στόχος: Η συγκέντωση όσο το δυνατόν περισσότερων χρημάτων που ξεκλειδώνουν επίπεδα και προνόμια.                 
+ *
+ * Copyright (C) 2025-2026 Καρτσιώτης Μιχαήλ και Κατσιμάνης Δημήτριος
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
 #include "headers.h" //Including the header file
 
 // Initialize some parameters
@@ -30,7 +64,9 @@ int main(void)
     int sucessful_deliveries = 0;
     int deduce_score_counter = 0;
     // Variables for delivery activation
-    grid_and_map_coords PICKUP = {(Vector2){-100, -100}, -1, -1}, DROPOFF = {(Vector2){-100, -100}, -1, -1};
+    Delivery_Location PICKUP[NUM_OF_ITEMS_ON_LIST], DROPOFF[NUM_OF_ITEMS_ON_LIST]; // Declarte the array
+    init_PICKUP_and_DROPOFF(PICKUP, DROPOFF);                                      // Initialize the array
+    int selected_mission_index = -1;
     // Set the colour of the player just for debugging purposes
     Color col = GREEN;
     // For debugging we add a variable that controls the grid drawing
@@ -84,7 +120,7 @@ int main(void)
         printf("SUCCESS: Bamboo House loaded with %d meshes.\n", Bamboo_House.meshCount);
     }
     // Gas Station
-    GasStationModel = LoadModel("vintage_super_shell_gas_station_pump.glb");
+    GasStationModel = LoadModel("Gas_tank.glb");
     // 2D TExtures and models
     //  Model of minimap
     //   Draw walls on texture
@@ -122,6 +158,10 @@ int main(void)
     bool turn_off_dark_mode = false, turn_on_dark_mode = false;
     Color backround_col = SKYBLUE;
     float night_progress = 0.0f; // Tells how much are we in the dark mode
+    // Initialize the grid
+    initGrid();
+    // SRAND FOR ALL THE rANDOM FUNCS
+    srand(time(NULL));
     // Main game loop
     while (!WindowShouldClose())
     {
@@ -190,7 +230,7 @@ int main(void)
 
                 if (has_crushed_with_npc == false)
                 {
-                    deduce_score_for_mission(10); // Decrease the score if we ever crash}
+                    deduce_score_for_mission(10, selected_mission_index); // Decrease the score if we ever crash}
                     has_crushed_with_npc = true;
                 }
             }
@@ -199,8 +239,11 @@ int main(void)
                 deduce_score_counter++;
                 has_crushed_with_npc = false;
             }
-            if (deduce_score_counter == 50)
-                deduce_score_for_mission(1);
+            if (deduce_score_counter == 250)
+            {
+                deduce_score_counter = 0;
+                deduce_score_for_mission(4, selected_mission_index);
+            }
 
             // Turn the camera and set other parameters
             TurnCam(&camera3d, pos);
@@ -212,7 +255,9 @@ int main(void)
 
             // 2.SET PICKUP AND DROPOFF POSITIONS
             burn_fuel();
+            burn_fuel();
 
+            burn_fuel();
 
             // Burn the necessary fuel
             // Now we need to add the time limitation which we will also print on the window with the score
@@ -222,15 +267,10 @@ int main(void)
 
             if (gas <= 0) // If gas<=0 terminate mission due to reaching the gas limit
             {
-                col = GREEN;            // Reset colour
-                mission_active = false; // Reset mission
-                picked_order = false;   // Reset var for picking orders
-                DROPOFF.grid_x = -1;
-                DROPOFF.grid_y = -1;
-                DROPOFF.REAL = (Vector2){-10000, -10000}; // Moving away pickup and dropoff locations
-                PICKUP.grid_x = -1;
-                PICKUP.grid_y = -1;
-                PICKUP.REAL = (Vector2){-10000, -10000};
+                col = GREEN;                              // Reset colour
+                mission_active = false;                   // Reset mission
+                picked_order = false;                     // Reset var for picking orders
+                init_PICKUP_and_DROPOFF(PICKUP, DROPOFF); // Re-initialize pickup and dropoff
                 gas = INITIAL_GASOLINE;
                 sucessful_deliveries = 0;
                 pos = (Vector2){
@@ -249,35 +289,48 @@ int main(void)
             // In this section we will implement delivery handling techniques and NPC creation afterwards.
             // Get the players grid position
 
-            if (mission_active == false && IsKeyPressed(KEY_SPACE)) // If we do not have a mission create one
+            // PICKUP AND DROPOFF SYSTEM
+            check_and_apply_mission(PICKUP, DROPOFF); // Sets all the parameters for current mission
+            if (mission_active == false)              // If we do not have a mission create one
             {
-                PICKUP = initialize_pickup_location(map);
-                DROPOFF = initialize_dropoff_location(map, PICKUP.REAL);
-                set_score_for_current_mission(pos, PICKUP.REAL, DROPOFF.REAL); // Set the score to the initial value
-                // Start mission
-                mission_active = true;
-                // Find shortest path and assign it to a_star_results
-                initGrid();
-                a_star_results = aStarSearch(current_grid_pos.gridX, current_grid_pos.gridY, PICKUP.grid_x, PICKUP.grid_y);
-                fseek(file, 0, 0);                                                 // Go to the begginig of the file
-                fscanf(file, "-%d-%d-%d-", &HIGHSCORE1, &HIGHSCORE2, &HIGHSCORE3); // scans and assigns the values to the highscores.
+                // Check if all of our deliveries have been assigned
+                for (int i = 0; i < NUM_OF_ITEMS_ON_LIST; i++) // For all of the items on the list
+                {
+                    if (PICKUP[i].is_set == false) // Set the point
+                        PICKUP[i] = initialize_pickup_location(map);
+
+                    if (DROPOFF[i].is_set == false)
+                        DROPOFF[i] = initialize_dropoff_location(map, PICKUP[i].REAL);
+                    set_score_for_current_mission(pos, PICKUP[i].REAL, DROPOFF[i].REAL, i); // Set the score to the initial value
+                    // Now we need to be able to start the mission when being told to do so
+                    if (PICKUP[i].is_selected == true && DROPOFF[i].is_selected == true)
+                    { //  Start mission
+                        mission_active = true;
+                        selected_mission_index = i;
+                        // Find shortest path and assign it to a_star_results
+                        initGrid();
+                        a_star_results = aStarSearch(current_grid_pos.gridX, current_grid_pos.gridY, PICKUP[i].grid_x, PICKUP[i].grid_y);
+                        fseek(file, 0, 0);                                                 // Go to the begginig of the file
+                        fscanf(file, "-%d-%d-%d-", &HIGHSCORE1, &HIGHSCORE2, &HIGHSCORE3); // scans and assigns the values to the highscores.
+                    }
+                }
             }
             else if (mission_active == true) // If we have the mission check if we acomplished it.
             {
                 col = WHITE; // Have we picked a order?If so have we completed delivery
-                if (picked_order == false && pos.x - (PICKUP.REAL).x < MAN_RECTANGLE_WIDTH && pos.x - (PICKUP.REAL).x > -MAN_RECTANGLE_WIDTH && pos.y - (PICKUP.REAL).y < MAN_RECTANGLE_HEIGHT && pos.y - (PICKUP.REAL).y > -MAN_RECTANGLE_HEIGHT)
+                if (picked_order == false && pos.x - (PICKUP[selected_mission_index].REAL).x < MAN_RECTANGLE_WIDTH && pos.x - (PICKUP[selected_mission_index].REAL).x > -MAN_RECTANGLE_WIDTH && pos.y - (PICKUP[selected_mission_index].REAL).y < MAN_RECTANGLE_HEIGHT && pos.y - (PICKUP[selected_mission_index].REAL).y > -MAN_RECTANGLE_HEIGHT)
                 {
                     picked_order = true;
-                    PICKUP = (grid_and_map_coords){
-                        (Vector2){-10000, -1000}, -1, -1};
+                    PICKUP[selected_mission_index] = (Delivery_Location){
+                        {(Vector2){-10000, -1000}, -1, -1}, false, false, false};
                 }
-                else if (pos.x - (DROPOFF.REAL).x < MAN_RECTANGLE_WIDTH && pos.x - (DROPOFF.REAL).x > -MAN_RECTANGLE_WIDTH && pos.y - (DROPOFF.REAL).y < MAN_RECTANGLE_HEIGHT && pos.y - (DROPOFF.REAL).y > -MAN_RECTANGLE_HEIGHT && picked_order == true)
+                else if (pos.x - (DROPOFF[selected_mission_index].REAL).x < MAN_RECTANGLE_WIDTH && pos.x - (DROPOFF[selected_mission_index].REAL).x > -MAN_RECTANGLE_WIDTH && pos.y - (DROPOFF[selected_mission_index].REAL).y < MAN_RECTANGLE_HEIGHT && pos.y - (DROPOFF[selected_mission_index].REAL).y > -MAN_RECTANGLE_HEIGHT && picked_order == true)
                 {
                     col = GREEN;
                     mission_active = false;
                     picked_order = false;
-                    sucessful_deliveries += score_for_current_mission; // Increase score by the amount of things left
-                    score_for_current_mission = 0;
+                    sucessful_deliveries += score_for_current_mission[selected_mission_index]; // Increase score by the amount of things left
+                    score_for_current_mission[selected_mission_index] = 0;
                     // Check if we have surpassed the hich score and then if so write the new score
                     int HIGH_SCORE = 0;
                     fseek(file, 0, 0);
@@ -299,8 +352,8 @@ int main(void)
                         fprintf(file, "%06d-", sucessful_deliveries);
                         fflush(file);
                     }
-                    DROPOFF = (grid_and_map_coords){
-                        (Vector2){-100, -100}, -1, -1};
+                    DROPOFF[selected_mission_index] = (Delivery_Location){
+                        {(Vector2){-100, -100}, -1, -1}, false, false, false};
                 }
                 // If we have a mission check if where we are and draw the fastest route accordingly
                 if (mission_active == true && picked_order == false)
@@ -308,18 +361,17 @@ int main(void)
                     if (a_star_counter > 6) // Use the heavy a star less times so that the fps are at high levels and the programm runs smoother
                     {
                         initGrid(); // First need to initialize the grid
-                        a_star_results = aStarSearch(current_grid_pos.gridX, current_grid_pos.gridY, PICKUP.grid_x, PICKUP.grid_y);
+                        a_star_results = aStarSearch(current_grid_pos.gridX, current_grid_pos.gridY, PICKUP[selected_mission_index].grid_x, PICKUP[selected_mission_index].grid_y);
                         a_star_counter = 0;
                     }
                 }
-
                 else if (mission_active == true && picked_order == true)
                 {
                     if (a_star_counter > 6) // Use the heavy a star less times so that the fps are at high levels and the programm runs smoother
                     {
                         initGrid(); // First need to initialize the grid
                         a_star_counter = 0;
-                        a_star_results = aStarSearch(current_grid_pos.gridX, current_grid_pos.gridY, DROPOFF.grid_x, DROPOFF.grid_y);
+                        a_star_results = aStarSearch(current_grid_pos.gridX, current_grid_pos.gridY, DROPOFF[selected_mission_index].grid_x, DROPOFF[selected_mission_index].grid_y);
                     }
                 }
                 a_star_counter++;
@@ -354,7 +406,7 @@ int main(void)
                 picked_order = false;
                 sucessful_deliveries = 0;
                 deduce_score_counter = 0;
-                PICKUP = (grid_and_map_coords){(Vector2){-100, -100}, -1, -1}, DROPOFF = (grid_and_map_coords){(Vector2){-100, -100}, -1, -1};
+                init_PICKUP_and_DROPOFF(PICKUP, DROPOFF); // Re-initialize pickup and dropoff
                 col = GREEN;
                 should_draw_grid = false;
                 a_star_counter = 0; // Counts how many times before A star is called
@@ -445,7 +497,7 @@ int main(void)
 
             if (mission_active == true)
             {
-                draw_pickup_and_dropoff3D(PICKUP.REAL, DROPOFF.REAL);
+                draw_pickup_and_dropoff3D(PICKUP[selected_mission_index].REAL, DROPOFF[selected_mission_index].REAL);
                 draw_astar_results3D(a_star_results);
             }
             draw_npc3D(npc);
@@ -465,6 +517,8 @@ int main(void)
                 sprintf(gascoordstext, "GAS IN X:%d Y:%d", Gasoline_Refuel_Station.grid_x, Gasoline_Refuel_Station.grid_y);
                 DrawText(gascoordstext, 5, WINDOW_HEIGHT - 50, 20, WHITE);
             }
+            if (mission_active == false)
+                Draw_list_of_deliveries(PICKUP, DROPOFF);
 
             // 2. Start Clipping (Only draw inside this box)
             BeginScissorMode(1500, 50, MINIMAP_WIDTH, MINIMAP_HEIGHT);
@@ -484,7 +538,7 @@ int main(void)
             DrawRectangle(Player.x, Player.y, Player.width * 5, Player.height * 5, col); // Draw player three times larger for better place visualizatiomn
             if (mission_active == true)
             {
-                draw_pickup_and_dropoff(PICKUP.REAL, DROPOFF.REAL);
+                draw_pickup_and_dropoff(PICKUP[selected_mission_index].REAL, DROPOFF[selected_mission_index].REAL);
                 draw_astar_results(a_star_results);
             }
             draw_npc(npc);
@@ -493,7 +547,7 @@ int main(void)
 
             draw_fuel_bar();
             if (mission_active == true)
-                draw_mission_score();                                                                           // Draw score that is going to be awarded if mission is active indeed
+                draw_mission_score(selected_mission_index);                                                     // Draw score that is going to be awarded if mission is active indeed
             Draw_and_update_score_window(sucessful_deliveries, HIGHSCORE1, HIGHSCORE2, HIGHSCORE3, GameScreen); // Draw score
             drawspeed();                                                                                        // Draws a speedometer.
             char ch[50] = {0};

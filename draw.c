@@ -1,3 +1,37 @@
+/*
+ * Όνομα Παιχνιδιού: Ο Διανομέας (The Delivery Man)
+ * Συγγραφείς: Καρτσιώτης Μιχαήλ, ΑΕΜ: 11892
+ *             Κατσιμάνης Δημήτριος, ΑΕΜ:
+ *
+ * Περιγραφή: Ανάπτυξη λογισμικού παιχνιδιού διανομέα στη γλώσσα C με τη χρήση της βιβλιοθήκης raylib.h
+ *            Κανόνες παιχνιδιού - Οδηγίες: -Μετά την έναρξη του παιχνιδιού πατώντας space εισέσχεσθε στην κεντρική οθόνη.
+ *                                          -Από εκεί μπορείτε με τα βελάκια να επιλέξετε επίπεδο.
+ *                                          -Έχουν δημιουργηθεί τρία επίπεδα αυξανόμενης δυσκολίας στα οποία εισέρχεσθε ανάλογα με τις επιδόσεις σας στα προηγούμενα επίπεδα όπως εμφανίζονται στην οθόνη.
+ *                                          -Πατώντας Enter εισέρχεσθε στο επιλεγμένο επίπεδο.
+ *                                          -Η κίνηση του διανομέα γίνεται μέσω των βελών.
+ *                                          -Για την επιλογή αποστολής χρησιμοποιήστε το W η το S και για την επιλογή αποστολής πατήστε Εnter
+ *                                          -Μετά την επιλογή αποστολής εμφανίζεται με κίτρινη γραμμή ή βέλτιστη διαδρομή προς το σημείο παραλαβής της παραγγελίας και μετά την παραλαβή η βέλτιστη διαδρομή προς το σημείο παράδοσης
+ *                                          -Το σκορ που λαμβάνετε με την ολοκλήρωση κάθε αποστολής εμφανίζεται στο κεντρικό πάνω μέρος της οθόνης. Να σημειωθεί ότι κατά την σύγκρουσή σας με άλλα οχήματα και με την παρεύλευση χρόνου οι βαθμοί αφαιρούνται!
+ *                                          -Κάτω δεξιά στην οθόνη σας εμφανίζεται μία μπάρα με τη διαθέσιμη ποσότητα καυσίμου στη δεξαμενή. Λίγο πριν το απόθεμα στη δεξαμενή εξαντληθεί εμφανίζεται στο χάρτη πρατήριο με τη μορφή δοχείου καυσίμου σε σημείο που επισημαίνεται στον μικρό χάρτη πάνω και αριστερά στην οθόνη με λευκό κύκλο.
+ *                                          -Λαμβάνωντας το δοχείο καυσίμου που εμφανλίζεται παρατείνεται η διάρκεια ζωής σας.
+ *                                          -Το παιχνίδι τερματίζεται είτε με την σύγκρουσή σας με το αστυνομικό όχημα είτε με την εξάντληση του αποθετηρίου καυσίμων.
+ *                                          -Στόχος: Η συγκέντωση όσο το δυνατόν περισσότερων χρημάτων που ξεκλειδώνουν επίπεδα και προνόμια.                 
+ *
+ * Copyright (C) 2025-2026 Καρτσιώτης Μιχαήλ και Κατσιμάνης Δημήτριος
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
 #include "headers.h"
 
 // Initialize external models
@@ -28,8 +62,8 @@ void DrawCubes(Rectangle map[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X])
     // 2. CALCULATE SCALE
     // Note: We rename these to match 3D space (X, Y=Up, Z=Depth)
     float scaleX_Axis = (SIZE_OF_RECTANGLES_X / modelWidth);
-    float scaleZ_Axis = (SIZE_OF_RECTANGLES_Y / modelLength); // Map Y is 3D Z
-    float scaleY_Axis = (SIZE_OF_RECTANGLES_3DHEIGHT / modelHeight);  // Vertical Scale
+    float scaleZ_Axis = (SIZE_OF_RECTANGLES_Y / modelLength);        // Map Y is 3D Z
+    float scaleY_Axis = (SIZE_OF_RECTANGLES_3DHEIGHT / modelHeight); // Vertical Scale
 
     // 3. CALCULATE OFFSETS
 
@@ -188,10 +222,10 @@ void draw_cars(void) // Draws all the cars.
             }
 }
 
-void draw_mission_score(void) // Draws the score that is going to be awarded if no more points are deducted
+void draw_mission_score(int selected_mission_index) // Draws the score that is going to be awarded if no more points are deducted
 {
     char ch[50] = {0};
-    sprintf(ch, "MISSION REWARDS: %d", score_for_current_mission);
+    sprintf(ch, "MISSION REWARDS: %d", score_for_current_mission[selected_mission_index]);
     DrawText(ch, 800, 25, 20, WHITE); // Draw
 }
 
@@ -220,4 +254,25 @@ Color LerpColor(Color start, Color end, float factor) // Fades a color
         (unsigned char)(start.g + (end.g - start.g) * factor),
         (unsigned char)(start.b + (end.b - start.b) * factor),
         255};
+}
+
+void Draw_list_of_deliveries(Delivery_Location PICKUP[NUM_OF_ITEMS_ON_LIST], Delivery_Location DROPOFF[NUM_OF_ITEMS_ON_LIST]) // Draws the list of possible deliveries
+{
+    // First draw rectangle lines and draw as many rectangles as the mission.
+    for (int i = 0; i < NUM_OF_ITEMS_ON_LIST; i++)
+    {
+        if (PICKUP[i].is_pre_selected == true && DROPOFF[i].is_pre_selected == true)
+            DrawRectangleLines(30, (61 * (i + 1) + (WINDOW_HEIGHT / 1.5f) - 1), 151, 61, ORANGE);
+        DrawRectangle(30, i + (60 * (i + 1) + (WINDOW_HEIGHT / 1.5f)), 150, 60, DARKBLUE);
+        char text_info[50] = {0};
+        sprintf(text_info, "Rewards: %d", score_for_current_mission[i]);
+        int length = MeasureText(text_info, 20);
+        int height = (int)MeasureTextEx(GetFontDefault(), text_info, 20, 2).y;
+        DrawText(text_info, 30 + ((150 - length)) / 2, (i + (60 * (i + 1)) + (WINDOW_HEIGHT / 1.5f) + ((60 - height) / 2)), 20, WHITE);
+    }
+    char text_info[50] = {0};
+    sprintf(text_info, "Choose Mission");
+    int length = MeasureText(text_info, 20);
+    int height = (int)MeasureTextEx(GetFontDefault(), text_info, 20, 2).y;
+    DrawText(text_info, 30 + ((150 - length)) / 2, ((WINDOW_HEIGHT / 1.5f) + ((60 - height) / 2)), 20, BLACK);
 }
