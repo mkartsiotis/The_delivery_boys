@@ -33,55 +33,36 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 #include "headers.h"
-Node grid[COLS][ROWS] = {0}; // Initialize the Node we declared in the header files.
+float engineFrequency = 150.0f; // The "Pitch" or RPM
+float phase = 0.0f;             // The "Position" in our wave cycle
+float volume = 0;
 
-void Initialize_Map(Rectangle (*map)[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X])
+// This is the "Chef" function that Raylib calls
+void AudioInputCallback(void *buffer, unsigned int frames)
 {
-    // Here we create a map of blocks in a desired area..
-    float stepX = (float)MAP_WIDTH / (NUM_OF_RECTANGLES_X * 4.0f); // Calculate stepX and StepY in the same way as the screen is spit into cells with the grid.
-    float stepY = (float)MAP_HEIGHT / (NUM_OF_RECTANGLES_Y * 4.0f);
-    for (int i = 0; i < NUM_OF_RECTANGLES_Y; i++) // Temporary solution:Just split the window in the same way as grid to make it work. Later we will add random generation.
-    {                                             // REMEMBER IN RAYLIB A POSITION IS TOP+LEFT!!!!!!
-        for (int j = 0; j < NUM_OF_RECTANGLES_X; j++)
-        {
-            float x_value = (1 + 4 * j) * stepX;
-            float y_value = (1 + 4 * i) * stepY;
-
-            (*map)[i][j] = (Rectangle){x_value, y_value, SIZE_OF_RECTANGLES_X, SIZE_OF_RECTANGLES_Y};
-        }
-    }
-}
-// Next up we will do some very-very important stuff.
-// A.Implement the A* algorithm for finding the fastest route around the blocks
-// B.Draw the route
-// But first we need to do something much more important. And that is drawing the grid
-// More about the A* algorithm and how we are going to implement it you can see in the documentation.
-// We have succesfully accomplished all of those tasks!Comment remains for historical reasons...
-void set_game_parameters(ScreenStatus *GameScreen, NPC *npc) //(in layout.c) Sets all the parameters before a game level starts
-{
-    switch (GameScreen->CurrentScreen)
+    float *out = (float *)buffer;
+    float sampleRate = 84100.0f;
+    float lastNoise = 0;
+    for (unsigned int i = 0; i < frames; i++)
     {
-    case LEVEL1:
-        NUM_OF_NPC_CARS_ON_X_ROAD_ON_CURRENT_LEVEL = 0;
-        NUM_OF_NPC_CARS_ON_Y_ROAD_ON_CURRENT_LEVEL = 0;
-        speed = 0;
-        npc->speed = 0.7;
-        break;
-    case LEVEL2:
-        NUM_OF_NPC_CARS_ON_X_ROAD_ON_CURRENT_LEVEL = 4;
-        NUM_OF_NPC_CARS_ON_Y_ROAD_ON_CURRENT_LEVEL = 4;
-        npc->speed = 2;
-        speed = 0;
-        break;
-    case LEVEL3:
-        NUM_OF_NPC_CARS_ON_X_ROAD_ON_CURRENT_LEVEL = 20;
-        NUM_OF_NPC_CARS_ON_Y_ROAD_ON_CURRENT_LEVEL = 15;
-        npc->speed = 2.5f;
-        speed = 0;
-        break;
-    default:
-        return;
+        // 1. Update the Phase (How fast are we spinning?)
+        phase += engineFrequency / sampleRate;
+        if (phase > 1.0f)
+            phase -= 1.0f; // Keep it between 0 and 1
+
+        // 2. Generate the "Core" Engine Tone (Sawtooth)
+        // This gives us that mechanical "buzz"
+        float sawtooth = (phase * 2.0f) - 1.0f;
+
+        // 3. Generate a tiny bit of White Noise (The "Grit")
+        // Using your math from earlier!
+        float noise = (100 - (rand() % 150)) / 100.0f;
+
+        // 4. Mix them together
+        // 80% sawtooth for the note, 20% noise for the exhaust texture
+        out[i] = (sawtooth * 0.7f) + (noise * 0.1f);
+
+        // 5. Apply a master volume so it's not too loud
+        out[i] *= volume;
     }
-    volume = 0.2;
-    GameScreen->isfitsttime = false;
 }

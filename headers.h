@@ -15,7 +15,7 @@
  *                                          -Κάτω δεξιά στην οθόνη σας εμφανίζεται μία μπάρα με τη διαθέσιμη ποσότητα καυσίμου στη δεξαμενή. Λίγο πριν το απόθεμα στη δεξαμενή εξαντληθεί εμφανίζεται στο χάρτη πρατήριο με τη μορφή δοχείου καυσίμου σε σημείο που επισημαίνεται στον μικρό χάρτη πάνω και αριστερά στην οθόνη με λευκό κύκλο.
  *                                          -Λαμβάνωντας το δοχείο καυσίμου που εμφανλίζεται παρατείνεται η διάρκεια ζωής σας.
  *                                          -Το παιχνίδι τερματίζεται είτε με την σύγκρουσή σας με το αστυνομικό όχημα είτε με την εξάντληση του αποθετηρίου καυσίμων.
- *                                          -Στόχος: Η συγκέντωση όσο το δυνατόν περισσότερων χρημάτων που ξεκλειδώνουν επίπεδα και προνόμια.                 
+ *                                          -Στόχος: Η συγκέντωση όσο το δυνατόν περισσότερων χρημάτων που ξεκλειδώνουν επίπεδα και προνόμια.
  *
  * Copyright (C) 2025-2026 Καρτσιώτης Μιχαήλ και Κατσιμάνης Δημήτριος
  *
@@ -193,10 +193,14 @@ extern int score_for_current_mission[NUM_OF_ITEMS_ON_LIST]; //(Initialized in ga
 extern float gas;                                           //(Initialized in gamehandling.c)This is the amount of gas in the tank of the scooter.
 extern Traffic_state Traffic_Cop;                           //(Initialized in npc.c)This just creates a vertica and a horizontal go to make the cars behave according to the law.
 
+// AUDIO PARAMETERS
+extern float engineFrequency; // The "Pitch" or RPM
+extern float phase;             // The "Position" in our wave cycle
+extern float volume;
 // This is the 3d Model section. Declare all the models that are going to be used!
 extern Model GasStationModel; // This is the gas station model(as all models it is initialized in main.c before the window should close)
-extern Model Bamboo_House;  //Same for the bamboo house
-extern Model playerModel;   // Same for the model of the player
+extern Model Bamboo_House;    // Same for the bamboo house
+extern Model playerModel;     // Same for the model of the player
 // Functions in all files. Syntax of comments is //(FILENAME_WHERE_FUNTCTION_IS_LOCATED) USE_AND_DEFINITION
 // Initialization functions
 void Initialize_Map(Rectangle (*map)[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X]); //(In layout.c) Initialize the map of the square blocks that will constitute the road
@@ -218,10 +222,10 @@ extern double angleRad; // Initialized in cam.c
 // UI
 float delta_move(void); //(In player_movement.c) Calculates according to user input the required movement
 // Delivery and pickup handling(ALL FUNCTIONS in gamehandling.c)
-Delivery_Location initialize_pickup_location(Rectangle map[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X]);                           // Sets pickup location.
-Delivery_Location initialize_dropoff_location(Rectangle map[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X], Vector2 PICKUP);          // Sets dropoff location.
-void check_and_apply_mission(Delivery_Location *PICKUP, Delivery_Location *DROPOFF); // Sets all the parameters for current mission
-void init_PICKUP_and_DROPOFF(Delivery_Location *PICKUP, Delivery_Location *DROPOFF); // Initializes PICKUP and DROPOFF location
+Delivery_Location initialize_pickup_location(Rectangle map[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X]);                  // Sets pickup location.
+Delivery_Location initialize_dropoff_location(Rectangle map[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X], Vector2 PICKUP); // Sets dropoff location.
+void check_and_apply_mission(Delivery_Location *PICKUP, Delivery_Location *DROPOFF);                                    // Sets all the parameters for current mission
+void init_PICKUP_and_DROPOFF(Delivery_Location *PICKUP, Delivery_Location *DROPOFF);                                    // Initializes PICKUP and DROPOFF location
 // Timer limitation functions
 void burn_fuel(void); //(In gamehandling.c)Decreases the fuel amount.
 // Draw functions(All in draw.c)
@@ -230,7 +234,7 @@ void draw_grid(void);                                                           
 void DrawCubes(Rectangle map[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X]);                                                       // Draws the cubes for the 3D version.
 void draw_npc3D(NPC chaser);                                                                                                   // Draws the NPC in 3d
 void draw_cars(void);                                                                                                          // Draws all the cars.
-void draw_mission_score(int selected_mission_index);                                                                                                 // Draws the score that is going to be awarded if no more points are deducted
+void draw_mission_score(int selected_mission_index);                                                                           // Draws the score that is going to be awarded if no more points are deducted
 void DrawBambooHouse(Vector3 pos);                                                                                             // Draws the bamboohouse
 void Draw_list_of_deliveries(Delivery_Location PICKUP[NUM_OF_ITEMS_ON_LIST], Delivery_Location DROPOFF[NUM_OF_ITEMS_ON_LIST]); // Draws the list of possible deliveries
 Color choseRandomColour(void);                                                                                                 // Returns a random color from rand and a decoding method.
@@ -264,3 +268,5 @@ void deduce_score_for_mission(int n, int selected_mission_index);               
 Gas_Station refuel_station(void);                         //(In gamehandling.c)This is the function that is responsible for setting the gas station when the fuel low enough at a random position
 void print_refuel_station(Gas_Station SET_STATION);       //(In gamehandling.c)Prints the station if visible
 void check_for_refuel(Gas_Station *STATION, Vector2 pos); //(In gamehandling.c)Checks if the player is near to a gas station and refuels
+//AUDIO
+void AudioInputCallback(void *buffer, unsigned int frames);//This function  is a function with defined type according to raylib sound logic.

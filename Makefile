@@ -6,8 +6,8 @@ LDFLAGS := -L./raylib_2/lib -l:libraylib.a -lopengl32 -lgdi32 -lwinmm -luser32 -
 
 
 all: compile_all #This is the command that is sent in full
-compile_all: main.o layout.o player_movement.o draw.o gamehandling.o astar_search.o npc.o cam.o #Put here the dependencies(all the files) 
-	$(CC) main.o layout.o player_movement.o draw.o gamehandling.o astar_search.o npc.o cam.o $(LDFLAGS) -o $(TARGET)
+compile_all: main.o layout.o player_movement.o draw.o gamehandling.o astar_search.o npc.o cam.o audio.o #Put here the dependencies(all the files) 
+	$(CC) main.o layout.o player_movement.o draw.o gamehandling.o astar_search.o npc.o cam.o audio.o $(LDFLAGS) -o $(TARGET)
 
 main.o: main.c headers.h
 	$(CC) $(CFLAGS) -c main.c -o main.o
@@ -31,6 +31,9 @@ npc.o: npc.c headers.h
 	$(CC) $(CFLAGS) -c npc.c -o npc.o
 cam.o: cam.c headers.h
 	$(CC) $(CFLAGS) -c cam.c -o cam.o
+
+audio.o: audio.c headers.h
+	$(CC) $(CFLAGS) -c audio.c -o audio.o
 
 clean:
 #	rm -f *.o game.exe for linux and mac 

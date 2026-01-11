@@ -42,6 +42,7 @@ int main(void)
 {
     printf("WINDOW DIMENSIONS, %d, %d", WINDOW_WIDTH, WINDOW_HEIGHT);
     InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "The Delivery Man V0.2.0");
+    InitAudioDevice();
     ToggleFullscreen();
     int monitor = GetCurrentMonitor();
     WINDOW_WIDTH = GetMonitorWidth(monitor);
@@ -160,6 +161,15 @@ int main(void)
     float night_progress = 0.0f; // Tells how much are we in the dark mode
     // Initialize the grid
     initGrid();
+    // AUDIO
+    // Setup the stream (Sample Rate, Bit Depth, Channels)
+    AudioStream engineStream = LoadAudioStream(44100, 32, 1);
+
+    // Tell raylib our sound
+    SetAudioStreamCallback(engineStream, AudioInputCallback);
+
+    // Start the noise
+    PlayAudioStream(engineStream);
     // SRAND FOR ALL THE rANDOM FUNCS
     srand(time(NULL));
     // Main game loop
@@ -169,6 +179,7 @@ int main(void)
         switch (GameScreen.CurrentScreen)
         {
         case PREVIEW:
+            volume = 0; // Set volume to 0;
             // Game locked level logic! 1.Read the thersholds and set them!2. Let the player play iff the highscore has been completed!
             if (IsKeyPressed(KEY_ENTER))
             {
@@ -391,6 +402,11 @@ int main(void)
             if (Gasoline_Refuel_Station.isvisible == false)
                 Gasoline_Refuel_Station = refuel_station();
             check_for_refuel(&Gasoline_Refuel_Station, pos); // check if we are inside a station and perform a refuel if needed
+            // 7. AUDIO
+            if(engineFrequency > 469.0)
+                engineFrequency = 95 + (npc_smart_counter % 5 + rand() % 5) + (speed / 4.0f) * 500.f;
+            else
+            engineFrequency = 95 + (npc_smart_counter % 5) + (speed / 4.0f) * 500.f;
             // Check if the npc has caught the player
             if (check_if_caught(pos, npc) == 1)
             {
@@ -544,8 +560,8 @@ int main(void)
             else
             {
                 int pre_selected_index = -1;
-                for(int i=0;i<NUM_OF_ITEMS_ON_LIST;i++)
-                    if(PICKUP[i].is_pre_selected == 1 && DROPOFF[i].is_pre_selected == 1)
+                for (int i = 0; i < NUM_OF_ITEMS_ON_LIST; i++)
+                    if (PICKUP[i].is_pre_selected == 1 && DROPOFF[i].is_pre_selected == 1)
                         pre_selected_index = i;
                 draw_pickup_and_dropoff(PICKUP[pre_selected_index].REAL, DROPOFF[pre_selected_index].REAL);
             }
@@ -565,9 +581,10 @@ int main(void)
         }
         EndDrawing();
     }
-    UnloadModel(playerModel);     // Unload the model we built
-    UnloadModel(GasStationModel); // Unload the gas station model
-    UnloadModel(Bamboo_House);    // Unload the building's model
+    UnloadModel(playerModel);        // Unload the model we built
+    UnloadModel(GasStationModel);    // Unload the gas station model
+    UnloadModel(Bamboo_House);       // Unload the building's model
+    UnloadAudioStream(engineStream); // Unload audio connection
     CloseWindow();
     fclose(file); // Closes the file
     return 0;
