@@ -15,7 +15,7 @@
  *                                          -Κάτω δεξιά στην οθόνη σας εμφανίζεται μία μπάρα με τη διαθέσιμη ποσότητα καυσίμου στη δεξαμενή. Λίγο πριν το απόθεμα στη δεξαμενή εξαντληθεί εμφανίζεται στο χάρτη πρατήριο με τη μορφή δοχείου καυσίμου σε σημείο που επισημαίνεται στον μικρό χάρτη πάνω και αριστερά στην οθόνη με λευκό κύκλο.
  *                                          -Λαμβάνωντας το δοχείο καυσίμου που εμφανλίζεται παρατείνεται η διάρκεια ζωής σας.
  *                                          -Το παιχνίδι τερματίζεται είτε με την σύγκρουσή σας με το αστυνομικό όχημα είτε με την εξάντληση του αποθετηρίου καυσίμων.
- *                                          -Στόχος: Η συγκέντωση όσο το δυνατόν περισσότερων χρημάτων που ξεκλειδώνουν επίπεδα και προνόμια.                 
+ *                                          -Στόχος: Η συγκέντωση όσο το δυνατόν περισσότερων χρημάτων που ξεκλειδώνουν επίπεδα και προνόμια.
  *
  * Copyright (C) 2025-2026 Καρτσιώτης Μιχαήλ και Κατσιμάνης Δημήτριος
  *
@@ -107,10 +107,10 @@ int main(void)
     enum Screen pre_load_screen = LEVEL1;
     // Models for 3d rendering
     // Player Cube(it is a model so that we can turn the cube by printing the model turned)
-    Mesh cubeMesh = GenMeshCube(MAN_RECTANGLE_WIDTH, MAN_3D_HEIGHT, MAN_RECTANGLE_HEIGHT); //  Create a mesh (The geometry)
-    Model playerModel = LoadModelFromMesh(cubeMesh);                                       // Load it into a Model
+    //Mesh cubeMesh = GenMeshCube(MAN_RECTANGLE_WIDTH, MAN_3D_HEIGHT, MAN_RECTANGLE_HEIGHT); //  Create a mesh (The geometry)
+    Model playerModel = LoadModel("motor1.glb");                                           // FromMesh                                  // Load it into a Model
     // Bamboo house
-    Bamboo_House = LoadModel("city_building.glb");
+    Bamboo_House = LoadModel("Commercial_Building.glb");
     if (Bamboo_House.meshCount == 0)
     {
         printf("ERROR: Bamboo House failed to load! Check filename/path.\n");

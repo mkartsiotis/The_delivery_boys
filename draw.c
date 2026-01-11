@@ -37,6 +37,7 @@
 // Initialize external models
 Model GasStationModel = {0};
 Model Bamboo_House = {0};
+Model playerModel= {0};
 
 void DrawRectangles(Rectangle map[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X])
 {
@@ -67,7 +68,6 @@ void DrawCubes(Rectangle map[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X])
 
     // 3. CALCULATE OFFSETS
 
-    // --- THE FIX IS HERE ---
     // You must multiply box.min.y by the VERTICAL scale (scaleY_Axis), not the Z scale.
     float yOffset = -box.min.y * scaleY_Axis;
 
@@ -98,8 +98,8 @@ void DrawCubes(Rectangle map[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X])
                         WHITE);
 
             // Debug Wires
-            DrawCubeWires((Vector3){mapCenterX, ((float)SIZE_OF_RECTANGLES_3DHEIGHT / 2.0f), mapCenterZ},
-                          SIZE_OF_RECTANGLES_X, SIZE_OF_RECTANGLES_3DHEIGHT, SIZE_OF_RECTANGLES_Y, BLACK);
+            //DrawCubeWires((Vector3){mapCenterX, ((float)SIZE_OF_RECTANGLES_3DHEIGHT / 2.0f), mapCenterZ},
+                   //       SIZE_OF_RECTANGLES_X, SIZE_OF_RECTANGLES_3DHEIGHT, SIZE_OF_RECTANGLES_Y, BLACK);
         }
     }
 }

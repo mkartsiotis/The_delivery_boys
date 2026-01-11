@@ -195,7 +195,8 @@ extern Traffic_state Traffic_Cop;                           //(Initialized in np
 
 // This is the 3d Model section. Declare all the models that are going to be used!
 extern Model GasStationModel; // This is the gas station model(as all models it is initialized in main.c before the window should close)
-extern Model Bamboo_House;    // Same for the bamboo house
+extern Model Bamboo_House;  //Same for the bamboo house
+extern Model playerModel;   // Same for the model of the player
 // Functions in all files. Syntax of comments is //(FILENAME_WHERE_FUNTCTION_IS_LOCATED) USE_AND_DEFINITION
 // Initialization functions
 void Initialize_Map(Rectangle (*map)[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X]); //(In layout.c) Initialize the map of the square blocks that will constitute the road
