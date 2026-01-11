@@ -15,7 +15,7 @@
  *                                          -Κάτω δεξιά στην οθόνη σας εμφανίζεται μία μπάρα με τη διαθέσιμη ποσότητα καυσίμου στη δεξαμενή. Λίγο πριν το απόθεμα στη δεξαμενή εξαντληθεί εμφανίζεται στο χάρτη πρατήριο με τη μορφή δοχείου καυσίμου σε σημείο που επισημαίνεται στον μικρό χάρτη πάνω και αριστερά στην οθόνη με λευκό κύκλο.
  *                                          -Λαμβάνωντας το δοχείο καυσίμου που εμφανλίζεται παρατείνεται η διάρκεια ζωής σας.
  *                                          -Το παιχνίδι τερματίζεται είτε με την σύγκρουσή σας με το αστυνομικό όχημα είτε με την εξάντληση του αποθετηρίου καυσίμων.
- *                                          -Στόχος: Η συγκέντωση όσο το δυνατόν περισσότερων χρημάτων που ξεκλειδώνουν επίπεδα και προνόμια.                 
+ *                                          -Στόχος: Η συγκέντωση όσο το δυνατόν περισσότερων χρημάτων που ξεκλειδώνουν επίπεδα και προνόμια.
  *
  * Copyright (C) 2025-2026 Καρτσιώτης Μιχαήλ και Κατσιμάνης Δημήτριος
  *
@@ -36,8 +36,10 @@
 
 // Initialize external models
 Model GasStationModel = {0};
-Model Bamboo_House = {0};
-Model playerModel= {0};
+Model Building = {0};
+Model playerModel = {0};
+Model Chaser= {0};
+
 
 void DrawRectangles(Rectangle map[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X])
 {
@@ -51,7 +53,7 @@ void DrawRectangles(Rectangle map[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X])
 void DrawCubes(Rectangle map[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X])
 {
     // 1. ANALYZE MODEL DATA
-    BoundingBox box = GetModelBoundingBox(Bamboo_House);
+    BoundingBox box = GetModelBoundingBox(Building);
     float modelWidth = box.max.x - box.min.x;
     float modelHeight = box.max.y - box.min.y; // Height is Y
     float modelLength = box.max.z - box.min.z; // Length is Z
@@ -90,7 +92,7 @@ void DrawCubes(Rectangle map[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X])
                 +yOffset, // Now uses the correct vertical scaling logic
                 mapCenterZ + zOffset};
 
-            DrawModelEx(Bamboo_House,
+            DrawModelEx(Building,
                         finalPos,
                         (Vector3){0, 1, 0},
                         0.0f,
@@ -98,8 +100,8 @@ void DrawCubes(Rectangle map[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X])
                         WHITE);
 
             // Debug Wires
-            //DrawCubeWires((Vector3){mapCenterX, ((float)SIZE_OF_RECTANGLES_3DHEIGHT / 2.0f), mapCenterZ},
-                   //       SIZE_OF_RECTANGLES_X, SIZE_OF_RECTANGLES_3DHEIGHT, SIZE_OF_RECTANGLES_Y, BLACK);
+            // DrawCubeWires((Vector3){mapCenterX, ((float)SIZE_OF_RECTANGLES_3DHEIGHT / 2.0f), mapCenterZ},
+            //       SIZE_OF_RECTANGLES_X, SIZE_OF_RECTANGLES_3DHEIGHT, SIZE_OF_RECTANGLES_Y, BLACK);
         }
     }
 }
@@ -189,8 +191,14 @@ void draw_astar_results3D(best_possible_path A_STAR_RESULT) // Decodes the strin
 
 void draw_npc3D(NPC chaser)
 {
-    DrawCube((Vector3){chaser.position.x, 2.0f, chaser.position.y}, chaser.WIDTH, 2.0f, chaser.HEIGHT, ORANGE);
-    DrawCubeWires((Vector3){chaser.position.x, 2.0f, chaser.position.y}, chaser.WIDTH, 2.0f, chaser.HEIGHT, BLACK);
+
+    Vector3 pos3D = {chaser.position.x, 2.0f, chaser.position.y}; // 3D position
+
+    // DrawCube((Vector3){chaser.position.x, 2.0f, chaser.position.y}, chaser.WIDTH, 2.0f, chaser.HEIGHT, ORANGE);
+
+    // DrawCubeWires((Vector3){chaser.position.x, 2.0f, chaser.position.y}, chaser.WIDTH, 2.0f, chaser.HEIGHT, BLACK);
+
+    DrawModel(Chaser, pos3D, 1.0f, WHITE);
 }
 void draw_npc(NPC chaser)
 {
@@ -233,7 +241,7 @@ void draw_mission_score(int selected_mission_index) // Draws the score that is g
 void print_refuel_station(Gas_Station SET_STATION) //(In gamehandling.c)Prints the station if visible
 {
     static int rotation_angle = 0; // Set the rotation angle
-    rotation_angle += 20;          // Make the thing rotate!!!
+    rotation_angle += 2;          // Make the thing rotate!!!
     if (SET_STATION.isvisible == true)
     {
         Vector3 pos3D = {SET_STATION.REAL.x, 0.0f, SET_STATION.REAL.y}; // 3d position

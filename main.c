@@ -51,7 +51,7 @@ int main(void)
     SetTargetFPS(60);
     /*This is the section where we initialize all the variables*/
     // First Create an array of RECTANGLES
-    // For this we need to define a global constant variable which can be static since is constant and inline to just manage memmory efficiently
+    // For this we need to define a global constant variable which can be static since is constant and inline to just manage memory efficiently
     // See the header file for more info
     Rectangle map[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X];
     Initialize_Map(&map);
@@ -65,7 +65,7 @@ int main(void)
     int sucessful_deliveries = 0;
     int deduce_score_counter = 0;
     // Variables for delivery activation
-    Delivery_Location PICKUP[NUM_OF_ITEMS_ON_LIST], DROPOFF[NUM_OF_ITEMS_ON_LIST]; // Declarte the array
+    Delivery_Location PICKUP[NUM_OF_ITEMS_ON_LIST], DROPOFF[NUM_OF_ITEMS_ON_LIST]; // Declare the array
     init_PICKUP_and_DROPOFF(PICKUP, DROPOFF);                                      // Initialize the array
     int selected_mission_index = -1;
     // Set the colour of the player just for debugging purposes
@@ -73,7 +73,7 @@ int main(void)
     // For debugging we add a variable that controls the grid drawing
     bool should_draw_grid = false;
     // Variables used in A*
-    best_possible_path a_star_results = {0};    // Strores the A*results in a same type variable
+    best_possible_path a_star_results = {0};    // Stores the A*results in a same type variable
     grid_coordinates current_grid_pos = {0, 0}; // For updating current_grid_pos every time;
     int a_star_counter = 0;                     // Counts how many times before A star is called
     // NPC VARIABLES
@@ -84,7 +84,7 @@ int main(void)
     npc.speed = 2;
     bool has_crushed_with_npc = false;
     init_cars(); // Initialize all cars
-    // Camera logic and initializtion
+    // Camera logic and initialization
     // IN MAIN SETUP
     Camera3D camera3d = {0};
     camera3d.position = (Vector3){
@@ -106,23 +106,49 @@ int main(void)
     // Gamescreen logic
     ScreenStatus GameScreen = {PREVIEW, true, 0}; // Be careful!Here we set the locked levels to 0.
     enum Screen pre_load_screen = LEVEL1;
-    // Models for 3d rendering
+    // Models for 3D rendering
+
     // Player Cube(it is a model so that we can turn the cube by printing the model turned)
-    // Mesh cubeMesh = GenMeshCube(MAN_RECTANGLE_WIDTH, MAN_3D_HEIGHT, MAN_RECTANGLE_HEIGHT); //  Create a mesh (The geometry)
-    Model playerModel = LoadModel("motor1.glb"); // FromMesh                                  // Load it into a Model
-    // Bamboo house
-    Bamboo_House = LoadModel("Commercial_Building.glb");
-    if (Bamboo_House.meshCount == 0)
+
+    // Load the player's model
+
+    Model playerModel = LoadModel("motor2.glb");
+
+    if (playerModel.meshCount == 0)
+
     {
-        printf("ERROR: Bamboo House failed to load! Check filename/path.\n");
+
+        printf("ERROR: Motorbike failed to load! Check filename/path.\n");
     }
+
     else
+
     {
-        printf("SUCCESS: Bamboo House loaded with %d meshes.\n", Bamboo_House.meshCount);
+
+        printf("SUCCESS: Motorbike loaded with %d meshes.\n", playerModel.meshCount);
     }
-    // Gas Station
+
+    // Load the buildings' model
+
+    Building = LoadModel("Commercial_Building.glb");
+
+    if (Building.meshCount == 0)
+
+    {
+
+        printf("ERROR: Building failed to load! Check filename/path.\n");
+    }
+
+    else
+
+    {
+
+        printf("SUCCESS: Building loaded with %d meshes.\n", Building.meshCount);
+    }
+
+    // Gas Station model
     GasStationModel = LoadModel("Gas_tank.glb");
-    // 2D TExtures and models
+    // 2D Textures and models
     //  Model of minimap
     //   Draw walls on texture
     /*BoundingBox box = GetModelBoundingBox(Bamboo_House); //We need to find the model's bounding box, so that we can later scale it to fit in the blank cubes
@@ -148,7 +174,7 @@ int main(void)
         fclose(file);
         file = fopen("userlogs.txt", "r+");
     }
-    if (file == NULL) // If we are still unable to open a file just kill the programm
+    if (file == NULL) // If we are still unable to open a file just kill the program
         exit(EXIT_FAILURE);
     // Locked levels and previous highscores!
     int HIGHSCORE1 = 0, HIGHSCORE2 = 0, HIGHSCORE3 = 0;
@@ -296,7 +322,7 @@ int main(void)
                 break; // Breaks from the switch.
             }
 
-            // Strores the A*results in a same type variable
+            // Stores the A*results in a same type variable
             // In this section we will implement delivery handling techniques and NPC creation afterwards.
             // Get the players grid position
 
@@ -321,12 +347,12 @@ int main(void)
                         // Find shortest path and assign it to a_star_results
                         initGrid();
                         a_star_results = aStarSearch(current_grid_pos.gridX, current_grid_pos.gridY, PICKUP[i].grid_x, PICKUP[i].grid_y);
-                        fseek(file, 0, 0);                                                 // Go to the begginig of the file
+                        fseek(file, 0, 0);                                                 // Go to the beginnig of the file
                         fscanf(file, "-%d-%d-%d-", &HIGHSCORE1, &HIGHSCORE2, &HIGHSCORE3); // scans and assigns the values to the highscores.
                     }
                 }
             }
-            else if (mission_active == true) // If we have the mission check if we acomplished it.
+            else if (mission_active == true) // If we have the mission check if we accomplished it.
             {
                 col = WHITE; // Have we picked a order?If so have we completed delivery
                 if (picked_order == false && pos.x - (PICKUP[selected_mission_index].REAL).x < MAN_RECTANGLE_WIDTH && pos.x - (PICKUP[selected_mission_index].REAL).x > -MAN_RECTANGLE_WIDTH && pos.y - (PICKUP[selected_mission_index].REAL).y < MAN_RECTANGLE_HEIGHT && pos.y - (PICKUP[selected_mission_index].REAL).y > -MAN_RECTANGLE_HEIGHT)
@@ -342,7 +368,7 @@ int main(void)
                     picked_order = false;
                     sucessful_deliveries += score_for_current_mission[selected_mission_index]; // Increase score by the amount of things left
                     score_for_current_mission[selected_mission_index] = 0;
-                    // Check if we have surpassed the hich score and then if so write the new score
+                    // Check if we have surpassed the high score and then if so write the new score
                     int HIGH_SCORE = 0;
                     fseek(file, 0, 0);
                     if (GameScreen.CurrentScreen == LEVEL1)
@@ -403,10 +429,10 @@ int main(void)
                 Gasoline_Refuel_Station = refuel_station();
             check_for_refuel(&Gasoline_Refuel_Station, pos); // check if we are inside a station and perform a refuel if needed
             // 7. AUDIO
-            if(engineFrequency > 469.0)
+            if (engineFrequency > 469.0)
                 engineFrequency = 95 + (npc_smart_counter % 5 + rand() % 5) + (speed / 4.0f) * 500.f;
             else
-            engineFrequency = 95 + (npc_smart_counter % 5) + (speed / 4.0f) * 250.f;
+                engineFrequency = 95 + (npc_smart_counter % 5) + (speed / 4.0f) * 250.f;
             // Check if the npc has caught the player
             if (check_if_caught(pos, npc) == 1)
             {
@@ -551,7 +577,7 @@ int main(void)
                            (Vector2){
                                0, 0},
                            WHITE);                                                       // Do not draw the rectangles but the model!
-            DrawRectangle(Player.x, Player.y, Player.width * 5, Player.height * 5, col); // Draw player three times larger for better place visualizatiomn
+            DrawRectangle(Player.x, Player.y, Player.width * 5, Player.height * 5, col); // Draw player three times larger for better place visualization
             if (mission_active == true)
             {
                 draw_pickup_and_dropoff(PICKUP[selected_mission_index].REAL, DROPOFF[selected_mission_index].REAL);
@@ -583,7 +609,7 @@ int main(void)
     }
     UnloadModel(playerModel);        // Unload the model we built
     UnloadModel(GasStationModel);    // Unload the gas station model
-    UnloadModel(Bamboo_House);       // Unload the building's model
+    UnloadModel(Building);       // Unload the building's model
     UnloadAudioStream(engineStream); // Unload audio connection
     CloseWindow();
     fclose(file); // Closes the file

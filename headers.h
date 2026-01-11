@@ -42,10 +42,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include <math.h> //for the A* and especiallly for the heuristic function h(n) that will be used.
+#include <math.h> //for the A* and especially for the heuristic function h(n) that will be used.
 // Notation:
 // For moving objects:
-// First we name what we want(e.g. SIZE). All words seperated by '_'.See why we opted to use #DEFINE in the documentatetion
+// First we name what we want(e.g. SIZE). All words separated by '_'.See why we opted to use #DEFINE in the documentation
 //  Define some preset constatnts
 #define TIME_LIMIT 180 // Number of seconds in which the player has to fulfill all orders.
 #define MAP_WIDTH WINDOW_WIDTH
@@ -199,8 +199,9 @@ extern float phase;             // The "Position" in our wave cycle
 extern float volume;
 // This is the 3d Model section. Declare all the models that are going to be used!
 extern Model GasStationModel; // This is the gas station model(as all models it is initialized in main.c before the window should close)
-extern Model Bamboo_House;    // Same for the bamboo house
-extern Model playerModel;     // Same for the model of the player
+extern Model Building;  //Same for the building
+extern Model playerModel;   // Same for the model of the player
+extern Model Chaser;   //Same for the chaser
 // Functions in all files. Syntax of comments is //(FILENAME_WHERE_FUNTCTION_IS_LOCATED) USE_AND_DEFINITION
 // Initialization functions
 void Initialize_Map(Rectangle (*map)[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X]); //(In layout.c) Initialize the map of the square blocks that will constitute the road
@@ -229,7 +230,7 @@ void init_PICKUP_and_DROPOFF(Delivery_Location *PICKUP, Delivery_Location *DROPO
 // Timer limitation functions
 void burn_fuel(void); //(In gamehandling.c)Decreases the fuel amount.
 // Draw functions(All in draw.c)
-void draw_fuel_bar(void);                                                                                                      //(In draw.c)Draws the remaining fuel in the depoisit.
+void draw_fuel_bar(void);                                                                                                      //(In draw.c)Draws the remaining fuel in the deposit.
 void draw_grid(void);                                                                                                          //(In draw.c)Draws the grid of the big map in world-map coordinates. Note that this function does not draw the lines of the coordinates of the grid[i][j] but the outside sides of the rectangles that represent a 2D division of the map plane.
 void DrawCubes(Rectangle map[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X]);                                                       // Draws the cubes for the 3D version.
 void draw_npc3D(NPC chaser);                                                                                                   // Draws the NPC in 3d
@@ -250,7 +251,7 @@ grid_coordinates RealToGrid(Vector2 pos);                                     //
 Vector2 GridToReal(int gridX, int gridY);                                     //(In astar_search.c) converts grid coordinates to real map ones.
 // This is the set of functions used in the NPC creation and movement
 void updateNPC(NPC *chaser, Vector2 player_pos, Rectangle map[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X]); //(In npc.c)Checks conditions and recalculates path if needed.
-int check_if_caught(Vector2 playerpos, NPC npc);                                                          //(Inn npc.c)Checks if they come in contact
+int check_if_caught(Vector2 playerpos, NPC npc);                                                          //(In npc.c)Checks if they come in contact
 void update_npc_cars(void);                                                                               //(In npc.c)Controls npc car movement and specifically APPEARNCE - DISAPPEARENCE - POSITION - COLOUR - START AND END POSITION.
 void init_cars(void);                                                                                     // Initializes the array of cars
 int check_for_car_crashes(Rectangle Player);                                                              // Checks for collisions with the npc cars.

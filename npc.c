@@ -66,7 +66,7 @@ void updateNPC(NPC *chaser, Vector2 player_pos, Rectangle map[NUM_OF_RECTANGLES_
 {
     // SIMPLE_STRAIGHTFORWARD_APPROACH
     // 1.FIND_REALTIVE_POSITION
-    // 2.CALCULATE REqUESTED MOVE
+    // 2.CALCULATE REQUESTED MOVE
     // 3.CHECK IF LEGAL
     // 4.PERFORM IT!!!
     float dx = 0, dy = 0;
@@ -116,7 +116,7 @@ int check_if_caught(Vector2 playerpos, NPC npc) // Checks if they come in contac
 // Lets first build a working prototype and then we'll refine it.
 // Objectives - steps- logic:
 /*
-The approach: Create a conveyer belt system where the player-npc starts from point A and drives straight to point B untill it reaches that and disappears.
+The approach: Create a conveyer belt system where the player-npc starts from point A and drives straight to point B until it reaches that and disappears.
 To do this we need:
 1. An array of special type(typedefined in the header file) where all the precious data for the npc will be stored and namely:
     -Current state(active or passive)
@@ -147,8 +147,8 @@ void update_npc_cars(void)
 {
     // First we need to disembark on a journey to check the logic of block creation:
     // How we initialize BLOCKS:
-    // We divide the screen dimensions with the NUMBER_OF_RECTANGLES * 4 in each axis
-    // Then for the nth block in the x axis(same logic for the y axis) starting from 0 untill NUMBER_OF_RECTANGLES - 1 we have:
+    // We divide the screen dimensions with the number_OF_RECTANGLES * 4 in each axis
+    // Then for the nth block in the x axis(same logic for the y axis) starting from 0 until number_OF_RECTANGLES - 1 we have:
     /*float stepX = (float)MAP_WIDTH / (NUM_OF_RECTANGLES_X * 4.0f);
     float x_value = (1 + 4 * n) * stepX;
     (*map)[i][n] = (Rectangle){x_value, y_value, SIZE_OF_RECTANGLES_X, SIZE_OF_RECTANGLES_Y};
@@ -202,7 +202,7 @@ void update_npc_cars(void)
                     min_pos_x = cars_horizontal[i][j].pos.x;
                 }
             }
-        // Now if the minimum distance is larger than the thershold or if no car is in the map initialize a new car.
+        // Now if the minimum distance is larger than the threshold or if no car is in the map initialize a new car.
         if (min_pos_x < tolerance_for_x_road && min_pos_x != -1)
             ;
         else
@@ -261,7 +261,7 @@ void update_npc_cars(void)
                     max_pos_x = cars_horizontal[i][j].pos.x;
                 }
             }
-        // Now if the minimum distance is larger than the thershold or if no car is in the map initialize a new car.
+        // Now if the minimum distance is larger than the threshold or if no car is in the map initialize a new car.
         if (MAP_WIDTH - max_pos_x < tolerance_for_x_road && max_pos_x != -10000)
             ;
         else
@@ -299,7 +299,7 @@ void update_npc_cars(void)
                 // Check if we meet the threshold.
                 if (cars_vertical[i][j].pos.y < cars_vertical[i][j].end_pos.y)
                 {
-                    adjust_speedy(i, j); // Adξust the car speed
+                    adjust_speedy(i, j); // Adjust the car speed
                     cars_vertical[i][j].pos.y += cars_vertical[i][j].speed;
                 }
                 else
@@ -320,7 +320,7 @@ void update_npc_cars(void)
                     min_pos_y = cars_vertical[i][j].pos.y;
                 }
             }
-        // Now if the minimum distance is larger than the thershold or if no car is in the map initialize a new car.
+        // Now if the minimum distance is larger than the threshold or if no car is in the map initialize a new car.
         if (min_pos_y < tolerance_for_y_road && min_pos_y != -1)
             ;
         else
@@ -378,7 +378,7 @@ void update_npc_cars(void)
                     max_pos_y = cars_vertical[i][j].pos.y;
                 }
             }
-        // Now if the minimum distance is larger than the thershold or if no car is in the map initialize a new car.
+        // Now if the minimum distance is larger than the threshold or if no car is in the map initialize a new car.
         if (MAP_HEIGHT - max_pos_y < tolerance_for_y_road && max_pos_y != -10000)
             ;
         else
@@ -629,9 +629,9 @@ void adress_traffic(void) //(in npc.c)This function creates a vertical and a hor
 {
     /*This function creates a vertical and a horizontal go for the cars.
     Main Logic:
-    1.Create a vertical and a horizontal go.(see headder files)
-    2.Set that variable according to time.....We will do that by implementing a static variable to the function nad thus track the numbrer of times the function is called.
-    3.We need to track if an npc is close to a intersection. We will do that by implementing the grid coordinate system we alraedy use.
+    1.Create a vertical and a horizontal go.(see header files)
+    2.Set that variable according to time.....We will do that by implementing a static variable to the function nad thus track the number of times the function is called.
+    3.We need to track if an npc is close to a intersection. We will do that by implementing the grid coordinate system we already use.
     4.If a car is close to an intersection if the variable indicates a red light stop. Else...If the previous distance was stop go!!!!
     Wish me luck....*/
     static int timer_counter = 0;
@@ -660,7 +660,7 @@ void adress_traffic(void) //(in npc.c)This function creates a vertical and a hor
                 if (cars_horizontal[i][j].is_visible == false) // If the cars are invisible go to the end of the loop and ignore all the changes
                     continue;
                 // Now we need to remind to ourselves how we have set the parameters of the game and its core logic.
-                float cellXsize = WINDOW_WIDTH / ((float)NUM_OF_RECTANGLES_X * 4); // Remember the by 4 architexture(see docs).
+                float cellXsize = WINDOW_WIDTH / ((float)NUM_OF_RECTANGLES_X * 4); // Remember the by 4 architecture(see docs).
 
                 float distance = 0, min_distance = 10000.0f;
                 // We now need to find the minimum distance
@@ -682,7 +682,7 @@ void adress_traffic(void) //(in npc.c)This function creates a vertical and a hor
                 if (cars_horizontal[i][j].is_visible == false) // If the cars are invisible go to the end of the loop and ignore all the changes
                     continue;
                 // Now we need to remind to ourselves how we have set the parameters of the game and its core logic.
-                float cellXsize = WINDOW_WIDTH / ((float)NUM_OF_RECTANGLES_X * 4); // Remember the by 4 architexture(see docs).
+                float cellXsize = WINDOW_WIDTH / ((float)NUM_OF_RECTANGLES_X * 4); // Remember the by 4 architecture(see docs).
 
                 float distance = 0, min_distance = 10000.0f;
                 // We now need to find the minimum distance
@@ -722,7 +722,7 @@ void adress_traffic(void) //(in npc.c)This function creates a vertical and a hor
                 if (cars_vertical[i][j].is_visible == false) // If the cars are invisible go to the end of the loop and ignore all the changes
                     continue;
                 // Now we need to remind to ourselves how we have set the parameters of the game and its core logic.
-                float cellYsize = WINDOW_HEIGHT / ((float)NUM_OF_RECTANGLES_Y * 4); // Remember the by 4 architexture(see docs).
+                float cellYsize = WINDOW_HEIGHT / ((float)NUM_OF_RECTANGLES_Y * 4); // Remember the by 4 architecture(see docs).
 
                 float distance = 0, min_distance = 10000.0f;
                 // We now need to find the minimum distance
@@ -744,7 +744,7 @@ void adress_traffic(void) //(in npc.c)This function creates a vertical and a hor
                 if (cars_vertical[i][j].is_visible == false) // If the cars are invisible go to the end of the loop and ignore all the changes
                     continue;
                 // Now we need to remind to ourselves how we have set the parameters of the game and its core logic.
-                float cellYsize = WINDOW_HEIGHT / ((float)NUM_OF_RECTANGLES_Y * 4); // Remember the by 4 architexture(see docs).
+                float cellYsize = WINDOW_HEIGHT / ((float)NUM_OF_RECTANGLES_Y * 4); // Remember the by 4 architecture(see docs).
 
                 float distance = 0, min_distance = 10000.0f;
                 // We now need to find the minimum distance
