@@ -38,8 +38,7 @@
 Model GasStationModel = {0};
 Model Building = {0};
 Model playerModel = {0};
-Model Chaser= {0};
-
+Model Chaser = {0};
 
 void DrawRectangles(Rectangle map[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X])
 {
@@ -184,7 +183,10 @@ void draw_astar_results3D(best_possible_path A_STAR_RESULT) // Decodes the strin
             yval = sizeofboxY * ((float)A_STAR_RESULT.MATRIX_OUT[i][1] + 0.5f);
             nextxval = sizeofboxX * ((float)A_STAR_RESULT.MATRIX_OUT[i + 1][0] + 0.5f);
             nextyval = sizeofboxY * ((float)A_STAR_RESULT.MATRIX_OUT[i + 1][1] + 0.5f);
-            DrawLine3D((Vector3){xval, 0, yval}, (Vector3){nextxval, 0, nextyval}, YELLOW);
+            float brightness = (sin(GetTime() * 5.0f) + 1.0f) / 2.0f; // Range 0.0 to 1.0
+            float hue = 60.0f;
+            Color yellowShade = ColorFromHSV(hue, 1.0f, brightness);
+            DrawLine3D((Vector3){xval, 0, yval}, (Vector3){nextxval, 0, nextyval}, yellowShade);
         }
     }
 }
@@ -241,7 +243,7 @@ void draw_mission_score(int selected_mission_index) // Draws the score that is g
 void print_refuel_station(Gas_Station SET_STATION) //(In gamehandling.c)Prints the station if visible
 {
     static int rotation_angle = 0; // Set the rotation angle
-    rotation_angle += 2;          // Make the thing rotate!!!
+    rotation_angle += 2;           // Make the thing rotate!!!
     if (SET_STATION.isvisible == true)
     {
         Vector3 pos3D = {SET_STATION.REAL.x, 0.0f, SET_STATION.REAL.y}; // 3d position

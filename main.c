@@ -111,41 +111,28 @@ int main(void)
     // Player Cube(it is a model so that we can turn the cube by printing the model turned)
 
     // Load the player's model
-
+    Chaser = LoadModel("LaPolizia.glb");
     Model playerModel = LoadModel("motor2.glb");
-
     if (playerModel.meshCount == 0)
-
     {
 
         printf("ERROR: Motorbike failed to load! Check filename/path.\n");
     }
-
     else
-
     {
-
         printf("SUCCESS: Motorbike loaded with %d meshes.\n", playerModel.meshCount);
     }
-
     // Load the buildings' model
-
     Building = LoadModel("Commercial_Building.glb");
-
     if (Building.meshCount == 0)
-
     {
-
         printf("ERROR: Building failed to load! Check filename/path.\n");
     }
 
     else
-
     {
-
         printf("SUCCESS: Building loaded with %d meshes.\n", Building.meshCount);
     }
-
     // Gas Station model
     GasStationModel = LoadModel("Gas_tank.glb");
     // 2D Textures and models
@@ -531,7 +518,7 @@ int main(void)
             print_refuel_station(Gasoline_Refuel_Station);
             DrawCubes(map);          // Draws map
             DrawModelEx(playerModel, // Draw the model you load from the playerModel
-                        (Vector3){pos.x, MAN_3D_HEIGHT / 2.0f, pos.y},
+                        (Vector3){pos.x, MAN_3D_HEIGHT - 0.5, pos.y},
                         (Vector3){0.0f, 1.0f, 0.0f},
                         angleRad * RAD2DEG,
                         (Vector3){1.0f, 1.0f, 1.0f},
@@ -609,7 +596,7 @@ int main(void)
     }
     UnloadModel(playerModel);        // Unload the model we built
     UnloadModel(GasStationModel);    // Unload the gas station model
-    UnloadModel(Building);       // Unload the building's model
+    UnloadModel(Building);           // Unload the building's model
     UnloadAudioStream(engineStream); // Unload audio connection
     CloseWindow();
     fclose(file); // Closes the file
