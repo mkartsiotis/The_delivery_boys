@@ -1,8 +1,25 @@
 # Compiler and flags
 CC := gcc   
-TARGET := game.exe             
+TARGET := game.exe               
+#LINUX AND MAC TARGET := game
 CFLAGS := -Wall -Wextra -O2 -std=c17 -I./raylib_2/include
-LDFLAGS := -L./raylib_2/lib -l:libraylib.a -lopengl32 -lgdi32 -lwinmm -luser32 -lkernel32 -lshell32
+ifeq ($(OS),Windows_NT)
+    # WINDOWS FLAGS
+    LDFLAGS = -L./raylib_2/lib -l:libraylib.a -lopengl32 -lgdi32 -lwinmm -luser32 -lkernel32 -lshell32
+    TARGET = game.exe
+else
+    UNAME_S := $(shell uname -s)
+    ifeq ($(UNAME_S),Linux)
+        # LINUX FLAGS
+        LDFLAGS = -L./raylib_2/lib -lraylib -lGL -lm -lpthread -ldl -lrt -lX11
+        TARGET = game
+    endif
+    ifeq ($(UNAME_S),Darwin)
+        # MAC FLAGS
+        LDFLAGS = -L./raylib_2/lib -lraylib -framework CoreVideo -framework IOKit -framework Cocoa -framework OpenGL
+        TARGET = game
+    endif
+endif
 
 
 all: compile_all #This is the command that is sent in full
@@ -36,7 +53,7 @@ audio.o: audio.c headers.h
 	$(CC) $(CFLAGS) -c audio.c -o audio.o
 
 clean:
-#	rm -f *.o game.exe for linux and mac 
+#	rm -f *.o game for linux and mac 
 	del *.o game.exe 2>nul || true 
 #for Windows
 

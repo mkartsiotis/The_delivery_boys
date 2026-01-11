@@ -406,7 +406,7 @@ int main(void)
             if(engineFrequency > 469.0)
                 engineFrequency = 95 + (npc_smart_counter % 5 + rand() % 5) + (speed / 4.0f) * 500.f;
             else
-            engineFrequency = 95 + (npc_smart_counter % 5) + (speed / 4.0f) * 500.f;
+            engineFrequency = 95 + (npc_smart_counter % 5) + (speed / 4.0f) * 250.f;
             // Check if the npc has caught the player
             if (check_if_caught(pos, npc) == 1)
             {
