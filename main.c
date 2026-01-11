@@ -107,8 +107,8 @@ int main(void)
     enum Screen pre_load_screen = LEVEL1;
     // Models for 3d rendering
     // Player Cube(it is a model so that we can turn the cube by printing the model turned)
-    //Mesh cubeMesh = GenMeshCube(MAN_RECTANGLE_WIDTH, MAN_3D_HEIGHT, MAN_RECTANGLE_HEIGHT); //  Create a mesh (The geometry)
-    Model playerModel = LoadModel("motor1.glb");                                           // FromMesh                                  // Load it into a Model
+    // Mesh cubeMesh = GenMeshCube(MAN_RECTANGLE_WIDTH, MAN_3D_HEIGHT, MAN_RECTANGLE_HEIGHT); //  Create a mesh (The geometry)
+    Model playerModel = LoadModel("motor1.glb"); // FromMesh                                  // Load it into a Model
     // Bamboo house
     Bamboo_House = LoadModel("Commercial_Building.glb");
     if (Bamboo_House.meshCount == 0)
@@ -540,6 +540,14 @@ int main(void)
             {
                 draw_pickup_and_dropoff(PICKUP[selected_mission_index].REAL, DROPOFF[selected_mission_index].REAL);
                 draw_astar_results(a_star_results);
+            }
+            else
+            {
+                int pre_selected_index = -1;
+                for(int i=0;i<NUM_OF_ITEMS_ON_LIST;i++)
+                    if(PICKUP[i].is_pre_selected == 1 && DROPOFF[i].is_pre_selected == 1)
+                        pre_selected_index = i;
+                draw_pickup_and_dropoff(PICKUP[pre_selected_index].REAL, DROPOFF[pre_selected_index].REAL);
             }
             draw_npc(npc);
             EndMode2D();

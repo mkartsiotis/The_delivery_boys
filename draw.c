@@ -106,8 +106,8 @@ void DrawCubes(Rectangle map[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X])
 
 void draw_pickup_and_dropoff(Vector2 PICKUP, Vector2 DROPOFF)
 {
-    DrawCircle(PICKUP.x, PICKUP.y, 4, YELLOW);
-    DrawCircle(DROPOFF.x, DROPOFF.y, 4, GREEN);
+    DrawCircle(PICKUP.x, PICKUP.y, 10, YELLOW);
+    DrawCircle(DROPOFF.x, DROPOFF.y, 10, GREEN);
 }
 void draw_pickup_and_dropoff3D(Vector2 PICKUP, Vector2 DROPOFF)
 {
