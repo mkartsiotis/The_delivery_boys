@@ -68,9 +68,9 @@ void set_game_parameters(ScreenStatus *GameScreen, NPC *npc) //(in layout.c) Set
         npc->speed = 0.7;
         break;
     case LEVEL2:
-        NUM_OF_NPC_CARS_ON_X_ROAD_ON_CURRENT_LEVEL = 4;
+        NUM_OF_NPC_CARS_ON_X_ROAD_ON_CURRENT_LEVEL = 2;
         NUM_OF_NPC_CARS_ON_Y_ROAD_ON_CURRENT_LEVEL = 4;
-        npc->speed = 2;
+        npc->speed = 1.5;
         speed = 0;
         break;
     case LEVEL3:
@@ -79,9 +79,15 @@ void set_game_parameters(ScreenStatus *GameScreen, NPC *npc) //(in layout.c) Set
         npc->speed = 2.5f;
         speed = 0;
         break;
+    case LEVEL4:
+        NUM_OF_NPC_CARS_ON_X_ROAD_ON_CURRENT_LEVEL = 3;
+        NUM_OF_NPC_CARS_ON_Y_ROAD_ON_CURRENT_LEVEL = 3;
+        npc->speed = 3.1f;
+        speed = 0;
+        break;
     default:
         return;
     }
-    volume = 0.2;
+    volume = 0.05;
     GameScreen->isfitsttime = false;
 }

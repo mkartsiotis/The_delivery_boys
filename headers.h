@@ -156,10 +156,13 @@ typedef struct GasStationParameters
 // This is used in the main for the main screen, the before and after of the game.
 enum Screen
 {
+    PREVIEW0,
+    ISTRTUCTIONS,
     PREVIEW,
     LEVEL1,
     LEVEL2,
     LEVEL3,
+    LEVEL4,
     GAMEOVER
 };
 // This is a type that will store the useful information about the levels and the locked ones.
@@ -202,6 +205,10 @@ extern Model GasStationModel; // This is the gas station model(as all models it 
 extern Model Building;  //Same for the building
 extern Model playerModel;   // Same for the model of the player
 extern Model Chaser;   //Same for the chaser
+extern Model NPCmodel1; //Same for the first npc model
+extern Model NPCmodel2; //Same for the second npc model
+extern Model NPCmodel3; //Same for the third npc model
+
 // Functions in all files. Syntax of comments is //(FILENAME_WHERE_FUNTCTION_IS_LOCATED) USE_AND_DEFINITION
 // Initialization functions
 void Initialize_Map(Rectangle (*map)[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X]); //(In layout.c) Initialize the map of the square blocks that will constitute the road

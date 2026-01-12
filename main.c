@@ -104,7 +104,7 @@ int main(void)
         MAP_WIDTH / 2.0f, MAP_HEIGHT / 2.0f};
     minimap_cam.zoom = ((float)MINIMAP_WIDTH / MAP_WIDTH) < ((float)MINIMAP_HEIGHT / MAP_HEIGHT) ? ((float)MINIMAP_WIDTH / MAP_WIDTH) : ((float)MINIMAP_HEIGHT / MAP_HEIGHT);
     // Gamescreen logic
-    ScreenStatus GameScreen = {PREVIEW, true, 0}; // Be careful!Here we set the locked levels to 0.
+    ScreenStatus GameScreen = {PREVIEW0, true, 0}; // Be careful!Here we set the locked levels to 0.
     enum Screen pre_load_screen = LEVEL1;
     // Models for 3D rendering
 
@@ -135,17 +135,47 @@ int main(void)
     }
     // Gas Station model
     GasStationModel = LoadModel("Gas_tank.glb");
-    // 2D Textures and models
-    //  Model of minimap
-    //   Draw walls on texture
-    /*BoundingBox box = GetModelBoundingBox(Bamboo_House); //We need to find the model's bounding box, so that we can later scale it to fit in the blank cubes
-    Vector3 modelSize = {
-        box.max.x - box.min.x,
-        box.max.y - box.min.y,
-        box.max.z - box.min.z
-    };*/
+    // First npc model
+    NPCmodel1= LoadModel("Npc_car1.glb");
+    if (NPCmodel1.meshCount == 0)
+    {
+        printf("ERROR: First npc model failed to load! Check filename/path.\n");
+    }
+
+    else
+    {
+        printf("SUCCESS: First npc model loaded with %d meshes.\n", NPCmodel1.meshCount);
+    }
+    // Second npc model
+    NPCmodel2= LoadModel("Npc_car2.glb");
+    if (NPCmodel2.meshCount == 0)
+    {
+        printf("ERROR: Second npc model failed to load! Check filename/path.\n");
+    }
+
+    else
+    {
+        printf("SUCCESS: Second npc model loaded with %d meshes.\n", NPCmodel2.meshCount);
+    }
+    // Third npc model
+    NPCmodel3= LoadModel("Npc_car3.glb");
+    if (NPCmodel3.meshCount == 0)
+    {
+        printf("ERROR: Third npc model failed to load! Check filename/path.\n");
+    }
+
+    else
+    {
+        printf("SUCCESS: Third npc model loaded with %d meshes.\n", NPCmodel3.meshCount);
+    }
     RenderTexture2D minimap_texture = LoadRenderTexture(MAP_WIDTH, MAP_HEIGHT);
     Texture2D wallTexture = LoadTexture("cityskyline.png");
+    Texture2D PREVIEWTEXTURE = LoadTexture("Previewimage.png");
+    Texture2D PREVIEWTEXTURE1 = LoadTexture("LEVEL1.png");
+    Texture2D PREVIEWTEXTURE2 = LoadTexture("LEVEL2.png");
+    Texture2D PREVIEWTEXTURE3 = LoadTexture("LEVEL3.png");
+    Texture2D PREVIEWTEXTURE4 = LoadTexture("LEVEL4.png");
+
     // Start drawing onto this canvas (instead of the screen)
     BeginTextureMode(minimap_texture);
     ClearBackground(BLANK); // Make background transparent
@@ -191,6 +221,10 @@ int main(void)
         // Use a switch to tell which screen we are in
         switch (GameScreen.CurrentScreen)
         {
+        case PREVIEW0:
+            if (GetKeyPressed() != 0)
+                GameScreen.CurrentScreen = PREVIEW;
+            break;
         case PREVIEW:
             volume = 0; // Set volume to 0;
             // Game locked level logic! 1.Read the thersholds and set them!2. Let the player play iff the highscore has been completed!
@@ -202,9 +236,11 @@ int main(void)
                     GameScreen.CurrentScreen = pre_load_screen;
                 else if (pre_load_screen == LEVEL3 && HIGHSCORE2 > 5)
                     GameScreen.CurrentScreen = pre_load_screen;
+                else if (pre_load_screen == LEVEL4)
+                    GameScreen.CurrentScreen = pre_load_screen;
                 set_game_parameters(&GameScreen, &npc);
             }
-            else if (IsKeyPressed(KEY_UP) && pre_load_screen != LEVEL3)
+            else if (IsKeyPressed(KEY_UP) && pre_load_screen != LEVEL4)
             {
                 pre_load_screen += 1;
             }
@@ -483,10 +519,84 @@ int main(void)
         DrawFPS(900, 10);
         switch (GameScreen.CurrentScreen)
         {
+        case PREVIEW0:
+            DrawTextureEx(PREVIEWTEXTURE, (Vector2){0, 0}, 0.0f, 1.5f, WHITE);
+            float time_1 = GetTime();
+            if ((int)time_1 % 2 == 0)
+            {
+                int length = MeasureText(">PRESS ANY KEY TO CONTINUE<", 30);
+                DrawText(">PRESS ANY KEY TO CONTINUE<", (WINDOW_WIDTH / 2.0f) - ((float)length / 2.0f), 5.0f * WINDOW_HEIGHT / 6.0f, 30, BLACK);
+            }
+            break;
         case PREVIEW:
-            char ch1[50] = {0};
-            sprintf(ch1, "WELCOME PRESS ENTER TO LOAD LEVEL %d", pre_load_screen);
-            DrawText(ch1, 500, 500, 50, WHITE);
+            int length = MeasureText("LEVEL 1", 20);
+            float scale1 = ((float)WINDOW_WIDTH / 3.0f) / (float)PREVIEWTEXTURE1.width;
+            float scale2 = ((float)WINDOW_WIDTH / 3.0f) / (float)PREVIEWTEXTURE2.width;
+            float scale3 = ((float)WINDOW_WIDTH / 3.0f) / (float)PREVIEWTEXTURE3.width;
+            float scale4 = ((float)WINDOW_WIDTH / 3.0f) / (float)PREVIEWTEXTURE4.width;
+
+            ClearBackground(LIGHTGRAY);
+            DrawTextureEx(PREVIEWTEXTURE1, (Vector2){WINDOW_WIDTH / 9, WINDOW_HEIGHT / 9}, 0, scale1, WHITE);
+            DrawText("LEVEL 1", WINDOW_WIDTH / 9 + (PREVIEWTEXTURE1.width * scale1 / 2.0f) - (length / 2.0f), WINDOW_HEIGHT / 10 + ((float)PREVIEWTEXTURE1.height * scale1) + 25.0f, 20, BLACK);
+            DrawTextureEx(PREVIEWTEXTURE2, (Vector2){WINDOW_WIDTH / 9, (5 * WINDOW_HEIGHT / 9)}, 0, scale2, WHITE);
+            DrawText("LEVEL 2", 5 * WINDOW_WIDTH / 9 + (PREVIEWTEXTURE1.width * scale1 / 2.0f) - (length / 2.0f), WINDOW_HEIGHT / 10 + ((float)PREVIEWTEXTURE1.height * scale1) + 25.0f, 20, BLACK);
+            DrawTextureEx(PREVIEWTEXTURE3, (Vector2){5 * WINDOW_WIDTH / 9, (WINDOW_HEIGHT / 9)}, 0, scale3, WHITE);
+            DrawText("LEVEL 3", WINDOW_WIDTH / 9 + (PREVIEWTEXTURE1.width * scale1 / 2.0f) - (length / 2.0f), 5 * WINDOW_HEIGHT / 10 + ((float)PREVIEWTEXTURE1.height * scale1) + 45.0f, 20, BLACK);
+            DrawTextureEx(PREVIEWTEXTURE4, (Vector2){(5 * WINDOW_WIDTH / 9), (5 * WINDOW_HEIGHT / 9)}, 0, scale4, WHITE);
+            DrawText("LEVEL 4", 5 * WINDOW_WIDTH / 9 + (PREVIEWTEXTURE1.width * scale1 / 2.0f) - (length / 2.0f), 5 * WINDOW_HEIGHT / 10 + ((float)PREVIEWTEXTURE1.height * scale1) + 45.0f, 20, BLACK);
+
+            if (pre_load_screen == LEVEL1)
+            {
+                // Positioning logic for Level 1
+                float posX = (WINDOW_WIDTH / 9.0f) - 2;
+                float posY = (WINDOW_HEIGHT / 9.0f) - 2;
+                Rectangle Rec = {posX, posY, (PREVIEWTEXTURE1.width * scale1) + 4, (PREVIEWTEXTURE1.height * scale1) + 4};
+                DrawRectangleLinesEx(Rec, 6, ORANGE);
+            }
+            else if (pre_load_screen == LEVEL2)
+            {
+                // Use 5/9 for X, but check if you intended to change Y as well
+                float posX = (5 * WINDOW_WIDTH / 9.0f) - 2;
+                float posY = (WINDOW_HEIGHT / 9.0f) - 2;
+
+                // Ensure PREVIEWTEXTURE2 and scale2 are correct
+                float width = (PREVIEWTEXTURE2.width * scale2) + 4;
+                float height = (PREVIEWTEXTURE2.height * scale2) + 33;
+
+                Rectangle Rec = {posX, posY, width, height};
+                DrawRectangleLinesEx(Rec, 6, ORANGE);
+            }
+            else if (pre_load_screen == LEVEL3)
+            {
+                // Use 5/9 for X, but check if you intended to change Y as well
+                float posX = (WINDOW_WIDTH / 9.0f) - 2;
+                float posY = (5 * WINDOW_HEIGHT / 9.0f) - 2;
+
+                // Ensure PREVIEWTEXTURE2 and scale2 are correct
+                float width = (PREVIEWTEXTURE2.width * scale2) + 4;
+                float height = (PREVIEWTEXTURE2.height * scale2) + 5;
+
+                Rectangle Rec = {posX, posY, width, height};
+                DrawRectangleLinesEx(Rec, 6, ORANGE);
+            }
+            else if (pre_load_screen == LEVEL3)
+            {
+                Rectangle Rec = {(Vector2){(5 * WINDOW_WIDTH / 9) - 2, (5 * WINDOW_HEIGHT / 9) - 2}.x, (Vector2){(5 * WINDOW_WIDTH / 9 - 2), (5 * WINDOW_HEIGHT / 9) - 2}.y, (PREVIEWTEXTURE4.width * scale4) + 4, (PREVIEWTEXTURE4.height * scale4) + 4};
+                DrawRectangleLinesEx(Rec, 6, ORANGE);
+            }
+            else if (pre_load_screen == LEVEL4)
+            {
+                // Use 5/9 for X, but check if you intended to change Y as well
+                float posX = (5 * WINDOW_WIDTH / 9.0f) - 2;
+                float posY = (5 * WINDOW_HEIGHT / 9.0f) - 2;
+
+                // Ensure PREVIEWTEXTURE2 and scale2 are correct
+                float width = (PREVIEWTEXTURE4.width * scale4) + 4;
+                float height = (PREVIEWTEXTURE4.height * scale4) + 5;
+
+                Rectangle Rec = {posX, posY, width, height};
+                DrawRectangleLinesEx(Rec, 6, ORANGE);
+            }
             break;
         case GAMEOVER:
             DrawText("GAME OVER. Press any key to continue", 400, 500, 50, RED);
@@ -594,6 +704,12 @@ int main(void)
         }
         EndDrawing();
     }
+    UnloadTexture(PREVIEWTEXTURE);  // Unload Texture
+    UnloadTexture(PREVIEWTEXTURE1); // Unload Texture
+    UnloadTexture(PREVIEWTEXTURE3); // Unload Texture
+    UnloadTexture(PREVIEWTEXTURE2); // Unload Texture
+    UnloadTexture(PREVIEWTEXTURE4); // Unload Texture
+
     UnloadModel(playerModel);        // Unload the model we built
     UnloadModel(GasStationModel);    // Unload the gas station model
     UnloadModel(Building);           // Unload the building's model
