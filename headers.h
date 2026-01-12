@@ -109,6 +109,7 @@ typedef struct
     int sizeX, sizeY, sizeZ; // Size of the NPC car defined with #DEFINE(check above)
     float speed;             // Speed of the npc car
     Color col;               // colour of the NPC car
+    int has_been_assigned;  //Checks if the model has been assigned
 } npc_car;                   // This is our object type.
 
 // We are going to need a structure for communication between world and grid coordinates. Used in the return value of the set_pickup_and_dropoof_location.
@@ -196,6 +197,7 @@ extern int NUM_OF_NPC_CARS_ON_Y_ROAD_ON_CURRENT_LEVEL; //(Initialized in npc.c)T
 extern int score_for_current_mission[NUM_OF_ITEMS_ON_LIST]; //(Initialized in gamehandling.c) Variable that is responsible for storing the score for a mission.
 extern float gas;                                           //(Initialized in gamehandling.c)This is the amount of gas in the tank of the scooter.
 extern Traffic_state Traffic_Cop;                           //(Initialized in npc.c)This just creates a vertica and a horizontal go to make the cars behave according to the law.
+
 
 // AUDIO PARAMETERS
 extern float engineFrequency; // The "Pitch" or RPM

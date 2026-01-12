@@ -168,6 +168,7 @@ int main(void)
     {
         printf("SUCCESS: Third npc model loaded with %d meshes.\n", NPCmodel3.meshCount);
     }
+
     RenderTexture2D minimap_texture = LoadRenderTexture(MAP_WIDTH, MAP_HEIGHT);
     Texture2D wallTexture = LoadTexture("cityskyline.png");
     Texture2D PREVIEWTEXTURE = LoadTexture("Previewimage.png");

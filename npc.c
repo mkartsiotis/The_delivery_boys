@@ -56,8 +56,8 @@ How we are going to implement all this thinking:
 // Initialize external variables
 int npc_smart_counter = 0;    // This is a counter variable that tracks how many times before the NPC changes its target to match the players position. It is the NPC's update time.
 Vector2 target_npc_pos = {0}; // This is the old pos used in the update NPC and is the NPC target pos
-npc_car cars_vertical[NUM_OF_RECTANGLES_X + 1][NUM_OF_NPC_CARS_ON_Y_ROAD] = {false, NPC_CAR_CEMETARY, NPC_CAR_CEMETARY, NPC_CAR_CEMETARY, SIZE_OF_CAR_X, SIZE_OF_CAR_Y, SIZE_OF_CAR_Z, 0.0f, PURPLE};
-npc_car cars_horizontal[NUM_OF_RECTANGLES_Y + 1][NUM_OF_NPC_CARS_ON_X_ROAD] = {false, NPC_CAR_CEMETARY, NPC_CAR_CEMETARY, NPC_CAR_CEMETARY, SIZE_OF_CAR_X, SIZE_OF_CAR_Y, SIZE_OF_CAR_Z, 0.0f, PURPLE}; // Create an array of cars for the X and Y axis respectively.
+npc_car cars_vertical[NUM_OF_RECTANGLES_X + 1][NUM_OF_NPC_CARS_ON_Y_ROAD] = {false, NPC_CAR_CEMETARY, NPC_CAR_CEMETARY, NPC_CAR_CEMETARY, SIZE_OF_CAR_X, SIZE_OF_CAR_Y, SIZE_OF_CAR_Z, 0.0f, PURPLE, 0};
+npc_car cars_horizontal[NUM_OF_RECTANGLES_Y + 1][NUM_OF_NPC_CARS_ON_X_ROAD] = {false, NPC_CAR_CEMETARY, NPC_CAR_CEMETARY, NPC_CAR_CEMETARY, SIZE_OF_CAR_X, SIZE_OF_CAR_Y, SIZE_OF_CAR_Z, 0.0f, PURPLE, 0}; // Create an array of cars for the X and Y axis respectively.
 Traffic_state Traffic_Cop;                                                                                                                                                                              //(Initialized in npc.c)This just creates a vertica and a horizontal go to make the cars behave according to the law.
 int NUM_OF_NPC_CARS_ON_X_ROAD_ON_CURRENT_LEVEL = 0;                                                                                                                                                     //(Initialized in npc.c)This is a variable that is used to determine the most ammount of cars that appear on each level
 int NUM_OF_NPC_CARS_ON_Y_ROAD_ON_CURRENT_LEVEL = 0;                                                                                                                                                     //(Initialized in npc.c)This is a variable that is used to determine the most ammount of cars that appear on each level
@@ -410,10 +410,10 @@ void init_cars(void)
 {
     for (int i = 0; i < NUM_OF_RECTANGLES_Y + 1; i++)       // for all x roads
         for (int j = 0; j < NUM_OF_NPC_CARS_ON_X_ROAD; j++) // for all cars on those roads
-            cars_horizontal[i][j] = (npc_car){false, NPC_CAR_CEMETARY, NPC_CAR_CEMETARY, NPC_CAR_CEMETARY, SIZE_OF_CAR_X, SIZE_OF_CAR_Y, SIZE_OF_CAR_Z, 0.0f, PURPLE};
+            cars_horizontal[i][j] = (npc_car){false, NPC_CAR_CEMETARY, NPC_CAR_CEMETARY, NPC_CAR_CEMETARY, SIZE_OF_CAR_X, SIZE_OF_CAR_Y, SIZE_OF_CAR_Z, 0.0f, PURPLE,0};
     for (int i = 0; i < NUM_OF_RECTANGLES_X + 1; i++)       // for all y roads
         for (int j = 0; j < NUM_OF_NPC_CARS_ON_Y_ROAD; j++) // for all cars on those roads
-            cars_vertical[i][j] = (npc_car){false, NPC_CAR_CEMETARY, NPC_CAR_CEMETARY, NPC_CAR_CEMETARY, SIZE_OF_CAR_X, SIZE_OF_CAR_Y, SIZE_OF_CAR_Z, 0.0f, PURPLE};
+            cars_vertical[i][j] = (npc_car){false, NPC_CAR_CEMETARY, NPC_CAR_CEMETARY, NPC_CAR_CEMETARY, SIZE_OF_CAR_X, SIZE_OF_CAR_Y, SIZE_OF_CAR_Z, 0.0f, PURPLE,0};
 }
 
 int check_for_car_crashes(Rectangle Player) // Checks for collisions with the npc cars.

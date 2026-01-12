@@ -89,17 +89,25 @@ void DrawCubes(Rectangle map[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X])
             float mapCenterX = map[i][j].x + SIZE_OF_RECTANGLES_X / 2.0f;
             float mapCenterZ = map[i][j].y + SIZE_OF_RECTANGLES_Y / 2.0f;
 
-            Vector3 finalPos = {
+            Vector3 finalPos =
+            {
                 mapCenterX + xOffset,
                 +yOffset, // Now uses the correct vertical scaling logic
-                mapCenterZ + zOffset};
+                mapCenterZ + zOffset
+            };
 
             DrawModelEx(Building,
                         finalPos,
-                        (Vector3){0, 1, 0},
-                        0.0f,
-                        (Vector3){scaleX_Axis, scaleY_Axis, scaleZ_Axis}, // X, Y, Z
-                        WHITE);
+                        (Vector3)
+            {
+                0, 1, 0
+            },
+            0.0f,
+            (Vector3)
+            {
+                scaleX_Axis, scaleY_Axis, scaleZ_Axis
+            }, // X, Y, Z
+            WHITE);
 
             // Debug Wires
             // DrawCubeWires((Vector3){mapCenterX, ((float)SIZE_OF_RECTANGLES_3DHEIGHT / 2.0f), mapCenterZ},
@@ -115,8 +123,14 @@ void draw_pickup_and_dropoff(Vector2 PICKUP, Vector2 DROPOFF)
 }
 void draw_pickup_and_dropoff3D(Vector2 PICKUP, Vector2 DROPOFF)
 {
-    DrawCylinder((Vector3){PICKUP.x, 0.0f, PICKUP.y}, 3, 6, 3.0f, 30, YELLOW);
-    DrawCylinder((Vector3){DROPOFF.x, 0.0f, DROPOFF.y}, 3, 6, 3.0f, 30, GREEN);
+    DrawCylinder((Vector3)
+    {
+        PICKUP.x, 0.0f, PICKUP.y
+    }, 3, 6, 3.0f, 30, YELLOW);
+    DrawCylinder((Vector3)
+    {
+        DROPOFF.x, 0.0f, DROPOFF.y
+    }, 3, 6, 3.0f, 30, GREEN);
 }
 
 void Draw_and_update_score_window(int sucessful_deliveries, int HIGH1, int HIGH2, int HIGH3, ScreenStatus GameScreen)
@@ -152,10 +166,22 @@ void draw_grid(void) //(In draw.c)Draws the grid of the big map in world-map coo
     float stepX = (float)MAP_WIDTH / (4 * NUM_OF_RECTANGLES_X);
     float stepY = (float)MAP_HEIGHT / (4 * NUM_OF_RECTANGLES_Y);
     for (int i = 1; i < 4 * NUM_OF_RECTANGLES_Y; i++) // For every iteration of the number of divisions of the plane:
-        DrawLine3D((Vector3){0, 0, i * stepY}, (Vector3){MAP_WIDTH, 0, i * stepY}, YELLOW);
+        DrawLine3D((Vector3)
+    {
+        0, 0, i * stepY
+    }, (Vector3)
+    {
+        MAP_WIDTH, 0, i * stepY
+    }, YELLOW);
 
     for (int j = 1; j < 4 * NUM_OF_RECTANGLES_X; j++) // Be careful!We are starting from 1(If I use the function later)
-        DrawLine3D((Vector3){j * stepX, 0, 0}, (Vector3){j * stepX, 0, MAP_HEIGHT}, YELLOW);
+        DrawLine3D((Vector3)
+    {
+        j * stepX, 0, 0
+    }, (Vector3)
+    {
+        j * stepX, 0, MAP_HEIGHT
+    }, YELLOW);
 }
 void draw_astar_results(best_possible_path A_STAR_RESULT) // Decodes the string of the A* results.
 {
@@ -189,7 +215,13 @@ void draw_astar_results3D(best_possible_path A_STAR_RESULT) // Decodes the strin
             float brightness = (sin(GetTime() * 5.0f) + 1.0f) / 2.0f; // Range 0.0 to 1.0
             float hue = 60.0f;
             Color yellowShade = ColorFromHSV(hue, 1.0f, brightness);
-            DrawLine3D((Vector3){xval, 0, yval}, (Vector3){nextxval, 0, nextyval}, yellowShade);
+            DrawLine3D((Vector3)
+            {
+                xval, 0, yval
+            }, (Vector3)
+            {
+                nextxval, 0, nextyval
+            }, yellowShade);
         }
     }
 }
@@ -203,7 +235,13 @@ void draw_npc3D(NPC chaser)
 
     // DrawCubeWires((Vector3){chaser.position.x, 2.0f, chaser.position.y}, chaser.WIDTH, 2.0f, chaser.HEIGHT, BLACK);
 
-    DrawModelEx(Chaser, pos3D, (Vector3){0, 1.0f, 0.0f}, chaser_angle, (Vector3){1.0f, 1.0f, 1.0f}, WHITE);
+    DrawModelEx(Chaser, pos3D, (Vector3)
+    {
+        0, 1.0f, 0.0f
+    }, chaser_angle, (Vector3)
+    {
+        1.0f, 1.0f, 1.0f
+    }, WHITE);
 }
 void draw_npc(NPC chaser)
 {
@@ -213,83 +251,261 @@ void draw_npc(NPC chaser)
 }
 void drawspeed(void) //(in draw.c). Draws a speedometer.
 {
-    DrawRing((Vector2){WINDOW_WIDTH / 2.0f, 110}, 40, 50, 0, -180, 0, BLACK);
-    DrawRing((Vector2){WINDOW_WIDTH / 2.0f, 110}, 42, 48, -180, -180 + 180 * speed / 4, 0, WHITE);
+    DrawRing((Vector2)
+    {
+        WINDOW_WIDTH / 2.0f, 110
+    }, 40, 50, 0, -180, 0, BLACK);
+    DrawRing((Vector2)
+    {
+        WINDOW_WIDTH / 2.0f, 110
+    }, 42, 48, -180, -180 + 180 * speed / 4, 0, WHITE);
     char ch[30] = {0};
     sprintf(ch, "%.0f", speed * 10);
     DrawText(ch, (WINDOW_WIDTH / 2.0f) - (MeasureText(ch, 20) / 2.0f), 105, 20, GREEN);
 }
 void draw_cars(void) // Draws all the cars.
 {
-    for (int i = 0; i < NUM_OF_RECTANGLES_Y + 1; i++)       // for all x roads
+    for (int i = 0; i < NUM_OF_RECTANGLES_Y + 1; i+=2)       // for all x roads
         for (int j = 0; j < NUM_OF_NPC_CARS_ON_X_ROAD; j++) // for all cars on those roads
-            if (cars_horizontal[i][j].is_visible == true)
-            {
-                Vector3 pos3D = {cars_horizontal[i][j].pos.x, cars_horizontal[i][j].sizeZ / 2.0f, cars_horizontal[i][j].pos.y};
-                // DrawCube((Vector3){cars_horizontal[i][j].pos.x, cars_horizontal[i][j].sizeZ / 2.0f, cars_horizontal[i][j].pos.y}, cars_horizontal[i][j].sizeX, cars_horizontal[i][j].sizeZ, cars_horizontal[i][j].sizeY, cars_horizontal[i][j].col);
-                DrawModel(NPCmodel1, pos3D, 1.0f, WHITE);
-            }
-    for (int i = 0; i < NUM_OF_RECTANGLES_X + 1; i++)       // for all y roads
-        for (int j = 0; j < NUM_OF_NPC_CARS_ON_Y_ROAD; j++) // for all cars on those roads
-            if (cars_vertical[i][j].is_visible == true)
-            {
-                Vector3 pos3D = {cars_vertical[i][j].pos.x, cars_vertical[i][j].sizeZ / 2.0f, cars_vertical[i][j].pos.y};
-                // DrawCube((Vector3){cars_vertical[i][j].pos.x, cars_vertical[i][j].sizeZ / 2.0f, cars_vertical[i][j].pos.y}, cars_vertical[i][j].sizeX, cars_vertical[i][j].sizeZ, cars_vertical[i][j].sizeY, cars_vertical[i][j].col);
-                DrawModel(NPCmodel2, pos3D, 1.0f, WHITE);
-            }
-}
+        {
+            if (!cars_horizontal[i][j].is_visible)
+                continue;
 
-void draw_mission_score(int selected_mission_index) // Draws the score that is going to be awarded if no more points are deducted
-{
-    char ch[50] = {0};
-    sprintf(ch, "MISSION REWARDS: %d", score_for_current_mission[selected_mission_index]);
-    DrawText(ch, 800, 25, 20, WHITE); // Draw
-}
+            if (cars_horizontal[i][j].has_been_assigned==0)
+            {
+                cars_horizontal[i][j].has_been_assigned= GetRandomValue(1,3);
+            }
+
+            Vector3 pos3D = {cars_horizontal[i][j].pos.x, cars_horizontal[i][j].sizeZ / 2.0f, cars_horizontal[i][j].pos.y};
+            // DrawCube((Vector3){cars_horizontal[i][j].pos.x, cars_horizontal[i][j].sizeZ / 2.0f, cars_horizontal[i][j].pos.y}, cars_horizontal[i][j].sizeX, cars_horizontal[i][j].sizeZ, cars_horizontal[i][j].sizeY, cars_horizontal[i][j].col);
+
+            switch (cars_horizontal[i][j].has_been_assigned)
+            {
+                case 1:
+                DrawModelEx(NPCmodel1, pos3D, (Vector3)
+                {
+                    0.0f, 1.0f,0.0f
+                }, 0.0f, (Vector3)
+                {
+                    1.0f, 1.0f,1.0f
+                }, WHITE);
+                break;
+                case 2:
+                DrawModelEx(NPCmodel2, pos3D, (Vector3)
+                {
+                    0.0f, 1.0f,0.0f
+                }, 0.0f, (Vector3)
+                {
+                    1.0f, 1.0f,1.0f
+                }, WHITE);
+                break;
+                case 3:
+                DrawModelEx(NPCmodel3, pos3D, (Vector3)
+                {
+                    0.0f, 1.0f,0.0f
+                }, 0.0f, (Vector3)
+                {
+                    1.0f, 1.0f,1.0f
+                }, WHITE);
+                break;
+            }
+        }
+    for (int i = 1; i < NUM_OF_RECTANGLES_Y + 1; i+=2)       // for all x roads
+        for (int j = 0; j < NUM_OF_NPC_CARS_ON_X_ROAD; j++) // for all cars on those roads
+        {
+            {
+            if (!cars_horizontal[i][j].is_visible)
+                continue;
+
+            if (cars_horizontal[i][j].has_been_assigned==0)
+            {
+                cars_horizontal[i][j].has_been_assigned= GetRandomValue(1,3);
+            }
+
+            Vector3 pos3D = {cars_horizontal[i][j].pos.x, cars_horizontal[i][j].sizeZ / 2.0f, cars_horizontal[i][j].pos.y};
+            // DrawCube((Vector3){cars_horizontal[i][j].pos.x, cars_horizontal[i][j].sizeZ / 2.0f, cars_horizontal[i][j].pos.y}, cars_horizontal[i][j].sizeX, cars_horizontal[i][j].sizeZ, cars_horizontal[i][j].sizeY, cars_horizontal[i][j].col);
+
+            switch (cars_horizontal[i][j].has_been_assigned)
+            {
+                case 1:
+                DrawModelEx(NPCmodel1, pos3D, (Vector3)
+                {
+                    0.0f, 1.0f,0.0f
+                }, 0.0f, (Vector3)
+                {
+                    1.0f, 1.0f,1.0f
+                }, WHITE);
+                break;
+                case 2:
+                DrawModelEx(NPCmodel2, pos3D, (Vector3)
+                {
+                    0.0f, 1.0f,0.0f
+                }, 0.0f, (Vector3)
+                {
+                    1.0f, 1.0f,1.0f
+                }, WHITE);
+                break;
+                case 3:
+                DrawModelEx(NPCmodel3, pos3D, (Vector3)
+                {
+                    0.0f, 1.0f,0.0f
+                }, 0.0f, (Vector3)
+                {
+                    1.0f, 1.0f,1.0f
+                }, WHITE);
+                break;
+                }
+        }
+    for (int i = 0; i < NUM_OF_RECTANGLES_X + 1; i+=2)       // for all y roads
+        for (int j = 0; j < NUM_OF_NPC_CARS_ON_Y_ROAD; j++) // for all cars on those roads
+        {
+            if (!cars_vertical[i][j].is_visible)
+                continue;
+
+            if (cars_vertical[i][j].has_been_assigned==0)
+            {
+                cars_vertical[i][j].has_been_assigned= GetRandomValue(1,3);
+            }
+
+            Vector3 pos3D = {cars_vertical[i][j].pos.x, cars_vertical[i][j].sizeZ / 2.0f, cars_vertical[i][j].pos.y};
+            // DrawCube((Vector3){cars_horizontal[i][j].pos.x, cars_horizontal[i][j].sizeZ / 2.0f, cars_horizontal[i][j].pos.y}, cars_horizontal[i][j].sizeX, cars_horizontal[i][j].sizeZ, cars_horizontal[i][j].sizeY, cars_horizontal[i][j].col);
+
+            switch (cars_vertical[i][j].has_been_assigned)
+            {
+                case 1:
+                DrawModelEx(NPCmodel1, pos3D, (Vector3)
+                {
+                    0.0f, 1.0f,0.0f
+                }, 0.0f, (Vector3)
+                {
+                    1.0f, 1.0f,1.0f
+                }, WHITE);
+                break;
+                case 2:
+                DrawModelEx(NPCmodel2, pos3D, (Vector3)
+                {
+                    0.0f, 1.0f,0.0f
+                }, 0.0f, (Vector3)
+                {
+                    1.0f, 1.0f,1.0f
+                }, WHITE);
+                break;
+                case 3:
+                DrawModelEx(NPCmodel3, pos3D, (Vector3)
+                {
+                    0.0f, 1.0f,0.0f
+                }, 0.0f, (Vector3)
+                {
+                    1.0f, 1.0f,1.0f
+                }, WHITE);
+                break;
+            }
+        }
+    for (int i = 1; i < NUM_OF_RECTANGLES_Y + 1; i+=2)       // for all x roads
+        for (int j = 0; j < NUM_OF_NPC_CARS_ON_X_ROAD; j++) // for all cars on those roads
+        {
+            if (!cars_vertical[i][j].is_visible)
+                continue;
+
+            if (cars_vertical[i][j].has_been_assigned==0)
+            {
+                cars_vertical[i][j].has_been_assigned= GetRandomValue(1,3);
+            }
+
+            Vector3 pos3D = {cars_vertical[i][j].pos.x, cars_vertical[i][j].sizeZ / 2.0f, cars_vertical[i][j].pos.y};
+            // DrawCube((Vector3){cars_horizontal[i][j].pos.x, cars_horizontal[i][j].sizeZ / 2.0f, cars_horizontal[i][j].pos.y}, cars_horizontal[i][j].sizeX, cars_horizontal[i][j].sizeZ, cars_horizontal[i][j].sizeY, cars_horizontal[i][j].col);
+
+            switch (cars_vertical[i][j].has_been_assigned)
+            {
+                case 1:
+                DrawModelEx(NPCmodel1, pos3D, (Vector3)
+                {
+                    0.0f, 1.0f,0.0f
+                }, 0.0f, (Vector3)
+                {
+                    1.0f, 1.0f,1.0f
+                }, WHITE);
+                break;
+                case 2:
+                DrawModelEx(NPCmodel2, pos3D, (Vector3)
+                {
+                    0.0f, 1.0f,0.0f
+                }, 0.0f, (Vector3)
+                {
+                    1.0f, 1.0f,1.0f
+                }, WHITE);
+                break;
+                case 3:
+                DrawModelEx(NPCmodel3, pos3D, (Vector3)
+                {
+                    0.0f, 1.0f,0.0f
+                }, 0.0f, (Vector3)
+                {
+                    1.0f, 1.0f,1.0f
+                }, WHITE);
+                break;
+            }
+        }
+
+    void draw_mission_score(int selected_mission_index) // Draws the score that is going to be awarded if no more points are deducted
+    {
+        char ch[50] = {0};
+        sprintf(ch, "MISSION REWARDS: %d", score_for_current_mission[selected_mission_index]);
+        DrawText(ch, 800, 25, 20, WHITE); // Draw
+    }
 
 // Refueling
-void print_refuel_station(Gas_Station SET_STATION) //(In gamehandling.c)Prints the station if visible
-{
-    static int rotation_angle = 0; // Set the rotation angle
-    rotation_angle += 2;           // Make the thing rotate!!!
-    if (SET_STATION.isvisible == true)
+    void print_refuel_station(Gas_Station SET_STATION) //(In gamehandling.c)Prints the station if visible
     {
-        Vector3 pos3D = {SET_STATION.REAL.x, 0.0f, SET_STATION.REAL.y}; // 3d position
-        DrawModelEx(GasStationModel, pos3D, (Vector3){0, 1, 0}, rotation_angle, (Vector3){4.0f, 4.0f, 4.0f}, WHITE);
+        static int rotation_angle = 0; // Set the rotation angle
+        rotation_angle += 2;           // Make the thing rotate!!!
+        if (SET_STATION.isvisible == true)
+        {
+            Vector3 pos3D = {SET_STATION.REAL.x, 0.0f, SET_STATION.REAL.y}; // 3d position
+            DrawModelEx(GasStationModel, pos3D, (Vector3)
+            {
+                0, 1, 0
+            }, rotation_angle, (Vector3)
+            {
+                4.0f, 4.0f, 4.0f
+            }, WHITE);
+        }
     }
-}
 
 // Color transition
-Color LerpColor(Color start, Color end, float factor) // Fades a color
-{
-    if (factor < 0.0f)
-        factor = 0.0f;
-    if (factor > 1.0f)
-        factor = 1.0f;
+    Color LerpColor(Color start, Color end, float factor) // Fades a color
+    {
+        if (factor < 0.0f)
+            factor = 0.0f;
+        if (factor > 1.0f)
+            factor = 1.0f;
 
-    return (Color){
-        (unsigned char)(start.r + (end.r - start.r) * factor),
-        (unsigned char)(start.g + (end.g - start.g) * factor),
-        (unsigned char)(start.b + (end.b - start.b) * factor),
-        255};
-}
+        return (Color)
+        {
+            (unsigned char)(start.r + (end.r - start.r) * factor),
+            (unsigned char)(start.g + (end.g - start.g) * factor),
+            (unsigned char)(start.b + (end.b - start.b) * factor),
+            255
+        };
+    }
 
 void Draw_list_of_deliveries(Delivery_Location PICKUP[NUM_OF_ITEMS_ON_LIST], Delivery_Location DROPOFF[NUM_OF_ITEMS_ON_LIST]) // Draws the list of possible deliveries
 {
-    // First draw rectangle lines and draw as many rectangles as the mission.
-    for (int i = 0; i < NUM_OF_ITEMS_ON_LIST; i++)
-    {
-        if (PICKUP[i].is_pre_selected == true && DROPOFF[i].is_pre_selected == true)
-            DrawRectangleLines(30, (61 * (i + 1) + (WINDOW_HEIGHT / 1.5f) - 1), 151, 61, ORANGE);
-        DrawRectangle(30, i + (60 * (i + 1) + (WINDOW_HEIGHT / 1.5f)), 150, 60, DARKBLUE);
+        // First draw rectangle lines and draw as many rectangles as the mission.
+        for (int i = 0; i < NUM_OF_ITEMS_ON_LIST; i++)
+        {
+            if (PICKUP[i].is_pre_selected == true && DROPOFF[i].is_pre_selected == true)
+                DrawRectangleLines(30, (61 * (i + 1) + (WINDOW_HEIGHT / 1.5f) - 1), 151, 61, ORANGE);
+            DrawRectangle(30, i + (60 * (i + 1) + (WINDOW_HEIGHT / 1.5f)), 150, 60, DARKBLUE);
+            char text_info[50] = {0};
+            sprintf(text_info, "Rewards: %d", score_for_current_mission[i]);
+            int length = MeasureText(text_info, 20);
+            int height = (int)MeasureTextEx(GetFontDefault(), text_info, 20, 2).y;
+            DrawText(text_info, 30 + ((150 - length)) / 2, (i + (60 * (i + 1)) + (WINDOW_HEIGHT / 1.5f) + ((60 - height) / 2)), 20, WHITE);
+        }
         char text_info[50] = {0};
-        sprintf(text_info, "Rewards: %d", score_for_current_mission[i]);
+        sprintf(text_info, "Choose Mission");
         int length = MeasureText(text_info, 20);
         int height = (int)MeasureTextEx(GetFontDefault(), text_info, 20, 2).y;
-        DrawText(text_info, 30 + ((150 - length)) / 2, (i + (60 * (i + 1)) + (WINDOW_HEIGHT / 1.5f) + ((60 - height) / 2)), 20, WHITE);
-    }
-    char text_info[50] = {0};
-    sprintf(text_info, "Choose Mission");
-    int length = MeasureText(text_info, 20);
-    int height = (int)MeasureTextEx(GetFontDefault(), text_info, 20, 2).y;
-    DrawText(text_info, 30 + ((150 - length)) / 2, ((WINDOW_HEIGHT / 1.5f) + ((60 - height) / 2)), 20, BLACK);
+        DrawText(text_info, 30 + ((150 - length)) / 2, ((WINDOW_HEIGHT / 1.5f) + ((60 - height) / 2)), 20, BLACK);
 }
