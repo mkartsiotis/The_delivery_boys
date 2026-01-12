@@ -188,6 +188,7 @@ extern int npc_smart_counter;                                                   
 extern Vector2 target_npc_pos;                                                                                                                         // This is the old pos used in the update NPC and is the NPC target pos
 static const Vector2 NPC_CAR_CEMETARY = (Vector2){-2000, -2000};                                                                                       // Set the place where all the invisible cars will stay and this is used primarily for initialization purposes(might very well be unnecessary)
 extern npc_car cars_vertical[NUM_OF_RECTANGLES_X + 1][NUM_OF_NPC_CARS_ON_Y_ROAD], cars_horizontal[NUM_OF_RECTANGLES_Y + 1][NUM_OF_NPC_CARS_ON_X_ROAD]; // Create an array of cars for the X and Y axis respectively.
+extern float chaser_angle ;
 
 extern int NUM_OF_NPC_CARS_ON_X_ROAD_ON_CURRENT_LEVEL; //(Initialized in npc.c)This is a variable that is used to determine the most ammount of cars that appear on each level
 extern int NUM_OF_NPC_CARS_ON_Y_ROAD_ON_CURRENT_LEVEL; //(Initialized in npc.c)This is a variable that is used to determine the most ammount of cars that appear on each level

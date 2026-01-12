@@ -39,9 +39,9 @@ Model GasStationModel = {0};
 Model Building = {0};
 Model playerModel = {0};
 Model Chaser = {0};
-Model NPCmodel1= {0};
-Model NPCmodel2= {0};
-Model NPCmodel3= {0};
+Model NPCmodel1 = {0};
+Model NPCmodel2 = {0};
+Model NPCmodel3 = {0};
 
 void DrawRectangles(Rectangle map[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X])
 {
@@ -203,7 +203,7 @@ void draw_npc3D(NPC chaser)
 
     // DrawCubeWires((Vector3){chaser.position.x, 2.0f, chaser.position.y}, chaser.WIDTH, 2.0f, chaser.HEIGHT, BLACK);
 
-    DrawModel(Chaser, pos3D, 1.0f, WHITE);
+    DrawModelEx(Chaser, pos3D, (Vector3){0, 1.0f, 0.0f}, chaser_angle, (Vector3){1.0f, 1.0f, 1.0f}, WHITE);
 }
 void draw_npc(NPC chaser)
 {
@@ -226,7 +226,7 @@ void draw_cars(void) // Draws all the cars.
             if (cars_horizontal[i][j].is_visible == true)
             {
                 Vector3 pos3D = {cars_horizontal[i][j].pos.x, cars_horizontal[i][j].sizeZ / 2.0f, cars_horizontal[i][j].pos.y};
-                //DrawCube((Vector3){cars_horizontal[i][j].pos.x, cars_horizontal[i][j].sizeZ / 2.0f, cars_horizontal[i][j].pos.y}, cars_horizontal[i][j].sizeX, cars_horizontal[i][j].sizeZ, cars_horizontal[i][j].sizeY, cars_horizontal[i][j].col);
+                // DrawCube((Vector3){cars_horizontal[i][j].pos.x, cars_horizontal[i][j].sizeZ / 2.0f, cars_horizontal[i][j].pos.y}, cars_horizontal[i][j].sizeX, cars_horizontal[i][j].sizeZ, cars_horizontal[i][j].sizeY, cars_horizontal[i][j].col);
                 DrawModel(NPCmodel1, pos3D, 1.0f, WHITE);
             }
     for (int i = 0; i < NUM_OF_RECTANGLES_X + 1; i++)       // for all y roads
@@ -234,7 +234,7 @@ void draw_cars(void) // Draws all the cars.
             if (cars_vertical[i][j].is_visible == true)
             {
                 Vector3 pos3D = {cars_vertical[i][j].pos.x, cars_vertical[i][j].sizeZ / 2.0f, cars_vertical[i][j].pos.y};
-                //DrawCube((Vector3){cars_vertical[i][j].pos.x, cars_vertical[i][j].sizeZ / 2.0f, cars_vertical[i][j].pos.y}, cars_vertical[i][j].sizeX, cars_vertical[i][j].sizeZ, cars_vertical[i][j].sizeY, cars_vertical[i][j].col);
+                // DrawCube((Vector3){cars_vertical[i][j].pos.x, cars_vertical[i][j].sizeZ / 2.0f, cars_vertical[i][j].pos.y}, cars_vertical[i][j].sizeX, cars_vertical[i][j].sizeZ, cars_vertical[i][j].sizeY, cars_vertical[i][j].col);
                 DrawModel(NPCmodel2, pos3D, 1.0f, WHITE);
             }
 }

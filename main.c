@@ -136,7 +136,7 @@ int main(void)
     // Gas Station model
     GasStationModel = LoadModel("Gas_tank.glb");
     // First npc model
-    NPCmodel1= LoadModel("Npc_car1.glb");
+    NPCmodel1 = LoadModel("Npc_car1.glb");
     if (NPCmodel1.meshCount == 0)
     {
         printf("ERROR: First npc model failed to load! Check filename/path.\n");
@@ -147,7 +147,7 @@ int main(void)
         printf("SUCCESS: First npc model loaded with %d meshes.\n", NPCmodel1.meshCount);
     }
     // Second npc model
-    NPCmodel2= LoadModel("Npc_car2.glb");
+    NPCmodel2 = LoadModel("Npc_car2.glb");
     if (NPCmodel2.meshCount == 0)
     {
         printf("ERROR: Second npc model failed to load! Check filename/path.\n");
@@ -158,7 +158,7 @@ int main(void)
         printf("SUCCESS: Second npc model loaded with %d meshes.\n", NPCmodel2.meshCount);
     }
     // Third npc model
-    NPCmodel3= LoadModel("Npc_car3.glb");
+    NPCmodel3 = LoadModel("Npc_car3.glb");
     if (NPCmodel3.meshCount == 0)
     {
         printf("ERROR: Third npc model failed to load! Check filename/path.\n");
@@ -240,11 +240,11 @@ int main(void)
                     GameScreen.CurrentScreen = pre_load_screen;
                 set_game_parameters(&GameScreen, &npc);
             }
-            else if (IsKeyPressed(KEY_UP) && pre_load_screen != LEVEL4)
+            else if ((IsKeyPressed(KEY_UP) || IsKeyPressed(KEY_LEFT)) && pre_load_screen != LEVEL4)
             {
                 pre_load_screen += 1;
             }
-            else if (IsKeyPressed(KEY_DOWN) && pre_load_screen != LEVEL1)
+            else if ((IsKeyPressed(KEY_DOWN)|| IsKeyPressed(KEY_LEFT)) && pre_load_screen != LEVEL1)
             {
                 pre_load_screen -= 1;
             }
