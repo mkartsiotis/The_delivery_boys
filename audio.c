@@ -1,7 +1,7 @@
 /*
  * Όνομα Παιχνιδιού: Ο Διανομέας (The Delivery Man)
  * Συγγραφείς: Καρτσιώτης Μιχαήλ, ΑΕΜ: 11892
- *             Κατσιμάνης Δημήτριος, ΑΕΜ:
+ *             Κατσιμάνης Δημήτριος, ΑΕΜ: 11895 
  *
  * Περιγραφή: Ανάπτυξη λογισμικού παιχνιδιού διανομέα στη γλώσσα C με τη χρήση της βιβλιοθήκης raylib.h
  *            Κανόνες παιχνιδιού - Οδηγίες: -Μετά την έναρξη του παιχνιδιού πατώντας space εισέσχεσθε στην κεντρική οθόνη.
@@ -15,6 +15,7 @@
  *                                          -Κάτω δεξιά στην οθόνη σας εμφανίζεται μία μπάρα με τη διαθέσιμη ποσότητα καυσίμου στη δεξαμενή. Λίγο πριν το απόθεμα στη δεξαμενή εξαντληθεί εμφανίζεται στο χάρτη πρατήριο με τη μορφή δοχείου καυσίμου σε σημείο που επισημαίνεται στον μικρό χάρτη πάνω και αριστερά στην οθόνη με λευκό κύκλο.
  *                                          -Λαμβάνωντας το δοχείο καυσίμου που εμφανλίζεται παρατείνεται η διάρκεια ζωής σας.
  *                                          -Το παιχνίδι τερματίζεται είτε με την σύγκρουσή σας με το αστυνομικό όχημα είτε με την εξάντληση του αποθετηρίου καυσίμων.
+ *                                          -Πατώντας space ενεργοποιείται το nitro.                                        
  *                                          -Στόχος: Η συγκέντωση όσο το δυνατόν περισσότερων χρημάτων που ξεκλειδώνουν επίπεδα και προνόμια.
  *
  * Copyright (C) 2025-2026 Καρτσιώτης Μιχαήλ και Κατσιμάνης Δημήτριος
@@ -33,36 +34,53 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 #include "headers.h"
-float engineFrequency = 150.0f; // The "Pitch" or RPM
-float phase = 0.0f;             // The "Position" in our wave cycle
-float volume = 0;
+static Music backgroundMusic;
 
-// This is the "Chef" function that Raylib calls
-void AudioInputCallback(void *buffer, unsigned int frames)
+void InitGameAudio()
 {
-    float *out = (float *)buffer;
-    float sampleRate = 84100.0f;
-    float lastNoise = 0;
-    for (unsigned int i = 0; i < frames; i++)
+    InitAudioDevice();
+
+    backgroundMusic = LoadMusicStream("BACKROUND.mp3"); // Load the background music (credits in the docs)
+
+    backgroundMusic.looping = true; // Iteration
+
+    SetMusicVolume(backgroundMusic, 1.0f);
+    PlayMusicStream(backgroundMusic);
+}
+
+void UpdateGameAudio(void)
+{
+    UpdateMusicStream(backgroundMusic);
+}
+
+void StopGameAudio(void)
+{
+    StopMusicStream(backgroundMusic);
+}
+
+void CloseGameAudio(void)
+{
+    UnloadMusicStream(backgroundMusic);
+    CloseAudioDevice();
+}
+
+void SwitchTrack(int track) // Switches audio tracks
+{
+    if (track == 1)
     {
-        // 1. Update the Phase (How fast are we spinning?)
-        phase += engineFrequency / sampleRate;
-        if (phase > 1.0f)
-            phase -= 1.0f; // Keep it between 0 and 1
+        StopMusicStream(backgroundMusic); // Stop the current music
 
-        // 2. Generate the "Core" Engine Tone (Sawtooth)
-        // This gives us that mechanical "buzz"
-        float sawtooth = (phase * 2.0f) - 1.0f;
+        UnloadMusicStream(backgroundMusic); // Unload the OLD music from memory
 
-        // 3. Generate a tiny bit of White Noise (The "Grit")
-        // Using your math from earlier!
-        float noise = (100 - (rand() % 150)) / 100.0f;
+        backgroundMusic = LoadMusicStream("DRIFT.mp3"); // Load the nitro music (credits in the docs)
+        PlayMusicStream(backgroundMusic);               // Start playing the new one
+    }
+    else
+    {
+        StopMusicStream(backgroundMusic);
 
-        // 4. Mix them together
-        // 80% sawtooth for the note, 20% noise for the exhaust texture
-        out[i] = (sawtooth * 0.7f) + (noise * 0.1f);
-
-        // 5. Apply a master volume so it's not too loud
-        out[i] *= volume;
+        UnloadMusicStream(backgroundMusic);                      // Unload the OLD music from memory
+        backgroundMusic = LoadMusicStream("BACKROUND.mp3"); // Load the background music (credits in the docs)
+        PlayMusicStream(backgroundMusic);                        // Start playing the new one
     }
 }

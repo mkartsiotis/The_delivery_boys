@@ -1,7 +1,7 @@
 /*
  * Όνομα Παιχνιδιού: Ο Διανομέας (The Delivery Man)
  * Συγγραφείς: Καρτσιώτης Μιχαήλ, ΑΕΜ: 11892
- *             Κατσιμάνης Δημήτριος, ΑΕΜ:
+ *             Κατσιμάνης Δημήτριος, ΑΕΜ: 11895 
  *
  * Περιγραφή: Ανάπτυξη λογισμικού παιχνιδιού διανομέα στη γλώσσα C με τη χρήση της βιβλιοθήκης raylib.h
  *            Κανόνες παιχνιδιού - Οδηγίες: -Μετά την έναρξη του παιχνιδιού πατώντας space εισέσχεσθε στην κεντρική οθόνη.
@@ -15,6 +15,7 @@
  *                                          -Κάτω δεξιά στην οθόνη σας εμφανίζεται μία μπάρα με τη διαθέσιμη ποσότητα καυσίμου στη δεξαμενή. Λίγο πριν το απόθεμα στη δεξαμενή εξαντληθεί εμφανίζεται στο χάρτη πρατήριο με τη μορφή δοχείου καυσίμου σε σημείο που επισημαίνεται στον μικρό χάρτη πάνω και αριστερά στην οθόνη με λευκό κύκλο.
  *                                          -Λαμβάνωντας το δοχείο καυσίμου που εμφανλίζεται παρατείνεται η διάρκεια ζωής σας.
  *                                          -Το παιχνίδι τερματίζεται είτε με την σύγκρουσή σας με το αστυνομικό όχημα είτε με την εξάντληση του αποθετηρίου καυσίμων.
+ *                                          -Πατώντας space ενεργοποιείται το nitro.                                        
  *                                          -Στόχος: Η συγκέντωση όσο το δυνατόν περισσότερων χρημάτων που ξεκλειδώνουν επίπεδα και προνόμια.
  *
  * Copyright (C) 2025-2026 Καρτσιώτης Μιχαήλ και Κατσιμάνης Δημήτριος
@@ -58,9 +59,9 @@ int npc_smart_counter = 0;    // This is a counter variable that tracks how many
 Vector2 target_npc_pos = {0}; // This is the old pos used in the update NPC and is the NPC target pos
 npc_car cars_vertical[NUM_OF_RECTANGLES_X + 1][NUM_OF_NPC_CARS_ON_Y_ROAD] = {false, NPC_CAR_CEMETARY, NPC_CAR_CEMETARY, NPC_CAR_CEMETARY, SIZE_OF_CAR_X, SIZE_OF_CAR_Y, SIZE_OF_CAR_Z, 0.0f, PURPLE, 0};
 npc_car cars_horizontal[NUM_OF_RECTANGLES_Y + 1][NUM_OF_NPC_CARS_ON_X_ROAD] = {false, NPC_CAR_CEMETARY, NPC_CAR_CEMETARY, NPC_CAR_CEMETARY, SIZE_OF_CAR_X, SIZE_OF_CAR_Y, SIZE_OF_CAR_Z, 0.0f, PURPLE, 0}; // Create an array of cars for the X and Y axis respectively.
-Traffic_state Traffic_Cop;                                                                                                                                                                              //(Initialized in npc.c)This just creates a vertica and a horizontal go to make the cars behave according to the law.
-int NUM_OF_NPC_CARS_ON_X_ROAD_ON_CURRENT_LEVEL = 0;                                                                                                                                                     //(Initialized in npc.c)This is a variable that is used to determine the most ammount of cars that appear on each level
-int NUM_OF_NPC_CARS_ON_Y_ROAD_ON_CURRENT_LEVEL = 0;                                                                                                                                                     //(Initialized in npc.c)This is a variable that is used to determine the most ammount of cars that appear on each level
+Traffic_state Traffic_Cop;                                                                                                                                                                                 //(Initialized in npc.c)This just creates a vertica and a horizontal go to make the cars behave according to the law.
+int NUM_OF_NPC_CARS_ON_X_ROAD_ON_CURRENT_LEVEL = 0;                                                                                                                                                        //(Initialized in npc.c)This is a variable that is used to determine the most ammount of cars that appear on each level
+int NUM_OF_NPC_CARS_ON_Y_ROAD_ON_CURRENT_LEVEL = 0;                                                                                                                                                        //(Initialized in npc.c)This is a variable that is used to determine the most ammount of cars that appear on each level
 float chaser_angle = 0;
 
 void updateNPC(NPC *chaser, Vector2 player_pos, Rectangle map[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X]) //(In npc.c)Checks conditions and recalculates path if needed.
@@ -220,9 +221,9 @@ void update_npc_cars(void)
             if (invisible_car_num == -1)
                 continue;
             // Now we put the car in the road start and make it visible.
-            cars_horizontal[i][invisible_car_num].pos = (Vector2){0, stepY * 4 * i};
+            cars_horizontal[i][invisible_car_num].pos = (Vector2){-15.0f, stepY * 4 * i};
             cars_horizontal[i][invisible_car_num].is_visible = true;
-            cars_horizontal[i][invisible_car_num].start_pos = (Vector2){0, stepY * 4 * i};
+            cars_horizontal[i][invisible_car_num].start_pos = (Vector2){-15.0f, stepY * 4 * i};
             cars_horizontal[i][invisible_car_num].end_pos = (Vector2){roadlength_x, stepY * 4 * i};
             cars_horizontal[i][invisible_car_num].speed = (rand() % 25 + 10.0f) / 10.0f; // Formula for speed calculation.
             cars_horizontal[i][invisible_car_num].col = choseRandomColour();
@@ -279,9 +280,9 @@ void update_npc_cars(void)
             if (invisible_car_num == -1)
                 continue;
             // Now put the car in the road start. Make it visible
-            cars_horizontal[i][invisible_car_num].pos = (Vector2){roadlength_x, stepY * 4 * i};
+            cars_horizontal[i][invisible_car_num].pos = (Vector2){roadlength_x + 15.0f, stepY * 4 * i};
             cars_horizontal[i][invisible_car_num].is_visible = true;
-            cars_horizontal[i][invisible_car_num].start_pos = (Vector2){roadlength_x, stepY * 4 * i};
+            cars_horizontal[i][invisible_car_num].start_pos = (Vector2){roadlength_x + 15.0f, stepY * 4 * i};
             cars_horizontal[i][invisible_car_num].end_pos = (Vector2){0, stepY * 4 * i};
             cars_horizontal[i][invisible_car_num].speed = (rand() % 25 + 10.0f) / 10.0f; // Formula for speed calculation.
             cars_horizontal[i][invisible_car_num].col = choseRandomColour();
@@ -338,9 +339,9 @@ void update_npc_cars(void)
             if (invisible_car_num == -1)
                 continue;
             // Now put the car in the road start. Make it visible
-            cars_vertical[i][invisible_car_num].pos = (Vector2){stepX * 4 * i, 0};
+            cars_vertical[i][invisible_car_num].pos = (Vector2){stepX * 4 * i, -15.0f};
             cars_vertical[i][invisible_car_num].is_visible = true;
-            cars_vertical[i][invisible_car_num].start_pos = (Vector2){stepX * 4 * i, 0};
+            cars_vertical[i][invisible_car_num].start_pos = (Vector2){stepX * 4 * i, -15.0f};
             cars_vertical[i][invisible_car_num].end_pos = (Vector2){stepX * 4 * i, roadlength_y};
             cars_vertical[i][invisible_car_num].speed = (rand() % 25 + 10.0f) / 10.0f; // Formula for speed calculation.
             cars_vertical[i][invisible_car_num].col = choseRandomColour();
@@ -396,9 +397,9 @@ void update_npc_cars(void)
             if (invisible_car_num == -1)
                 continue;
             // Now put the car in the road start. Make it visible
-            cars_vertical[i][invisible_car_num].pos = (Vector2){stepX * 4 * i, roadlength_y};
+            cars_vertical[i][invisible_car_num].pos = (Vector2){stepX * 4 * i, roadlength_y + 15.0f};
             cars_vertical[i][invisible_car_num].is_visible = true;
-            cars_vertical[i][invisible_car_num].start_pos = (Vector2){stepX * 4 * i, roadlength_y};
+            cars_vertical[i][invisible_car_num].start_pos = (Vector2){stepX * 4 * i, roadlength_y + 15.0f};
             cars_vertical[i][invisible_car_num].end_pos = (Vector2){stepX * 4 * i, 0};
             cars_vertical[i][invisible_car_num].speed = (rand() % 25 + 10.0f) / 10.0f; // Formula for speed calculation.
             cars_vertical[i][invisible_car_num].col = choseRandomColour();
@@ -410,10 +411,10 @@ void init_cars(void)
 {
     for (int i = 0; i < NUM_OF_RECTANGLES_Y + 1; i++)       // for all x roads
         for (int j = 0; j < NUM_OF_NPC_CARS_ON_X_ROAD; j++) // for all cars on those roads
-            cars_horizontal[i][j] = (npc_car){false, NPC_CAR_CEMETARY, NPC_CAR_CEMETARY, NPC_CAR_CEMETARY, SIZE_OF_CAR_X, SIZE_OF_CAR_Y, SIZE_OF_CAR_Z, 0.0f, PURPLE,0};
+            cars_horizontal[i][j] = (npc_car){false, NPC_CAR_CEMETARY, NPC_CAR_CEMETARY, NPC_CAR_CEMETARY, SIZE_OF_CAR_X, SIZE_OF_CAR_Y, SIZE_OF_CAR_Z, 0.0f, PURPLE, 0};
     for (int i = 0; i < NUM_OF_RECTANGLES_X + 1; i++)       // for all y roads
         for (int j = 0; j < NUM_OF_NPC_CARS_ON_Y_ROAD; j++) // for all cars on those roads
-            cars_vertical[i][j] = (npc_car){false, NPC_CAR_CEMETARY, NPC_CAR_CEMETARY, NPC_CAR_CEMETARY, SIZE_OF_CAR_X, SIZE_OF_CAR_Y, SIZE_OF_CAR_Z, 0.0f, PURPLE,0};
+            cars_vertical[i][j] = (npc_car){false, NPC_CAR_CEMETARY, NPC_CAR_CEMETARY, NPC_CAR_CEMETARY, SIZE_OF_CAR_X, SIZE_OF_CAR_Y, SIZE_OF_CAR_Z, 0.0f, PURPLE, 0};
 }
 
 int check_for_car_crashes(Rectangle Player) // Checks for collisions with the npc cars.
@@ -496,8 +497,12 @@ void adjust_speedx(int i, int j) //(In npc.c)This function sets the speed of the
             }
         }
 
+        float safe_gap;
         // We have now just found the car directly in front. Now we check if that car is close enough to trigger the braking.(setting the speed of the current car equal to the car in front)
-        float safe_gap = 6.0f;
+        if (cars_horizontal[i][car_ahead_index].has_been_assigned == 3)
+            safe_gap = 38.0f;
+        else
+            safe_gap = 23.0f;
         if (car_ahead_index != -1 && min_dist < (cars_horizontal[i][j].sizeX + safe_gap))
         {
             // Match the speed of the car ahead
@@ -534,7 +539,12 @@ void adjust_speedx(int i, int j) //(In npc.c)This function sets the speed of the
         }
 
         // We have now just found the car directly in front. Now we check if that car is close enough to trigger the braking.(setting the speed of the current car equal to the car in front)
-        float safe_gap = 6.0f;
+        float safe_gap;
+        // We have now just found the car directly in front. Now we check if that car is close enough to trigger the braking.(setting the speed of the current car equal to the car in front)
+        if (cars_horizontal[i][car_ahead_index].has_been_assigned == 3)
+            safe_gap = 38.0f;
+        else
+            safe_gap = 23.0f;
         if (car_ahead_index != -1 && min_dist < (cars_horizontal[i][j].sizeX + safe_gap))
         {
             // Match the speed of the car ahead
@@ -578,7 +588,12 @@ void adjust_speedy(int i, int j) //(In npc.c)This function sets the speed of the
         }
 
         // We have now just found the car directly in front. Now we check if that car is close enough to trigger the braking.(setting the speed of the current car equal to the car in front)
-        float safe_gap = 6.0f;
+        float safe_gap;
+        // We have now just found the car directly in front. Now we check if that car is close enough to trigger the braking.(setting the speed of the current car equal to the car in front)
+        if (cars_vertical[i][car_ahead_index].has_been_assigned == 3)
+            safe_gap = 38.0f;
+        else
+            safe_gap = 23.0f;
         if (car_ahead_index != -1 && min_dist < (cars_vertical[i][j].sizeY + safe_gap))
         {
             // Match the speed of the car ahead
@@ -615,7 +630,12 @@ void adjust_speedy(int i, int j) //(In npc.c)This function sets the speed of the
         }
 
         // We have now just found the car directly in front. Now we check if that car is close enough to trigger the braking.(setting the speed of the current car equal to the car in front)
-        float safe_gap = 6.0f;
+        float safe_gap;
+        // We have now just found the car directly in front. Now we check if that car is close enough to trigger the braking.(setting the speed of the current car equal to the car in front)
+        if (cars_vertical[i][car_ahead_index].has_been_assigned == 3)
+            safe_gap = 38.0f;
+        else
+            safe_gap = 23.0f;
         if (car_ahead_index != -1 && min_dist < (cars_vertical[i][j].sizeX + safe_gap))
         {
             // Match the speed of the car ahead
@@ -662,7 +682,7 @@ void adress_traffic(void) //(in npc.c)This function creates a vertical and a hor
                 if (cars_horizontal[i][j].is_visible == false) // If the cars are invisible go to the end of the loop and ignore all the changes
                     continue;
                 // Now we need to remind to ourselves how we have set the parameters of the game and its core logic.
-                float cellXsize = WINDOW_WIDTH / ((float)NUM_OF_RECTANGLES_X * 4); // Remember the by 4 architecture(see docs).
+                float cellXsize = WINDOW_WIDTH / ((float)NUM_OF_RECTANGLES_X * 4); // Remember the by 4 architecture(ask us).
 
                 float distance = 0, min_distance = 10000.0f;
                 // We now need to find the minimum distance

@@ -64,7 +64,7 @@ void CreateWalls(void)//Sets the walls where they need to be.
         }
     }
 }
-// 4. Heuristic Function (Manhattan Distance)
+// Heuristic Function (Manhattan Distance)
 // We are using the MANHATAN heuristic technique since we implement only 4-direction movement (for this version).
 double calculateH(int x, int y, int destX, int destY)
 {
@@ -105,10 +105,6 @@ best_possible_path aStarSearch(int startX, int startY, int destX, int destY) // 
     // Loop until we find the destination
     while (true)
     {
-
-        // --- STEP 1: Find node with lowest f in the Open List ---
-        // (Note: In a huge map, use a Min-Heap/Priority Queue here for speed.
-        // For a simple grid, a loop is fine.)
         double minF = INFINITY;
         Node *current = NULL;
 
@@ -132,15 +128,12 @@ best_possible_path aStarSearch(int startX, int startY, int destX, int destY) // 
             return return_stucture;
         }
 
-        // --- STEP 2: Move Current from Open to Closed ---
         current->isOpen = false;
         current->isClosed = true;
 
         // Check if we reached the goal
         if (current->x == destX && current->y == destY)
         {
-
-            // --- STEP 3: Retrace Path (Backtracking) ---
             Node *pathNode = current;
             int counter = 0; // Counter variable
             while (pathNode->parentX != -1)
@@ -156,9 +149,6 @@ best_possible_path aStarSearch(int startX, int startY, int destX, int destY) // 
             return_stucture.result = 0;
             return return_stucture;
         }
-
-        // --- STEP 4: Check Neighbors ---
-        // Directions: Up, Down, Left, Right
         int dx[] = {-1, 1, 0, 0};
         int dy[] = {0, 0, -1, 1};
 
@@ -176,12 +166,10 @@ best_possible_path aStarSearch(int startX, int startY, int destX, int destY) // 
                 }
 
                 // Calculate tentative g cost
-                // Assumes cost to move 1 square is 1.0
                 double newG = current->g + 1.0;
                 double newH = calculateH(newX, newY, destX, destY);
                 double newF = newG + newH;
 
-                // If neighbor is not in Open List OR we found a shorter path to it
                 if (grid[newX][newY].f == INFINITY || newG < grid[newX][newY].g)
                 {
                     grid[newX][newY].g = newG;

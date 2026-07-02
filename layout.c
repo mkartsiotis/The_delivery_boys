@@ -1,7 +1,7 @@
 /*
  * Όνομα Παιχνιδιού: Ο Διανομέας (The Delivery Man)
  * Συγγραφείς: Καρτσιώτης Μιχαήλ, ΑΕΜ: 11892
- *             Κατσιμάνης Δημήτριος, ΑΕΜ:
+ *             Κατσιμάνης Δημήτριος, ΑΕΜ: 11895 
  *
  * Περιγραφή: Ανάπτυξη λογισμικού παιχνιδιού διανομέα στη γλώσσα C με τη χρήση της βιβλιοθήκης raylib.h
  *            Κανόνες παιχνιδιού - Οδηγίες: -Μετά την έναρξη του παιχνιδιού πατώντας space εισέσχεσθε στην κεντρική οθόνη.
@@ -15,6 +15,7 @@
  *                                          -Κάτω δεξιά στην οθόνη σας εμφανίζεται μία μπάρα με τη διαθέσιμη ποσότητα καυσίμου στη δεξαμενή. Λίγο πριν το απόθεμα στη δεξαμενή εξαντληθεί εμφανίζεται στο χάρτη πρατήριο με τη μορφή δοχείου καυσίμου σε σημείο που επισημαίνεται στον μικρό χάρτη πάνω και αριστερά στην οθόνη με λευκό κύκλο.
  *                                          -Λαμβάνωντας το δοχείο καυσίμου που εμφανλίζεται παρατείνεται η διάρκεια ζωής σας.
  *                                          -Το παιχνίδι τερματίζεται είτε με την σύγκρουσή σας με το αστυνομικό όχημα είτε με την εξάντληση του αποθετηρίου καυσίμων.
+ *                                          -Πατώντας space ενεργοποιείται το nitro.                                        
  *                                          -Στόχος: Η συγκέντωση όσο το δυνατόν περισσότερων χρημάτων που ξεκλειδώνουν επίπεδα και προνόμια.
  *
  * Copyright (C) 2025-2026 Καρτσιώτης Μιχαήλ και Κατσιμάνης Δημήτριος
@@ -40,7 +41,7 @@ void Initialize_Map(Rectangle (*map)[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X])
     // Here we create a map of blocks in a desired area..
     float stepX = (float)MAP_WIDTH / (NUM_OF_RECTANGLES_X * 4.0f); // Calculate stepX and StepY in the same way as the screen is spit into cells with the grid.
     float stepY = (float)MAP_HEIGHT / (NUM_OF_RECTANGLES_Y * 4.0f);
-    for (int i = 0; i < NUM_OF_RECTANGLES_Y; i++) // Temporary solution:Just split the window in the same way as grid to make it work. Later we will add random generation.
+    for (int i = 0; i < NUM_OF_RECTANGLES_Y; i++) 
     {                                             // REMEMBER IN RAYLIB A POSITION IS TOP+LEFT!!!!!!
         for (int j = 0; j < NUM_OF_RECTANGLES_X; j++)
         {
@@ -65,29 +66,28 @@ void set_game_parameters(ScreenStatus *GameScreen, NPC *npc) //(in layout.c) Set
         NUM_OF_NPC_CARS_ON_X_ROAD_ON_CURRENT_LEVEL = 0;
         NUM_OF_NPC_CARS_ON_Y_ROAD_ON_CURRENT_LEVEL = 0;
         speed = 0;
-        npc->speed = 0.7;
+        npc->speed = 0.8;
         break;
     case LEVEL2:
         NUM_OF_NPC_CARS_ON_X_ROAD_ON_CURRENT_LEVEL = 2;
         NUM_OF_NPC_CARS_ON_Y_ROAD_ON_CURRENT_LEVEL = 4;
-        npc->speed = 1.5;
+        npc->speed = 1.3;
         speed = 0;
         break;
     case LEVEL3:
-        NUM_OF_NPC_CARS_ON_X_ROAD_ON_CURRENT_LEVEL = 20;
-        NUM_OF_NPC_CARS_ON_Y_ROAD_ON_CURRENT_LEVEL = 15;
-        npc->speed = 2.5f;
+        NUM_OF_NPC_CARS_ON_X_ROAD_ON_CURRENT_LEVEL = 10;
+        NUM_OF_NPC_CARS_ON_Y_ROAD_ON_CURRENT_LEVEL = 5;
+        npc->speed = 1.5f;
         speed = 0;
         break;
     case LEVEL4:
         NUM_OF_NPC_CARS_ON_X_ROAD_ON_CURRENT_LEVEL = 3;
         NUM_OF_NPC_CARS_ON_Y_ROAD_ON_CURRENT_LEVEL = 3;
-        npc->speed = 3.1f;
+        npc->speed = 3.5f;
         speed = 0;
         break;
     default:
         return;
     }
-    volume = 0.05;
     GameScreen->isfitsttime = false;
 }

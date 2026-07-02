@@ -1,7 +1,7 @@
 /*
  * Όνομα Παιχνιδιού: Ο Διανομέας (The Delivery Man)
  * Συγγραφείς: Καρτσιώτης Μιχαήλ, ΑΕΜ: 11892
- *             Κατσιμάνης Δημήτριος, ΑΕΜ:
+ *             Κατσιμάνης Δημήτριος, ΑΕΜ: 11895 
  *
  * Περιγραφή: Ανάπτυξη λογισμικού παιχνιδιού διανομέα στη γλώσσα C με τη χρήση της βιβλιοθήκης raylib.h
  *            Κανόνες παιχνιδιού - Οδηγίες: -Μετά την έναρξη του παιχνιδιού πατώντας space εισέσχεσθε στην κεντρική οθόνη.
@@ -15,7 +15,8 @@
  *                                          -Κάτω δεξιά στην οθόνη σας εμφανίζεται μία μπάρα με τη διαθέσιμη ποσότητα καυσίμου στη δεξαμενή. Λίγο πριν το απόθεμα στη δεξαμενή εξαντληθεί εμφανίζεται στο χάρτη πρατήριο με τη μορφή δοχείου καυσίμου σε σημείο που επισημαίνεται στον μικρό χάρτη πάνω και αριστερά στην οθόνη με λευκό κύκλο.
  *                                          -Λαμβάνωντας το δοχείο καυσίμου που εμφανλίζεται παρατείνεται η διάρκεια ζωής σας.
  *                                          -Το παιχνίδι τερματίζεται είτε με την σύγκρουσή σας με το αστυνομικό όχημα είτε με την εξάντληση του αποθετηρίου καυσίμων.
- *                                          -Στόχος: Η συγκέντωση όσο το δυνατόν περισσότερων χρημάτων που ξεκλειδώνουν επίπεδα και προνόμια.                 
+ *                                          -Πατώντας space ενεργοποιείται το nitro.                                        
+ *                                          -Στόχος: Η συγκέντωση όσο το δυνατόν περισσότερων χρημάτων που ξεκλειδώνουν επίπεδα και προνόμια.
  *
  * Copyright (C) 2025-2026 Καρτσιώτης Μιχαήλ και Κατσιμάνης Δημήτριος
  *
@@ -62,53 +63,53 @@ Delivery_Location initialize_pickup_location(Rectangle map[NUM_OF_RECTANGLES_Y][
     if (PICKUP_SIDE == TOP2)
     {
         (coordinates.REAL).x += 2 * SIZE_OF_RECTANGLES_X / 3.0f;
-        coordinates.grid_x = block_x * 4 + 2; // We know we owe you an explanation...But in short this is the conversion algorithm(See docs).
+        coordinates.grid_x = block_x * 4 + 2; // We know we owe you an explanation...But in short this is the conversion algorithm.(due to limited time and resources the explanation will not be on the docs. Contact us if you wish to know more!)
         coordinates.grid_y = block_y * 4;
     }
     if (PICKUP_SIDE == TOP1)
     {
         (coordinates.REAL).x += SIZE_OF_RECTANGLES_X / 3.0f;
-        coordinates.grid_x = block_x * 4 + 1; // Similar to before(See docs).
+        coordinates.grid_x = block_x * 4 + 1; // Similar to before(ask us).
         coordinates.grid_y = block_y * 4;
     }
     if (PICKUP_SIDE == BOTTOM1)
     {
         (coordinates.REAL).x += SIZE_OF_RECTANGLES_X / 3.0f;
         (coordinates.REAL).y += SIZE_OF_RECTANGLES_Y;
-        coordinates.grid_x = block_x * 4 + 1; // Similar to before(See docs).
+        coordinates.grid_x = block_x * 4 + 1; // Similar to before.
         coordinates.grid_y = block_y * 4 + 3;
     }
     if (PICKUP_SIDE == BOTTOM2)
     {
         (coordinates.REAL).x += 2 * SIZE_OF_RECTANGLES_X / 3.0f;
         (coordinates.REAL).y += SIZE_OF_RECTANGLES_Y;
-        coordinates.grid_x = block_x * 4 + 2; // Similar to before(See docs).
+        coordinates.grid_x = block_x * 4 + 2; // Similar to before.
         coordinates.grid_y = block_y * 4 + 3;
     }
     if (PICKUP_SIDE == LEFT1)
     {
         (coordinates.REAL).y += SIZE_OF_RECTANGLES_Y / 3.0f;
-        coordinates.grid_x = block_x * 4; // Similar to before(See docs).
+        coordinates.grid_x = block_x * 4; // Similar to before.
         coordinates.grid_y = block_y * 4 + 1;
     }
     if (PICKUP_SIDE == LEFT2)
     {
         (coordinates.REAL).y += 2 * SIZE_OF_RECTANGLES_Y / 3.0f;
-        coordinates.grid_x = block_x * 4; // Similar to before(See docs).
+        coordinates.grid_x = block_x * 4; // Similar to before.
         coordinates.grid_y = block_y * 4 + 2;
     }
     if (PICKUP_SIDE == RIGHT1)
     {
         (coordinates.REAL).x += SIZE_OF_RECTANGLES_X;
         (coordinates.REAL).y += SIZE_OF_RECTANGLES_Y / 3.0f;
-        coordinates.grid_x = block_x * 4 + 3; // Similar to before(See docs).
+        coordinates.grid_x = block_x * 4 + 3; // Similar to before.
         coordinates.grid_y = block_y * 4 + 1;
     }
     if (PICKUP_SIDE == RIGHT2)
     {
         (coordinates.REAL).x += SIZE_OF_RECTANGLES_X;
         (coordinates.REAL).y += 2 * SIZE_OF_RECTANGLES_Y / 3.0f;
-        coordinates.grid_x = block_x * 4 + 3; // Similar to before(See docs).
+        coordinates.grid_x = block_x * 4 + 3; // Similar to before.
         coordinates.grid_y = block_y * 4 + 2;
     }
     coordinates.is_set = true;
@@ -128,46 +129,46 @@ Delivery_Location initialize_dropoff_location(Rectangle map[NUM_OF_RECTANGLES_Y]
     if (DROPOFF_SIDE == TOP2)
     {
         (coordinates.REAL).x += 2 * SIZE_OF_RECTANGLES_X / 3.0f;
-        coordinates.grid_x = block_x * 4 + 2; // We know we owe you an explanation...But in short this is the conversion algorithm(See docs).
+        coordinates.grid_x = block_x * 4 + 2; // We know we owe you an explanation...But in short this is the conversion algorithm.(due to limited time and resources the explanation will not be on the docs. Contact us if you wish to know more!)
         coordinates.grid_y = block_y * 4;
     }
     if (DROPOFF_SIDE == TOP1)
     {
         (coordinates.REAL).x += SIZE_OF_RECTANGLES_X / 3.0f;
-        coordinates.grid_x = block_x * 4 + 1; // Similar to before(See docs).
+        coordinates.grid_x = block_x * 4 + 1; // Similar to before.
         coordinates.grid_y = block_y * 4;
     }
     if (DROPOFF_SIDE == BOTTOM1)
     {
         (coordinates.REAL).x += SIZE_OF_RECTANGLES_X / 3.0f;
         (coordinates.REAL).y += SIZE_OF_RECTANGLES_Y;
-        coordinates.grid_x = block_x * 4 + 1; // Similar to before(See docs).
+        coordinates.grid_x = block_x * 4 + 1; // Similar to before.
         coordinates.grid_y = block_y * 4 + 3;
     }
     if (DROPOFF_SIDE == BOTTOM2)
     {
         (coordinates.REAL).x += 2 * SIZE_OF_RECTANGLES_X / 3.0f;
         (coordinates.REAL).y += SIZE_OF_RECTANGLES_Y;
-        coordinates.grid_x = block_x * 4 + 2; // Similar to before(See docs).
+        coordinates.grid_x = block_x * 4 + 2; // Similar to before.
         coordinates.grid_y = block_y * 4 + 3;
     }
     if (DROPOFF_SIDE == LEFT1)
     {
         (coordinates.REAL).y += SIZE_OF_RECTANGLES_Y / 3.0f;
-        coordinates.grid_x = block_x * 4; // Similar to before(See docs).
+        coordinates.grid_x = block_x * 4; // Similar to before.
         coordinates.grid_y = block_y * 4 + 1;
     }
     if (DROPOFF_SIDE == LEFT2)
     {
         (coordinates.REAL).y += 2 * SIZE_OF_RECTANGLES_Y / 3.0f;
-        coordinates.grid_x = block_x * 4; // Similar to before(See docs).
+        coordinates.grid_x = block_x * 4; // Similar to before.
         coordinates.grid_y = block_y * 4 + 2;
     }
     if (DROPOFF_SIDE == RIGHT1)
     {
         (coordinates.REAL).x += SIZE_OF_RECTANGLES_X;
         (coordinates.REAL).y += SIZE_OF_RECTANGLES_Y / 3.0f;
-        coordinates.grid_x = block_x * 4 + 3; // Similar to before(See docs).
+        coordinates.grid_x = block_x * 4 + 3; // Similar to before.
         coordinates.grid_y = block_y * 4 + 1;
     }
     if (DROPOFF_SIDE == RIGHT2)
@@ -200,7 +201,7 @@ void set_score_for_current_mission(Vector2 pos, Vector2 PICKUP, Vector2 DROPOFF,
 void deduce_score_for_mission(int n, int selected_mission_index) // Deduces score for current mission when called in main(for time deduction and punishment when hitting a car or when doing something illegal)
 {
     if (score_for_current_mission[selected_mission_index] > 0)
-        score_for_current_mission[selected_mission_index] -= n; // Probably an unecessary function but ok...
+        score_for_current_mission[selected_mission_index] -= n; // Probably an unnecessary function but ok...
 }
 // Gas staion logic
 Gas_Station refuel_station(void) //(In gamehandling.c)This is the function that is responsible for setting the gas station when the fuel low enough at a random position
@@ -238,7 +239,7 @@ void check_for_refuel(Gas_Station *STATION, Vector2 pos) //(In gamehandling.c)Ch
         // Check if the player is near to the station.
         if (fabs(pos.x - STATION->REAL.x) < MAN_RECTANGLE_WIDTH && fabs(pos.y - STATION->REAL.y) < MAN_RECTANGLE_HEIGHT)
         {
-            gas += 100;
+            gas += 170;
             (*STATION) = (Gas_Station){0};
         }
     }
@@ -308,7 +309,6 @@ void init_PICKUP_and_DROPOFF(Delivery_Location *PICKUP, Delivery_Location *DROPO
             false                   // is_pre_selected
         };
 
-        // Correct way to assign to DROPOFF[i]
         DROPOFF[i] = (Delivery_Location){
             {{-100, -100}, -1, -1},
             false,

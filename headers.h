@@ -1,7 +1,7 @@
 /*
  * Όνομα Παιχνιδιού: Ο Διανομέας (The Delivery Man)
  * Συγγραφείς: Καρτσιώτης Μιχαήλ, ΑΕΜ: 11892
- *             Κατσιμάνης Δημήτριος, ΑΕΜ:
+ *             Κατσιμάνης Δημήτριος, ΑΕΜ: 11895 
  *
  * Περιγραφή: Ανάπτυξη λογισμικού παιχνιδιού διανομέα στη γλώσσα C με τη χρήση της βιβλιοθήκης raylib.h
  *            Κανόνες παιχνιδιού - Οδηγίες: -Μετά την έναρξη του παιχνιδιού πατώντας space εισέσχεσθε στην κεντρική οθόνη.
@@ -15,6 +15,7 @@
  *                                          -Κάτω δεξιά στην οθόνη σας εμφανίζεται μία μπάρα με τη διαθέσιμη ποσότητα καυσίμου στη δεξαμενή. Λίγο πριν το απόθεμα στη δεξαμενή εξαντληθεί εμφανίζεται στο χάρτη πρατήριο με τη μορφή δοχείου καυσίμου σε σημείο που επισημαίνεται στον μικρό χάρτη πάνω και αριστερά στην οθόνη με λευκό κύκλο.
  *                                          -Λαμβάνωντας το δοχείο καυσίμου που εμφανλίζεται παρατείνεται η διάρκεια ζωής σας.
  *                                          -Το παιχνίδι τερματίζεται είτε με την σύγκρουσή σας με το αστυνομικό όχημα είτε με την εξάντληση του αποθετηρίου καυσίμων.
+ *                                          -Πατώντας space ενεργοποιείται το nitro.                                        
  *                                          -Στόχος: Η συγκέντωση όσο το δυνατόν περισσότερων χρημάτων που ξεκλειδώνουν επίπεδα και προνόμια.
  *
  * Copyright (C) 2025-2026 Καρτσιώτης Μιχαήλ και Κατσιμάνης Δημήτριος
@@ -47,6 +48,8 @@
 // For moving objects:
 // First we name what we want(e.g. SIZE). All words separated by '_'.See why we opted to use #DEFINE in the documentation
 //  Define some preset constatnts
+#ifndef AUDIO_H // Audio definitions
+#define AUDIO_H
 #define TIME_LIMIT 180 // Number of seconds in which the player has to fulfill all orders.
 #define MAP_WIDTH WINDOW_WIDTH
 #define MAP_HEIGHT WINDOW_HEIGHT
@@ -66,7 +69,7 @@
 #define NPC_SMART_DELAY 50
 #define SIZE_OF_CAR_X 5
 #define SIZE_OF_CAR_Y 5
-#define SIZE_OF_CAR_Z 4
+#define SIZE_OF_CAR_Z 3
 #define NUM_OF_NPC_CARS_ON_X_ROAD 30
 #define NUM_OF_NPC_CARS_ON_Y_ROAD 25
 
@@ -109,7 +112,7 @@ typedef struct
     int sizeX, sizeY, sizeZ; // Size of the NPC car defined with #DEFINE(check above)
     float speed;             // Speed of the npc car
     Color col;               // colour of the NPC car
-    int has_been_assigned;  //Checks if the model has been assigned
+    int has_been_assigned;   // Checks if the model has been assigned
 } npc_car;                   // This is our object type.
 
 // We are going to need a structure for communication between world and grid coordinates. Used in the return value of the set_pickup_and_dropoof_location.
@@ -158,7 +161,7 @@ typedef struct GasStationParameters
 enum Screen
 {
     PREVIEW0,
-    ISTRTUCTIONS,
+    INTRTUCTIONS,
     PREVIEW,
     LEVEL1,
     LEVEL2,
@@ -189,7 +192,8 @@ extern int npc_smart_counter;                                                   
 extern Vector2 target_npc_pos;                                                                                                                         // This is the old pos used in the update NPC and is the NPC target pos
 static const Vector2 NPC_CAR_CEMETARY = (Vector2){-2000, -2000};                                                                                       // Set the place where all the invisible cars will stay and this is used primarily for initialization purposes(might very well be unnecessary)
 extern npc_car cars_vertical[NUM_OF_RECTANGLES_X + 1][NUM_OF_NPC_CARS_ON_Y_ROAD], cars_horizontal[NUM_OF_RECTANGLES_Y + 1][NUM_OF_NPC_CARS_ON_X_ROAD]; // Create an array of cars for the X and Y axis respectively.
-extern float chaser_angle ;
+extern float chaser_angle;
+extern float speedMAX;
 
 extern int NUM_OF_NPC_CARS_ON_X_ROAD_ON_CURRENT_LEVEL; //(Initialized in npc.c)This is a variable that is used to determine the most ammount of cars that appear on each level
 extern int NUM_OF_NPC_CARS_ON_Y_ROAD_ON_CURRENT_LEVEL; //(Initialized in npc.c)This is a variable that is used to determine the most ammount of cars that appear on each level
@@ -198,33 +202,32 @@ extern int score_for_current_mission[NUM_OF_ITEMS_ON_LIST]; //(Initialized in ga
 extern float gas;                                           //(Initialized in gamehandling.c)This is the amount of gas in the tank of the scooter.
 extern Traffic_state Traffic_Cop;                           //(Initialized in npc.c)This just creates a vertica and a horizontal go to make the cars behave according to the law.
 
-
 // AUDIO PARAMETERS
-extern float engineFrequency; // The "Pitch" or RPM
-extern float phase;             // The "Position" in our wave cycle
-extern float volume;
+// extern float engineFrequency; // The "Pitch" or RPM
+// extern float phase;           // The "Position" in our wave cycle
+// extern float volume;
 // This is the 3d Model section. Declare all the models that are going to be used!
 extern Model GasStationModel; // This is the gas station model(as all models it is initialized in main.c before the window should close)
-extern Model Building;  //Same for the building
-extern Model playerModel;   // Same for the model of the player
-extern Model Chaser;   //Same for the chaser
-extern Model NPCmodel1; //Same for the first npc model
-extern Model NPCmodel2; //Same for the second npc model
-extern Model NPCmodel3; //Same for the third npc model
-
+extern Model Building;        // Same for the building
+extern Model playerModel;     // Same for the model of the player
+extern Model Chaser;          // Same for the chaser
+extern Model NPCmodel1;       // Same for the first npc model
+extern Model NPCmodel2;       // Same for the second npc model
+extern Model NPCmodel3;       // Same for the third npc model
+extern Model Fractals;        // Fractal Logic Model with perly noise!(implementation on the last minute)
 // Functions in all files. Syntax of comments is //(FILENAME_WHERE_FUNTCTION_IS_LOCATED) USE_AND_DEFINITION
 // Initialization functions
 void Initialize_Map(Rectangle (*map)[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X]); //(In layout.c) Initialize the map of the square blocks that will constitute the road
 
 // Drawing functions
-void draw_pickup_and_dropoff(Vector2 PICKUP, Vector2 DROPOFF);                                                         // Draws small circles around dropoff and pickup locations. Parameters are PICKUP and DROPOFF the array of the PICKUP and DROPOFF points.
-void draw_pickup_and_dropoff3D(Vector2 PICKUP, Vector2 DROPOFF);                                                       // Draws small circles around dropoff and pickup locations. Parameters are PICKUP and DROPOFF the array of the PICKUP and DROPOFF points.
-void DrawRectangles(Rectangle map[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X]);                                          // (In draw.c) Draw the array of Rectangles Initialized as map in the main void function to create a map. Parameters is the map array that we have to initialize draw and control the walls.
-void Draw_and_update_score_window(int sucessful_deliveries, int HIGH1, int HIGH2, int HIGH3, ScreenStatus GameScreen); //(In draw.c)Draws a score window
-void draw_astar_results(best_possible_path A_STAR_RESULT);                                                             // Draws A* results in 2D.
-void draw_astar_results3D(best_possible_path A_STAR_RESULT);                                                           // Draws A* results in 3D.
-void draw_npc(NPC chaser);                                                                                             // Draws an NPC
-void drawspeed(void);                                                                                                  //(in draw.c). Draws a speedometer.
+void draw_pickup_and_dropoff(Vector2 PICKUP, Vector2 DROPOFF);                                  // Draws small circles around dropoff and pickup locations. Parameters are PICKUP and DROPOFF the array of the PICKUP and DROPOFF points.
+void draw_pickup_and_dropoff3D(Vector2 PICKUP, Vector2 DROPOFF);                                // Draws small circles around dropoff and pickup locations. Parameters are PICKUP and DROPOFF the array of the PICKUP and DROPOFF points.
+void DrawRectangles(Rectangle map[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X]);                   // (In draw.c) Draw the array of Rectangles Initialized as map in the main void function to create a map. Parameters is the map array that we have to initialize draw and control the walls.
+void Draw_and_update_score_window(int sucessful_deliveries, int HIGH, ScreenStatus GameScreen); //(In draw.c)Draws a score window
+void draw_astar_results(best_possible_path A_STAR_RESULT);                                      // Draws A* results in 2D.
+void draw_astar_results3D(best_possible_path A_STAR_RESULT);                                    // Draws A* results in 3D.
+void draw_npc(NPC chaser);                                                                      // Draws an NPC
+void drawspeed(void);                                                                           //(in draw.c). Draws a speedometer.
 // Game logic functions
 bool check_for_collisions(Rectangle Player, Rectangle map[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X]); // (In player_movement.c) Check for collisions between the player and the grid objects
 void keep_in_boundaries(Vector2 *pos);                                                                //(In playe_movement)Checks and modifies the pos.x and pos.y if player is out of the window
@@ -242,12 +245,12 @@ void burn_fuel(void); //(In gamehandling.c)Decreases the fuel amount.
 // Draw functions(All in draw.c)
 void draw_fuel_bar(void);                                                                                                      //(In draw.c)Draws the remaining fuel in the deposit.
 void draw_grid(void);                                                                                                          //(In draw.c)Draws the grid of the big map in world-map coordinates. Note that this function does not draw the lines of the coordinates of the grid[i][j] but the outside sides of the rectangles that represent a 2D division of the map plane.
-void DrawCubes(Rectangle map[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X]);                                                       // Draws the cubes for the 3D version.
+void DrawCubes(Rectangle map[NUM_OF_RECTANGLES_Y][NUM_OF_RECTANGLES_X], Vector2 playerPos);                                    // Draws the cubes for the 3D version.
 void draw_npc3D(NPC chaser);                                                                                                   // Draws the NPC in 3d
-void draw_cars(void);                                                                                                          // Draws all the cars.
+void draw_cars(Vector3 camera3d);                                                                                              // Draws all cars
 void draw_mission_score(int selected_mission_index);                                                                           // Draws the score that is going to be awarded if no more points are deducted
-void DrawBambooHouse(Vector3 pos);                                                                                             // Draws the bamboohouse
 void Draw_list_of_deliveries(Delivery_Location PICKUP[NUM_OF_ITEMS_ON_LIST], Delivery_Location DROPOFF[NUM_OF_ITEMS_ON_LIST]); // Draws the list of possible deliveries
+void draw_nitro_bar(int t);                                                                                                    // DRAWS Nitro bar
 Color choseRandomColour(void);                                                                                                 // Returns a random color from rand and a decoding method.
 Color LerpColor(Color start, Color end, float factor);                                                                         //(in draw.c)Fades a color
 // A* functions
@@ -279,5 +282,10 @@ void deduce_score_for_mission(int n, int selected_mission_index);               
 Gas_Station refuel_station(void);                         //(In gamehandling.c)This is the function that is responsible for setting the gas station when the fuel low enough at a random position
 void print_refuel_station(Gas_Station SET_STATION);       //(In gamehandling.c)Prints the station if visible
 void check_for_refuel(Gas_Station *STATION, Vector2 pos); //(In gamehandling.c)Checks if the player is near to a gas station and refuels
-//AUDIO
-void AudioInputCallback(void *buffer, unsigned int frames);//This function  is a function with defined type according to raylib sound logic.
+// AUDIO
+void InitGameAudio();        // Initialize the audio
+void UpdateGameAudio(void);  // Update it every frame
+void StopGameAudio(void);    // Stop the music
+void CloseGameAudio(void);   // Unload the audio model
+void SwitchTrack(int track); // Switches audio tracks
+#endif

@@ -1,7 +1,7 @@
 /*
  * Όνομα Παιχνιδιού: Ο Διανομέας (The Delivery Man)
  * Συγγραφείς: Καρτσιώτης Μιχαήλ, ΑΕΜ: 11892
- *             Κατσιμάνης Δημήτριος, ΑΕΜ:
+ *             Κατσιμάνης Δημήτριος, ΑΕΜ: 11895
  *
  * Περιγραφή: Ανάπτυξη λογισμικού παιχνιδιού διανομέα στη γλώσσα C με τη χρήση της βιβλιοθήκης raylib.h
  *            Κανόνες παιχνιδιού - Οδηγίες: -Μετά την έναρξη του παιχνιδιού πατώντας space εισέσχεσθε στην κεντρική οθόνη.
@@ -15,6 +15,7 @@
  *                                          -Κάτω δεξιά στην οθόνη σας εμφανίζεται μία μπάρα με τη διαθέσιμη ποσότητα καυσίμου στη δεξαμενή. Λίγο πριν το απόθεμα στη δεξαμενή εξαντληθεί εμφανίζεται στο χάρτη πρατήριο με τη μορφή δοχείου καυσίμου σε σημείο που επισημαίνεται στον μικρό χάρτη πάνω και αριστερά στην οθόνη με λευκό κύκλο.
  *                                          -Λαμβάνωντας το δοχείο καυσίμου που εμφανλίζεται παρατείνεται η διάρκεια ζωής σας.
  *                                          -Το παιχνίδι τερματίζεται είτε με την σύγκρουσή σας με το αστυνομικό όχημα είτε με την εξάντληση του αποθετηρίου καυσίμων.
+ *                                          -Πατώντας space ενεργοποιείται το nitro.
  *                                          -Στόχος: Η συγκέντωση όσο το δυνατόν περισσότερων χρημάτων που ξεκλειδώνουν επίπεδα και προνόμια.
  *
  * Copyright (C) 2025-2026 Καρτσιώτης Μιχαήλ και Κατσιμάνης Δημήτριος
@@ -42,7 +43,7 @@ int main(void)
 {
     printf("WINDOW DIMENSIONS, %d, %d", WINDOW_WIDTH, WINDOW_HEIGHT);
     InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "The Delivery Man V0.2.0");
-    InitAudioDevice();
+    InitGameAudio(0);
     ToggleFullscreen();
     int monitor = GetCurrentMonitor();
     WINDOW_WIDTH = GetMonitorWidth(monitor);
@@ -50,6 +51,7 @@ int main(void)
     HideCursor();
     SetTargetFPS(60);
     /*This is the section where we initialize all the variables*/
+
     // First Create an array of RECTANGLES
     // For this we need to define a global constant variable which can be static since is constant and inline to just manage memory efficiently
     // See the header file for more info
@@ -69,7 +71,7 @@ int main(void)
     init_PICKUP_and_DROPOFF(PICKUP, DROPOFF);                                      // Initialize the array
     int selected_mission_index = -1;
     // Set the colour of the player just for debugging purposes
-    Color col = GREEN;
+    Color col = WHITE;
     // For debugging we add a variable that controls the grid drawing
     bool should_draw_grid = false;
     // Variables used in A*
@@ -85,7 +87,6 @@ int main(void)
     bool has_crushed_with_npc = false;
     init_cars(); // Initialize all cars
     // Camera logic and initialization
-    // IN MAIN SETUP
     Camera3D camera3d = {0};
     camera3d.position = (Vector3){
         0.0f, 800.0f, 800.0f}; // Camera is up in the sky (Y=20) and back a bit (Z=10)
@@ -107,10 +108,95 @@ int main(void)
     ScreenStatus GameScreen = {PREVIEW0, true, 0}; // Be careful!Here we set the locked levels to 0.
     enum Screen pre_load_screen = LEVEL1;
     // Models for 3D rendering
+    // FRACTALS - PERLY NOISE(NOT MUCH DEVELOPMENT BY US PRIMARILY FROM RAY EXAMPLES)
+    Image noiseImage = GenImagePerlinNoise(100, 100, 50, 50, 4.0f); // Create noise image
+    ImageFormat(&noiseImage, PIXELFORMAT_UNCOMPRESSED_R8G8B8A8);
 
+    Color *noisePixels = LoadImageColors(noiseImage);
+    int width = noiseImage.width;
+    int height = noiseImage.height;
+    float centerX = width / 2.0f;
+    float centerY = height / 2.0f;
+    float maxDist = width / 2.0f; // The radius of our island
+
+    for (int y = 0; y < height; y++)
+    {
+        for (int x = 0; x < width; x++)
+        {
+            // Calculate distance from center
+            float dx = x - centerX;
+            float dy = y - centerY;
+            float distanceFromCenter = sqrtf(dx * dx + dy * dy);
+            float distNormal = distanceFromCenter / maxDist;
+            float gradient = 1.0f;
+            if (distNormal > 0.7f)
+            {
+                // Linearly fade from 1.0 down to 0.0 at the edge
+                gradient = 1.0f - ((distNormal - 0.7f) / 0.3f);
+            }
+            if (gradient < 0.0f)
+                gradient = 0.0f;
+
+            int index = (y * width) + x;
+
+            // Current height from Perlin Noise
+            int currentHeight = noisePixels[index].r;
+            unsigned char newHeight = (unsigned char)(currentHeight * gradient);
+
+            // Apply to all channels (Grayscale)
+            noisePixels[index].r = newHeight;
+            noisePixels[index].g = newHeight;
+            noisePixels[index].b = newHeight;
+        }
+    }
+
+    UnloadImage(noiseImage); // Clear old data
+    noiseImage = GenImageColor(width, height, BLANK);
+    UnloadImage(noiseImage);
+    noiseImage.data = noisePixels;
+    noiseImage.width = width;
+    noiseImage.height = height;
+    noiseImage.format = PIXELFORMAT_UNCOMPRESSED_R8G8B8A8;
+    noiseImage.mipmaps = 1;
+    Mesh mesh = GenMeshHeightmap(noiseImage, (Vector3){100, 20, 100}); // Create mesh from image
+    Model Fractals = LoadModelFromMesh(mesh);
+    Image paintImage = ImageCopy(noiseImage);
+    Texture2D fractaltexture = LoadTextureFromImage(paintImage);
+    Color *pixels = LoadImageColors(paintImage);
+    int pixelCount = paintImage.width * paintImage.height;
+    for (int i = 0; i < pixelCount; i++) // COLOR LOAD
+    {
+        unsigned char height = pixels[i].r;
+
+        if (height < 85)
+        {
+            pixels[i] = (Color){76, 62, 40, 255};
+        }
+        else if (height < 145)
+        {
+            pixels[i] = (Color){50, 205, 50, 255};
+        }
+        else if (height < 195)
+        {
+            pixels[i] = (Color){139, 69, 19, 255};
+        }
+        else
+        {
+            pixels[i] = WHITE;
+        }
+    }
+    UpdateTexture(fractaltexture, pixels);
+
+    // Upload the modified pixels back to the GPU texture
+    UpdateTexture(fractaltexture, pixels);
+    Fractals.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = fractaltexture; // colour the model
+
+    UnloadImageColors(pixels); // Free the array created by LoadImageColors
+    UnloadImage(noiseImage);   // Free the noise image
+    UnloadImage(paintImage);   // Free the paint image
     // Player Cube(it is a model so that we can turn the cube by printing the model turned)
-
     // Load the player's model
+    int model_counter = 0;
     Chaser = LoadModel("LaPolizia.glb");
     Model playerModel = LoadModel("motor2.glb");
     if (playerModel.meshCount == 0)
@@ -170,24 +256,23 @@ int main(void)
     }
 
     RenderTexture2D minimap_texture = LoadRenderTexture(MAP_WIDTH, MAP_HEIGHT);
-    Texture2D wallTexture = LoadTexture("cityskyline.png");
     Texture2D PREVIEWTEXTURE = LoadTexture("Previewimage.png");
     Texture2D PREVIEWTEXTURE1 = LoadTexture("LEVEL1.png");
     Texture2D PREVIEWTEXTURE2 = LoadTexture("LEVEL2.png");
     Texture2D PREVIEWTEXTURE3 = LoadTexture("LEVEL3.png");
     Texture2D PREVIEWTEXTURE4 = LoadTexture("LEVEL4.png");
-
+    Texture2D INSTRUCTS = LoadTexture("PREVIEWSCREENINSTUCTIONS.png");
     // Start drawing onto this canvas (instead of the screen)
     BeginTextureMode(minimap_texture);
     ClearBackground(BLANK); // Make background transparent
     DrawRectangles(map);    // Draw the static red blocks ONCE
     EndTextureMode();
-    // User logs. File format: -%HIGHSCORE1-%HIGHSCORE2-%HIGHSCORE3-
+    // User logs. File format: -%HIGHSCORECOINS-
     FILE *file = fopen("userlogs.txt", "r+"); // Check if file is found and if so find it. If the file already exists it will open. If it does not exist a new file is automatically created.
     if (file == NULL)                         // If file is not found create one
     {
         file = fopen("userlogs.txt", "w+"); // Create a new file that can be read and written
-        fprintf(file, "-%06d-%06d-%06d-", 0, 0, 0);
+        fprintf(file, "-%06d-", 0);
         fflush(file);
         fclose(file);
         file = fopen("userlogs.txt", "r+");
@@ -195,8 +280,8 @@ int main(void)
     if (file == NULL) // If we are still unable to open a file just kill the program
         exit(EXIT_FAILURE);
     // Locked levels and previous highscores!
-    int HIGHSCORE1 = 0, HIGHSCORE2 = 0, HIGHSCORE3 = 0;
-    fscanf(file, "-%d-%d-%d-", &HIGHSCORE1, &HIGHSCORE2, &HIGHSCORE3); // scans and assigns the values to the highscores.
+    int HIGHSCORE = 0;
+    fscanf(file, "-%d-", &HIGHSCORE); // scans and assigns the values to the highscores.
     // Gas Refueling
     Gas_Station Gasoline_Refuel_Station = {0}; // This is a type gasstation and is used to set the parameters of the gas station that will be printed if neccessary.
     // Dark and vibrant modes
@@ -205,47 +290,48 @@ int main(void)
     float night_progress = 0.0f; // Tells how much are we in the dark mode
     // Initialize the grid
     initGrid();
-    // AUDIO
-    // Setup the stream (Sample Rate, Bit Depth, Channels)
-    AudioStream engineStream = LoadAudioStream(44100, 32, 1);
-
-    // Tell raylib our sound
-    SetAudioStreamCallback(engineStream, AudioInputCallback);
-
-    // Start the noise
-    PlayAudioStream(engineStream);
     // SRAND FOR ALL THE rANDOM FUNCS
     srand(time(NULL));
+    // NITRO
+    bool is_nitro_active = false;
+    bool is_nitro_ready = false;
+    int initialtime = 0;
     // Main game loop
     while (!WindowShouldClose())
     {
+        // Insert the background music
+        UpdateGameAudio();
         // Use a switch to tell which screen we are in
         switch (GameScreen.CurrentScreen)
         {
-        case PREVIEW0:
+        case INTRTUCTIONS:
+
             if (GetKeyPressed() != 0)
                 GameScreen.CurrentScreen = PREVIEW;
             break;
+        case PREVIEW0:
+            if (GetKeyPressed() != 0)
+                GameScreen.CurrentScreen = INTRTUCTIONS;
+            break;
         case PREVIEW:
-            volume = 0; // Set volume to 0;
-            // Game locked level logic! 1.Read the thersholds and set them!2. Let the player play iff the highscore has been completed!
+            //  Game locked level logic! 1.Read the thersholds and set them!2. Let the player play iff the highscore has been completed!
             if (IsKeyPressed(KEY_ENTER))
             {
                 if (pre_load_screen == LEVEL1)
                     GameScreen.CurrentScreen = pre_load_screen;
-                else if (pre_load_screen == LEVEL2 && HIGHSCORE1 > 10) // IMPORTANT!SET HIGHSCORE THRESHOLDS
+                else if (pre_load_screen == LEVEL2 && HIGHSCORE > 600) // IMPORTANT!SET HIGHSCORE THRESHOLDS
                     GameScreen.CurrentScreen = pre_load_screen;
-                else if (pre_load_screen == LEVEL3 && HIGHSCORE2 > 5)
+                else if (pre_load_screen == LEVEL3 && HIGHSCORE > 1200)
                     GameScreen.CurrentScreen = pre_load_screen;
-                else if (pre_load_screen == LEVEL4)
+                else if (pre_load_screen == LEVEL4 && HIGHSCORE > 2000)
                     GameScreen.CurrentScreen = pre_load_screen;
                 set_game_parameters(&GameScreen, &npc);
             }
-            else if ((IsKeyPressed(KEY_UP) || IsKeyPressed(KEY_LEFT)) && pre_load_screen != LEVEL4)
+            else if ((IsKeyPressed(KEY_DOWN) || IsKeyPressed(KEY_RIGHT)) && pre_load_screen != LEVEL4)
             {
                 pre_load_screen += 1;
             }
-            else if ((IsKeyPressed(KEY_DOWN)|| IsKeyPressed(KEY_LEFT)) && pre_load_screen != LEVEL1)
+            else if ((IsKeyPressed(KEY_UP) || IsKeyPressed(KEY_LEFT)) && pre_load_screen != LEVEL1)
             {
                 pre_load_screen -= 1;
             }
@@ -265,7 +351,7 @@ int main(void)
             G.Set up a drop of location
             H.Award the player*/
 
-            // Update Variables Section
+            // Update Variables Section(type N. TASK)
             // 1. MOVE PLAYER SECTION
             float movelength = delta_move();
             pos.x += movelength * sin(angleRad);
@@ -291,7 +377,7 @@ int main(void)
 
                 if (has_crushed_with_npc == false)
                 {
-                    deduce_score_for_mission(10, selected_mission_index); // Decrease the score if we ever crash}
+                    deduce_score_for_mission(10, selected_mission_index); // Decrease the score if we ever crash
                     has_crushed_with_npc = true;
                 }
             }
@@ -315,11 +401,16 @@ int main(void)
             current_grid_pos = RealToGrid(pos); // Calculate grid position of the player.
 
             // 2.SET PICKUP AND DROPOFF POSITIONS
-            burn_fuel();
-            burn_fuel();
-
-            burn_fuel();
-
+            if (GameScreen.CurrentScreen == LEVEL4)
+            {
+                burn_fuel();
+                burn_fuel();
+                burn_fuel();
+            }
+            else if (GameScreen.CurrentScreen == LEVEL4)
+                burn_fuel();
+            else
+                burn_fuel();
             // Burn the necessary fuel
             // Now we need to add the time limitation which we will also print on the window with the score
             // We are in the mission, so what we need is: A. We have the fuel
@@ -328,22 +419,50 @@ int main(void)
 
             if (gas <= 0) // If gas<=0 terminate mission due to reaching the gas limit
             {
-                col = GREEN;                              // Reset colour
-                mission_active = false;                   // Reset mission
-                picked_order = false;                     // Reset var for picking orders
-                init_PICKUP_and_DROPOFF(PICKUP, DROPOFF); // Re-initialize pickup and dropoff
-                gas = INITIAL_GASOLINE;
-                sucessful_deliveries = 0;
-                pos = (Vector2){
-                    0, 0};
-                turn_off_dark_mode = false;
-                turn_on_dark_mode = false;
-                backround_col = SKYBLUE;
-                night_progress = 0.0f;
-                Gasoline_Refuel_Station.isvisible = false;
-                // Now We are bad developers so we say game over!
                 GameScreen.CurrentScreen = GAMEOVER;
-                break; // Breaks from the switch.
+                // Move to the start of the second integer
+                //  We use fseek(file, 4, SEEK_SET) assuming -X--Y- where X is 1 digit
+                // We need to find the position!
+                fseek(file, 0, 0);
+                // Write the new value
+                int newscore = HIGHSCORE + sucessful_deliveries;
+                fprintf(file, "-%06d-", newscore);
+                fflush(file);
+                fseek(file, 0, 0);
+                fscanf(file, "-%06d-", &HIGHSCORE);
+                initialtime = 0;
+                speedMAX = 3;
+                Initialize_Map(&map);
+                CreateWalls(); // Now we create the rectangle of the player with parameters defined in headers
+                gas = INITIAL_GASOLINE;
+                pos = (Vector2){
+                    MAN_RECTANGLE_WIDTH / 2.0f, MAN_RECTANGLE_HEIGHT / 2.0f}; // Remember pos is the center so for the top-left corner we need adjustments
+                Player = (Rectangle){
+                    pos.x - (MAN_RECTANGLE_WIDTH / 2.0f), pos.y - (MAN_RECTANGLE_HEIGHT / 2.0f), MAN_RECTANGLE_WIDTH, MAN_RECTANGLE_HEIGHT};
+                mission_active = false;
+                picked_order = false;
+                sucessful_deliveries = 0;
+                deduce_score_counter = 0;
+                SwitchTrack(0);
+                init_PICKUP_and_DROPOFF(PICKUP, DROPOFF); // Re-initialize pickup and dropoff
+                col = WHITE;
+                should_draw_grid = false;
+                is_nitro_ready = false;
+                is_nitro_active = false;
+                a_star_counter = 0; // Counts how many times before A star is called
+                model_counter = 0;
+                npc.position.x = MAP_WIDTH - npc.WIDTH;
+                npc.HEIGHT = MAN_RECTANGLE_HEIGHT;
+                npc.WIDTH = MAN_RECTANGLE_WIDTH;
+                npc.speed = 2;
+                Gasoline_Refuel_Station.isvisible = false;
+                Gasoline_Refuel_Station.grid_x = 0;
+                Gasoline_Refuel_Station.grid_y = 0;
+                Gasoline_Refuel_Station.REAL = (Vector2){0.0f, 0.0f};
+
+                init_cars(); // Initialize all cars
+                WaitTime(1.5);
+                break;
             }
 
             // Stores the A*results in a same type variable
@@ -371,8 +490,8 @@ int main(void)
                         // Find shortest path and assign it to a_star_results
                         initGrid();
                         a_star_results = aStarSearch(current_grid_pos.gridX, current_grid_pos.gridY, PICKUP[i].grid_x, PICKUP[i].grid_y);
-                        fseek(file, 0, 0);                                                 // Go to the beginnig of the file
-                        fscanf(file, "-%d-%d-%d-", &HIGHSCORE1, &HIGHSCORE2, &HIGHSCORE3); // scans and assigns the values to the highscores.
+                        fseek(file, 0, 0);                // Go to the beginnig of the file
+                        fscanf(file, "-%d-", &HIGHSCORE); // scans and assigns the values to the highscores.
                     }
                 }
             }
@@ -387,32 +506,14 @@ int main(void)
                 }
                 else if (pos.x - (DROPOFF[selected_mission_index].REAL).x < MAN_RECTANGLE_WIDTH && pos.x - (DROPOFF[selected_mission_index].REAL).x > -MAN_RECTANGLE_WIDTH && pos.y - (DROPOFF[selected_mission_index].REAL).y < MAN_RECTANGLE_HEIGHT && pos.y - (DROPOFF[selected_mission_index].REAL).y > -MAN_RECTANGLE_HEIGHT && picked_order == true)
                 {
-                    col = GREEN;
+                    col = WHITE;
                     mission_active = false;
                     picked_order = false;
                     sucessful_deliveries += score_for_current_mission[selected_mission_index]; // Increase score by the amount of things left
                     score_for_current_mission[selected_mission_index] = 0;
                     // Check if we have surpassed the high score and then if so write the new score
-                    int HIGH_SCORE = 0;
                     fseek(file, 0, 0);
-                    if (GameScreen.CurrentScreen == LEVEL1)
-                        fscanf(file, "-%d-%*d-%*d-", &HIGH_SCORE);
-                    else if (GameScreen.CurrentScreen == LEVEL2)
-                        fscanf(file, "-%*d-%d-%*d-", &HIGH_SCORE);
-                    if (GameScreen.CurrentScreen == LEVEL3)
-                        fscanf(file, "-%*d-%*d-%d-", &HIGH_SCORE);
-
-                    if (HIGH_SCORE < sucessful_deliveries)
-                    {
-                        // Move to the start of the second integer
-                        //  We use fseek(file, 4, SEEK_SET) assuming -X--Y- where X is 1 digit
-                        // We need to find the position!
-
-                        fseek(file, ((GameScreen.CurrentScreen - 1) * 7 + 1), SEEK_SET);
-                        // Write the new value
-                        fprintf(file, "%06d-", sucessful_deliveries);
-                        fflush(file);
-                    }
+                    fscanf(file, "-%d-", &HIGHSCORE); // scans and assigns the values to the highscores.
                     DROPOFF[selected_mission_index] = (Delivery_Location){
                         {(Vector2){-100, -100}, -1, -1}, false, false, false};
                 }
@@ -447,20 +548,62 @@ int main(void)
 
             // 5. NPC section
             updateNPC(&npc, pos, map);
-            update_npc_cars();
+
+            if (model_counter % 4 == 0)
+                update_npc_cars();
+            if (model_counter > 10)
+                model_counter = 0;
             // 6. Gas Station
             if (Gasoline_Refuel_Station.isvisible == false)
                 Gasoline_Refuel_Station = refuel_station();
             check_for_refuel(&Gasoline_Refuel_Station, pos); // check if we are inside a station and perform a refuel if needed
             // 7. AUDIO
-            if (engineFrequency > 469.0)
-                engineFrequency = 95 + (npc_smart_counter % 5 + rand() % 5) + (speed / 4.0f) * 500.f;
-            else
-                engineFrequency = 95 + (npc_smart_counter % 5) + (speed / 4.0f) * 250.f;
+            // if (engineFrequency > 469.0)
+            //    engineFrequency = 95 + (npc_smart_counter % 5 + rand() % 5) + (speed / 4.0f) * 500.f;
+            // else
+            //    engineFrequency = 95 + (npc_smart_counter % 5) + (speed / 4.0f) * 250.f;
             // Check if the npc has caught the player
+            // 8. NITRO
+            if (initialtime < 902)
+                initialtime++;
+            if (initialtime > 900 && is_nitro_active == false && is_nitro_ready == false)
+            {
+                is_nitro_ready = true;
+            }
+            if (is_nitro_ready == true && is_nitro_active == false && IsKeyPressed(KEY_SPACE))
+            {
+                is_nitro_ready = false;
+                is_nitro_active = true;
+                speedMAX = 4;
+                SwitchTrack(1);
+                initialtime = 0;
+            }
+            if (is_nitro_ready == false && is_nitro_active == true && initialtime > (14 * 60))
+            {
+                is_nitro_ready = false;
+                is_nitro_active = false;
+                speedMAX = 3;
+                SwitchTrack(0);
+                initialtime = 0;
+            }
             if (check_if_caught(pos, npc) == 1)
             {
                 GameScreen.CurrentScreen = GAMEOVER;
+
+                // Move to the start of the second integer
+                //  We use fseek(file, 4, SEEK_SET) assuming -X--Y- where X is 1 digit
+                // We need to find the position!
+                fseek(file, 0, 0);
+                // Write the new value
+                int newscore = HIGHSCORE + sucessful_deliveries;
+                fprintf(file, "-%06d-", newscore);
+                fflush(file);
+                fseek(file, 0, 0);
+                fscanf(file, "-%06d-", &HIGHSCORE);
+                // Set to 0 initial time
+                initialtime = 0;
+                speedMAX = 3;
+                SwitchTrack(0);
                 Initialize_Map(&map);
                 CreateWalls(); // Now we create the rectangle of the player with parameters defined in headers
                 gas = INITIAL_GASOLINE;
@@ -473,12 +616,19 @@ int main(void)
                 sucessful_deliveries = 0;
                 deduce_score_counter = 0;
                 init_PICKUP_and_DROPOFF(PICKUP, DROPOFF); // Re-initialize pickup and dropoff
-                col = GREEN;
+                col = WHITE;
                 should_draw_grid = false;
+                is_nitro_ready = false;
+                is_nitro_active = false;
                 a_star_counter = 0; // Counts how many times before A star is called
+                model_counter = 0;
                 npc.position.x = MAP_WIDTH - npc.WIDTH;
                 npc.HEIGHT = MAN_RECTANGLE_HEIGHT;
                 npc.WIDTH = MAN_RECTANGLE_WIDTH;
+                Gasoline_Refuel_Station.isvisible = false;
+                Gasoline_Refuel_Station.grid_x = 0;
+                Gasoline_Refuel_Station.grid_y = 0;
+                Gasoline_Refuel_Station.REAL = (Vector2){0.0f, 0.0f};
                 npc.speed = 2;
                 init_cars(); // Initialize all cars
                 WaitTime(1.5);
@@ -520,7 +670,11 @@ int main(void)
         DrawFPS(900, 10);
         switch (GameScreen.CurrentScreen)
         {
+        case INTRTUCTIONS:
+            DrawTextureEx(INSTRUCTS, (Vector2){0.0f, 0.0f}, 0.0f, 1.5f, WHITE);
+            break;
         case PREVIEW0:
+            DrawText("MICHAEL KARTSIOTIS & KATSIMANIS DIMITRIS", ((int)WINDOW_WIDTH - 530), WINDOW_HEIGHT - 40, 20, WHITE);
             DrawTextureEx(PREVIEWTEXTURE, (Vector2){0, 0}, 0.0f, 1.5f, WHITE);
             float time_1 = GetTime();
             if ((int)time_1 % 2 == 0)
@@ -536,6 +690,8 @@ int main(void)
             float scale3 = ((float)WINDOW_WIDTH / 3.0f) / (float)PREVIEWTEXTURE3.width;
             float scale4 = ((float)WINDOW_WIDTH / 3.0f) / (float)PREVIEWTEXTURE4.width;
 
+            if (HIGHSCORE < 600)
+                DrawLine((WINDOW_WIDTH / 9.0f) - 2, (WINDOW_HEIGHT / 9.0f) - 2, (WINDOW_WIDTH / 9.0f) - 2 + (PREVIEWTEXTURE1.width * scale1), (WINDOW_HEIGHT / 9.0f) - 2 + (PREVIEWTEXTURE1.height * scale1), RED);
             ClearBackground(LIGHTGRAY);
             DrawTextureEx(PREVIEWTEXTURE1, (Vector2){WINDOW_WIDTH / 9, WINDOW_HEIGHT / 9}, 0, scale1, WHITE);
             DrawText("LEVEL 1", WINDOW_WIDTH / 9 + (PREVIEWTEXTURE1.width * scale1 / 2.0f) - (length / 2.0f), WINDOW_HEIGHT / 10 + ((float)PREVIEWTEXTURE1.height * scale1) + 25.0f, 20, BLACK);
@@ -556,11 +712,9 @@ int main(void)
             }
             else if (pre_load_screen == LEVEL2)
             {
-                // Use 5/9 for X, but check if you intended to change Y as well
                 float posX = (5 * WINDOW_WIDTH / 9.0f) - 2;
                 float posY = (WINDOW_HEIGHT / 9.0f) - 2;
 
-                // Ensure PREVIEWTEXTURE2 and scale2 are correct
                 float width = (PREVIEWTEXTURE2.width * scale2) + 4;
                 float height = (PREVIEWTEXTURE2.height * scale2) + 33;
 
@@ -569,11 +723,9 @@ int main(void)
             }
             else if (pre_load_screen == LEVEL3)
             {
-                // Use 5/9 for X, but check if you intended to change Y as well
                 float posX = (WINDOW_WIDTH / 9.0f) - 2;
                 float posY = (5 * WINDOW_HEIGHT / 9.0f) - 2;
 
-                // Ensure PREVIEWTEXTURE2 and scale2 are correct
                 float width = (PREVIEWTEXTURE2.width * scale2) + 4;
                 float height = (PREVIEWTEXTURE2.height * scale2) + 5;
 
@@ -587,47 +739,33 @@ int main(void)
             }
             else if (pre_load_screen == LEVEL4)
             {
-                // Use 5/9 for X, but check if you intended to change Y as well
                 float posX = (5 * WINDOW_WIDTH / 9.0f) - 2;
                 float posY = (5 * WINDOW_HEIGHT / 9.0f) - 2;
 
-                // Ensure PREVIEWTEXTURE2 and scale2 are correct
                 float width = (PREVIEWTEXTURE4.width * scale4) + 4;
                 float height = (PREVIEWTEXTURE4.height * scale4) + 5;
 
                 Rectangle Rec = {posX, posY, width, height};
                 DrawRectangleLinesEx(Rec, 6, ORANGE);
             }
+            char text_1[20] = {0};
+            sprintf(text_1, "COINS:%d", HIGHSCORE);
+            DrawText(text_1, 50, 50, 30, YELLOW);
             break;
         case GAMEOVER:
-            DrawText("GAME OVER. Press any key to continue", 400, 500, 50, RED);
+            ClearBackground(BLACK);
+            int text_length = MeasureText("GAME OVER. Press any key to continue", 50);
+            DrawText("GAME OVER. Press any key to continue", (WINDOW_WIDTH / 2) - (text_length / 2), WINDOW_HEIGHT / 2, 50, RED);
             break;
         default:
             // Start camera
             BeginMode3D(camera3d);
             DrawPlane((Vector3){
                           (float)WINDOW_WIDTH / 2.0f, -0.1, (float)WINDOW_HEIGHT / 2.0f},
-                      (Vector2){3000, 3000}, DARKGRAY);
-            // Here we implement the billboard logic which helps us make the outer barriers of the game
-            Vector3 wallPos = {-20.0f, 0.0f, -80.0f};
-            Vector3 lockUp = {0.0f, 1.0f, 0.0f};
-            Vector2 size = {50.0f, 50.0f};
-            Vector2 anchor = {0.5f, 0.0f};
-            Rectangle sourceRec = {0.0f, 0.0f, (float)wallTexture.width, (float)wallTexture.height};
-            // Draw command
-            DrawBillboardPro(
-                camera3d,
-                wallTexture,
-                sourceRec, // The image rectangle
-                wallPos,   // Position {0,0,0}
-                lockUp,    // Locked Axis (prevents falling over)
-                size,
-                anchor,
-                0.0f,
-                WHITE);
-
+                      (Vector2){3000, 2000}, (Color){50, 50, 50, 255});
             print_refuel_station(Gasoline_Refuel_Station);
-            DrawCubes(map);          // Draws map
+            if (model_counter == 0)
+                DrawCubes(map, pos); // Draws map
             DrawModelEx(playerModel, // Draw the model you load from the playerModel
                         (Vector3){pos.x, MAN_3D_HEIGHT - 0.5, pos.y},
                         (Vector3){0.0f, 1.0f, 0.0f},
@@ -641,9 +779,22 @@ int main(void)
                 draw_astar_results3D(a_star_results);
             }
             draw_npc3D(npc);
-            draw_cars();
+            if (model_counter == 0)
+                draw_cars((Vector3){pos.x, 0.0f, pos.y});
             if (should_draw_grid == true)
                 draw_grid();
+            // FRACTALS
+            if (pos.x < 40)
+                DrawModelEx(Fractals, (Vector3){-350.0f, -22.0f, (float)(WINDOW_HEIGHT / 2.0f) + 650}, (Vector3){0.0f, 1.0f, 0.0f}, 90.0f, (Vector3){13.0f, 6.0f, 0.6f}, WHITE);
+            // FRACTALS
+            else if (pos.x > WINDOW_WIDTH - 40)
+                DrawModelEx(Fractals, (Vector3){((float)WINDOW_WIDTH + 350.0f), -22.0f, (float)(WINDOW_HEIGHT / 2.0f) + 650}, (Vector3){0.0f, 1.0f, 0.0f}, 90.0f, (Vector3){13.0f, 6.0f, 0.6f}, WHITE);
+            // FRACTALS
+            if (pos.y < 35)
+                DrawModelEx(Fractals, (Vector3){(float)(WINDOW_HEIGHT / 2.0f) - 500, -22.0f, -350.0f}, (Vector3){0.0f, 1.0f, 0.0f}, 0.0f, (Vector3){19.0f, 6.0f, 0.6f}, WHITE);
+            // FRACTALS
+            else if (pos.y > WINDOW_HEIGHT - 35)
+                DrawModelEx(Fractals, (Vector3){(float)(WINDOW_HEIGHT / 2.0f) - 500, -22.0f, (float)WINDOW_HEIGHT + 350.0f}, (Vector3){0.0f, 1.0f, 0.0f}, 0.0f, (Vector3){19.0f, 6.0f, 0.6f}, WHITE);
             EndMode3D(); // End camera 3d
 
             // MINIMAP DRAW
@@ -659,8 +810,17 @@ int main(void)
             }
             if (mission_active == false)
                 Draw_list_of_deliveries(PICKUP, DROPOFF);
-
-            // 2. Start Clipping (Only draw inside this box)
+            float time = GetTime();
+            if (is_nitro_active == true && initialtime < 900)
+            {
+                int length = MeasureText("NITRO BOOST", 50);
+                int posXboostText = (WINDOW_WIDTH - length) / 2;
+                int posYboostText = WINDOW_HEIGHT - 150;
+                DrawText("NITRO BOOST", posXboostText, posYboostText, 50, (Color){(time / 255.0f) + 5, (125.0f * time) + 5, (150.0f * time) + 5, (float)(255.0f)});
+            }
+            else
+                draw_nitro_bar(initialtime);
+            // MINIMAP DRAW
             BeginScissorMode(1500, 50, MINIMAP_WIDTH, MINIMAP_HEIGHT);
 
             BeginMode2D(minimap_cam);
@@ -692,15 +852,15 @@ int main(void)
             draw_npc(npc);
             EndMode2D();
             EndScissorMode();
-
+            DrawText("MICHAEL KARTSIOTIS & KATSIMANIS DIMITRIS", ((int)WINDOW_WIDTH - 530), WINDOW_HEIGHT - 40, 20, WHITE);
             draw_fuel_bar();
             if (mission_active == true)
-                draw_mission_score(selected_mission_index);                                                     // Draw score that is going to be awarded if mission is active indeed
-            Draw_and_update_score_window(sucessful_deliveries, HIGHSCORE1, HIGHSCORE2, HIGHSCORE3, GameScreen); // Draw score
-            drawspeed();                                                                                        // Draws a speedometer.
+                draw_mission_score(selected_mission_index);                            // Draw score that is going to be awarded if mission is active indeed
+            Draw_and_update_score_window(sucessful_deliveries, HIGHSCORE, GameScreen); // Draw score
+            drawspeed();                                                               // Draws a speedometer.
             char ch[50] = {0};
             sprintf(ch, "GRID COORDS: %d %d", current_grid_pos.gridX, current_grid_pos.gridY);
-            DrawText(ch, 1400, 25, 20, WHITE);
+            DrawText(ch, 1700, 25, 20, WHITE);
             break; // Breaks from the switch loop
         }
         EndDrawing();
@@ -711,10 +871,16 @@ int main(void)
     UnloadTexture(PREVIEWTEXTURE2); // Unload Texture
     UnloadTexture(PREVIEWTEXTURE4); // Unload Texture
 
-    UnloadModel(playerModel);        // Unload the model we built
-    UnloadModel(GasStationModel);    // Unload the gas station model
-    UnloadModel(Building);           // Unload the building's model
-    UnloadAudioStream(engineStream); // Unload audio connection
+    UnloadModel(playerModel);     // Unload the model we built
+    UnloadModel(GasStationModel); // Unload the gas station model
+    UnloadModel(Building);        // Unload the building's model
+    UnloadModel(NPCmodel1);
+    UnloadModel(NPCmodel3);
+    UnloadModel(NPCmodel2);
+    UnloadTexture(INSTRUCTS);
+    UnloadTexture(fractaltexture);
+    UnloadModel(Fractals);
+    CloseAudioDevice();
     CloseWindow();
     fclose(file); // Closes the file
     return 0;
